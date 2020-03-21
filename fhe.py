@@ -3,10 +3,13 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-03-21T11:44:36+00:00
+# @Last modified time: 2020-03-21T11:53:55+00:00
 # @License: please see LICENSE file in project root
 
 import os
+import seal  # https://github.com/Huelse/SEAL-Python
+import numpy as np
+import pickle
 
 
 class Fhe(object):
@@ -33,7 +36,7 @@ class Fhe(object):
         args = args if args is not None else dict()
         self.home = os.path.expanduser("~")
         defaults = {
-
+            "fhe_data": None,
             "pylog": logger if logger is not None else print,
 
         }
