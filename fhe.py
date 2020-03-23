@@ -57,5 +57,5 @@ class Fhe(object):
 
 
 if __name__ == "__main__":
-    fhe = Fhe()
+    fhe = Fhe({"fhe_data": None})
     fhe.debug()

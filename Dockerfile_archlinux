@@ -1,6 +1,6 @@
 FROM archlinux:latest
 
-# Install dependencies
+# Install dependencies and retrieve seal-python files
 RUN pacman -Syyuu \
     base-devel \
     cmake \
@@ -11,13 +11,13 @@ RUN pacman -Syyuu \
     --noconfirm && \
     git clone https://github.com/DreamingRaven/seal-python
 
-# Build SEAL
+# Build SEAL packages in seal-python
 RUN cd /seal-python/SEAL/native/src && \
     cmake . && \
     make && \
     make install
 
-# Install requirements
+# Install requirements of seal-python
 RUN cd /seal-python/src && \
     pip3 install -r requirements.txt
 
@@ -29,7 +29,7 @@ RUN cd /seal-python/pybind11 && \
     make check -j 4 && \
     make install
 
-# Build wrapper
+# Package wrapper
 RUN cd /seal-python/src && \
     python3 setup.py build_ext -i && \
     python3 setup.py install
