@@ -1,0 +1,41 @@
+FROM archlinux:latest
+
+# Install dependencies
+RUN pacman -Syyuu \
+    base-devel \
+    cmake \
+    clang \
+    git \
+    python \
+    python-pip \
+    --noconfirm && \
+    git clone https://github.com/DreamingRaven/seal-python
+
+# Build SEAL
+RUN cd /seal-python/SEAL/native/src && \
+    cmake . && \
+    make && \
+    make install
+
+# Install requirements
+RUN cd /seal-python/src && \
+    pip3 install -r requirements.txt
+
+# Build pybind11
+RUN cd /seal-python/pybind11 && \
+    mkdir build && \
+    cd /seal-python/pybind11/build && \
+    cmake .. && \
+    make check -j 4 && \
+    make install
+
+# Build wrapper
+RUN cd /seal-python/src && \
+    python3 setup.py build_ext -i && \
+    python3 setup.py install
+
+# Clean-up
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# copy our files in
+COPY . /python-fhe
