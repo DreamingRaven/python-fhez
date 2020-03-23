@@ -7,7 +7,7 @@
 # @License: please see LICENSE file in project root
 
 import os
-import seal  # https://github.com/Huelse/SEAL-Python
+import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
 import numpy as np
 import pickle
 
