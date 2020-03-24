@@ -55,7 +55,13 @@ class Fhe(object):
                                 "return": object}
 
     def _merge_dictionary(self, *dicts):
-        """Given multiple dictionaries, merge together in order."""
+        """Given multiple dictionaries, merge together in order.
+
+        :param *dicts: dictionaries merged from low to high priority.
+        :type *dicts: dict list
+        :return: None.
+        :rtype: None
+        """
         result = {}
         for dictionary in dicts:
             result.update(dictionary)  # merge each dictionary in order
@@ -64,8 +70,13 @@ class Fhe(object):
     _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
 
     def debug(self):
-        """Display current internal state."""
+        """Display current internal state of all values.
+
+        :return: Returns the internal dictionary.
+        :rtype: dict
+        """
         self.args["pylog"](self.args)
+        return self.args
 
     debug.__annotations__ = {"return": None}
 
