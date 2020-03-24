@@ -33,6 +33,13 @@ class Fhe(object):
         """Init class with defaults.
 
         optionally accepts dictionary of default and logger overrides.
+
+        :param args: Optional arguments to override defaults.
+        :type args: dict
+        :param logger: Optional logger function to override default print.
+        :type logger: function
+        :return: Fhe object.
+        :rtype: object
         """
         args = args if args is not None else dict()
         self.home = os.path.expanduser("~")
@@ -44,6 +51,9 @@ class Fhe(object):
         self.args = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
 
+    __init__.__annotations__ = {"args": dict, "logger": print,
+                                "return": object}
+
     def _merge_dictionary(self, *dicts):
         """Given multiple dictionaries, merge together in order."""
         result = {}
@@ -51,9 +61,13 @@ class Fhe(object):
             result.update(dictionary)  # merge each dictionary in order
         return result
 
+    _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
+
     def debug(self):
         """Display current internal state."""
         self.args["pylog"](self.args)
+
+    debug.__annotations__ = {"return": None}
 
     def __setitem__(self, key, value):
         """Set a single arg or state by, (key, value)."""
@@ -81,6 +95,7 @@ class Fhe(object):
 
 
 class Fhe_tests(unittest.TestCase):
+    """Unit test class aggregating all tests for the encryption class"""
 
     def test_init(self):
         """Test fhe object initialisation, by using magic function"""
