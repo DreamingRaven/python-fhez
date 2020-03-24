@@ -81,13 +81,27 @@ class Fhe(object):
     debug.__annotations__ = {"return": None}
 
     def __setitem__(self, key, value):
-        """Set a single arg or state by, (key, value)."""
+        """Set a single arg or state by, (key, value).
+
+        :param key: Key to replace in internal dictionary.
+        :type key: string
+        :param value: Item to insert into the internal dictionary.
+        :type value: any
+        :return: Either the value held in that key or None.
+        :rtype: any
+        """
         self.args[key] = value
 
     __setitem__.__annotations__ = {"key": str, "value": any, "return": None}
 
     def __getitem__(self, key):
-        """Get a single arg or state by, (key, value)."""
+        """Get a single arg or state by, (key, value).
+
+        :param key: Key to look up in internal dictionary.
+        :type key: string
+        :return: Either the value held in that key or None.
+        :rtype: any
+        """
         try:
             return self.args[key]
         except KeyError:
@@ -96,7 +110,13 @@ class Fhe(object):
     __getitem__.__annotations__ = {"key": str, "return": any}
 
     def __delitem__(self, key):
-        """Delete a single arg or state by, (key, value)."""
+        """Delete a single arg or state by, (key, value).
+
+        :param key: Key to delete in internal dictionary.
+        :type key: string
+        :return: Either the value held in that key or None.
+        :rtype: any
+        """
         try:
             del self.args[key]
         except KeyError:
@@ -127,7 +147,6 @@ class Fhe_tests(unittest.TestCase):
         self.assertEqual(obj["test"], None)
 
     def test_merge_dictionary(self):
-        self.assertEqual(Fhe()._merge_dictionary({}, {}), {})
         self.assertEqual(Fhe()._merge_dictionary({"x": 1, "y": 1},
                                                  {"x": 2}), {"x": 2, "y": 1})
 
