@@ -45,6 +45,8 @@ class Fhe(object):
         self.home = os.path.expanduser("~")
         defaults = {
             "pylog": logger if logger is not None else print,
+            "fhe_scheme_type": seal.scheme_type.CKKS,
+            "fhe_poly_modulus_degree": 8192,
         }
         self.args = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
@@ -66,6 +68,31 @@ class Fhe(object):
         return result
 
     _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
+
+    def create_context(self, fhe_scheme_type=None,
+                       fhe_poly_modulus_degree=None):
+        """Create an encryption context for encrypting and decrypting data,
+        according to an implementation shceme.
+
+        :param fhe_scheme_type: seal.scheme_type to use for context.
+        :type fhe_scheme_type: seal.scheme_type
+        :return: Seal context to use for encryption.
+        :rtype: seal.SEALContext
+        """
+        scheme = fhe_scheme_type if fhe_scheme_type is not None \
+            else self.args["fhe_scheme_type"]
+        poly_mod_deg = fhe_poly_modulus_degree if fhe_poly_modulus_degree is \
+            not None else self.args["fhe_poly_modulus_degree"]
+        context = None
+
+        params = seal.EncryptionParameters(scheme)
+        params.set_poly_modulus_degree(poly_mod_deg)
+        # params.set_coeff_modulus(seal.CoeffModulus.Create())
+        self.args["fhe_context"] = context
+        return context
+
+    create_context.__annotations__ = {"fhe_scheme_type": seal.scheme_type,
+                                      "return": seal.SEALContext}
 
     def debug(self):
         """Display current internal state of all values.
@@ -147,6 +174,10 @@ class Fhe_tests(unittest.TestCase):
     def test_merge_dictionary(self):
         self.assertEqual(Fhe()._merge_dictionary({"x": 1, "y": 1},
                                                  {"x": 2}), {"x": 2, "y": 1})
+
+    def test_create_context(self):
+        context = Fhe().create_context()
+        print(type(context))
 
 
 if __name__ == "__main__":

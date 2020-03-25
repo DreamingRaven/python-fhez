@@ -2,4 +2,4 @@
 
 sudo docker build -t archer/fhe -f Dockerfile_archlinux .
 sudo docker run --gpus all -it archer/fhe /python-fhe/fhe.py
-sudo docker run --gpus all -it archer/fhe bash
+#sudo docker run --gpus all -it archer/fhe bash
