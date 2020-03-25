@@ -8,7 +8,7 @@
 
 import os
 import unittest
-# import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
+import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
 import numpy as np
 import pickle
 
@@ -44,9 +44,7 @@ class Fhe(object):
         args = args if args is not None else dict()
         self.home = os.path.expanduser("~")
         defaults = {
-            "fhe_data": None,
             "pylog": logger if logger is not None else print,
-
         }
         self.args = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
