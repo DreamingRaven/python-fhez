@@ -8,6 +8,10 @@ RUN pacman -Syyuu \
     git \
     python \
     python-pip \
+    python-sphinx \
+    python-sphinx-argparse \
+    python-sphinx_rtd_theme \
+    python-configargparse \
     --noconfirm && \
     git clone https://github.com/DreamingRaven/seal-python
 
