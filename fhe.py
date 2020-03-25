@@ -85,6 +85,11 @@ class Fhe(object):
             not None else self.args["fhe_poly_modulus_degree"]
         context = None
 
+        # self.args["pylog"](help(seal.CoeffModulus))
+        self.args["pylog"](seal.CoeffModulus.MaxBitCount(poly_mod_deg),
+                           "is the max number of bits we can use in the poly",
+                           "modulus degree")
+
         params = seal.EncryptionParameters(scheme)
         params.set_poly_modulus_degree(poly_mod_deg)
         # params.set_coeff_modulus(seal.CoeffModulus.Create())
