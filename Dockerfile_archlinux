@@ -12,8 +12,9 @@ RUN pacman -Syyuu \
     python-sphinx-argparse \
     python-sphinx_rtd_theme \
     python-configargparse \
-    --noconfirm && \
-    git clone https://github.com/DreamingRaven/seal-python
+    --noconfirm
+
+RUN git clone -b master https://github.com/DreamingRaven/seal-python
 
 # Build SEAL packages in seal-python
 RUN cd /seal-python/SEAL/native/src && \
