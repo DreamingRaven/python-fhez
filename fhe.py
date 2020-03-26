@@ -179,7 +179,7 @@ class Fhe(object):
         key_dict = {
             "fhe_public_key": keygen.public_key(),
             "fhe_secret_key": keygen.secret_key(),
-            "fhe_relin_key": keygen.relin_keys(),
+            "fhe_relin_keys": keygen.relin_keys(),
         }
         self.args = self._merge_dictionary(self.args, key_dict)
         return key_dict
@@ -278,6 +278,22 @@ class Fhe_tests(unittest.TestCase):
         fhe = Fhe({"pylog": null_printer})
         fhe.create_context()
         result = fhe.generate_keys()
+        self.assertIsInstance(
+            result, dict,
+            msg="Fhe().generate_keys did not return expected dictionary.")
+        for key in result:
+            self.assertIsNotNone(
+                result[key], msg="Fhe().generate_keys[{}] is None".format(key))
+            if(key == "fhe_public_key"):
+                self.assertIsInstance(result[key], seal.PublicKey)
+            elif(key == "fhe_secret_key"):
+                self.assertIsInstance(result[key], seal.SecretKey)
+            elif(key == "fhe_relin_keys"):
+                self.assertIsInstance(result[key], seal.RelinKeys)
+            else:
+                self.assertFalse(
+                    1,
+                    msg="result['{}'] is not a key we expect".format(key))
 
 
 def null_printer(*args):
