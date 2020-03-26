@@ -249,30 +249,36 @@ class Fhe_tests(unittest.TestCase):
     def test_init(self):
         """Test fhe object initialisation, by using magic function"""
         self.assertEqual(Fhe({"fhe_data": [30], "pylog": null_printer})
-                         ["fhe_data"], [30])
+                         ["fhe_data"], [30],
+                         msg="Init did not create our expected object.")
 
     def test_magic_get(self):
         obj = Fhe({"test": 30, "pylog": null_printer})
-        self.assertEqual(obj["test"], 30)
+        self.assertEqual(obj["test"], 30, msg="Magic get did not get.")
 
     def test_magic_set(self):
         obj = Fhe({"test": 30, "pylog": null_printer})
         obj["test"] = 40
-        self.assertEqual(obj["test"], 40)
+        self.assertEqual(obj["test"], 40, msg="Magic set did not set.")
 
     def test_magic_del(self):
         obj = Fhe({"test": 30, "pylog": null_printer})
         del obj["test"]
-        self.assertEqual(obj["test"], None)
+        self.assertEqual(obj["test"], None, msg="Magic del did not delete.")
 
     def test_merge_dictionary(self):
-        self.assertEqual(Fhe({"pylog": null_printer})
-                         ._merge_dictionary({"x": 1, "y": 1},
-                                            {"x": 2}), {"x": 2, "y": 1})
+        self.assertEqual(
+            Fhe({"pylog": null_printer})
+            ._merge_dictionary({"x": 1, "y": 1},
+                               {"x": 2}), {"x": 2, "y": 1},
+            msg="Fhe()._merge_dictionary did not merge dictionaries properly.")
 
     def test_create_context(self):
         context = Fhe({"pylog": null_printer}).create_context()
-        self.assertIsInstance(context, seal.SEALContext)
+        self.assertIsInstance(
+            context,
+            seal.SEALContext,
+            msg="Fhe().create_context() did not return a seal.SEALContext.")
 
     def test_generate_keys(self):
         fhe = Fhe({"pylog": null_printer})
