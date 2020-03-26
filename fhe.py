@@ -110,7 +110,7 @@ class Fhe(object):
 
             context = seal.SEALContext.Create(params)
             self.args["fhe_context"] = context
-            self.log_parameters(context)
+            # self.log_parameters(context)
             return context
         else:
             self.args["pylog"](self.args["fhe_coeff_modulus"],
@@ -168,6 +168,10 @@ class Fhe(object):
 
         Given encryption context keys will be stored in internal dictionary,
         and returned as a seperate dictionary.
+        :param fhe_context: Seal encryption context to use.
+        :type fhe_context: seal.SEALContext
+        :return: Dictionary containing public, secret, and relin keys.
+        :rtype: dict
         """
         context = fhe_context if fhe_context is not None else \
             self.args["fhe_context"]
@@ -177,7 +181,11 @@ class Fhe(object):
             "fhe_secret_key": keygen.secret_key(),
             "fhe_relin_key": keygen.relin_keys(),
         }
+        self.args = self._merge_dictionary(self.args, key_dict)
         return key_dict
+
+    generate_keys.__annotations__ = {"fhe_context": seal.SEALContext,
+                                     "return": dict}
 
     def debug(self):
         """Display current internal state of all values.
@@ -240,29 +248,40 @@ class Fhe_tests(unittest.TestCase):
 
     def test_init(self):
         """Test fhe object initialisation, by using magic function"""
-        self.assertEqual(Fhe({"fhe_data": [30]})["fhe_data"], [30])
+        self.assertEqual(Fhe({"fhe_data": [30], "pylog": null_printer})
+                         ["fhe_data"], [30])
 
     def test_magic_get(self):
-        obj = Fhe({"test": 30})
+        obj = Fhe({"test": 30, "pylog": null_printer})
         self.assertEqual(obj["test"], 30)
 
     def test_magic_set(self):
-        obj = Fhe({"test": 30})
+        obj = Fhe({"test": 30, "pylog": null_printer})
         obj["test"] = 40
         self.assertEqual(obj["test"], 40)
 
     def test_magic_del(self):
-        obj = Fhe({"test": 30})
+        obj = Fhe({"test": 30, "pylog": null_printer})
         del obj["test"]
         self.assertEqual(obj["test"], None)
 
     def test_merge_dictionary(self):
-        self.assertEqual(Fhe()._merge_dictionary({"x": 1, "y": 1},
-                                                 {"x": 2}), {"x": 2, "y": 1})
+        self.assertEqual(Fhe({"pylog": null_printer})
+                         ._merge_dictionary({"x": 1, "y": 1},
+                                            {"x": 2}), {"x": 2, "y": 1})
 
     def test_create_context(self):
-        context = Fhe().create_context()
-        print(type(context))
+        context = Fhe({"pylog": null_printer}).create_context()
+        self.assertIsInstance(context, seal.SEALContext)
+
+    def test_generate_keys(self):
+        fhe = Fhe({"pylog": null_printer})
+        fhe.create_context()
+        result = fhe.generate_keys()
+
+
+def null_printer(*args):
+    pass
 
 
 if __name__ == "__main__":
