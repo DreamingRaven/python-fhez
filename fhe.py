@@ -289,9 +289,9 @@ class Fhe(object):
         context = fhe_context if fhe_context is not None else \
             self.args["fhe_context"]
         encoder = seal.CKKSEncoder(context)
-        self.args["fhe_encoder_slot_count"] = encoder.slot_count()
-        self.args["pylog"]("Encoder number of slots",
-                           self.args["fhe_encoder_slot_count"])
+        # self.args["fhe_encoder_slot_count"] = encoder.slot_count()
+        # self.args["pylog"]("Encoder number of slots",
+        #                    self.args["fhe_encoder_slot_count"])
         self.args["fhe_encoder"] = encoder
         return encoder
 
@@ -462,12 +462,10 @@ class Fhe_tests(unittest.TestCase):
         encoder = fhe.get_encoder_ckks()
         self.assertIsInstance(encoder, seal.CKKSEncoder)
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder_slot_count"], int)
         # with overrides
         encoder = fhe.get_encoder_ckks(fhe_context=context)
         self.assertIsInstance(encoder, seal.CKKSEncoder)
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder_slot_count"], int)
 
     def test_get_encoder(self):
         # testing CKKS version not BFV yet
@@ -480,12 +478,10 @@ class Fhe_tests(unittest.TestCase):
         encoder = fhe.get_encoder()
         self.assertIsInstance(encoder, seal.CKKSEncoder)
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder_slot_count"], int)
         # with overrides
         encoder = fhe.get_encoder(fhe_context=context)
         self.assertIsInstance(encoder, seal.CKKSEncoder)
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder_slot_count"], int)
 
 
 def null_printer(*args):
