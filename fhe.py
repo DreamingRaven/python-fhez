@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-03-21T11:53:55+00:00
+# @Last modified time: 2020-03-27T15:05:23+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -34,6 +34,7 @@ class Fhe(object):
 
         optionally accepts dictionary of default and logger overrides.
 
+        :param data: Data to be used in encryption or decryption.
         :param args: Optional arguments to override defaults.
         :type args: dict
         :param logger: Optional logger function to override default print.
