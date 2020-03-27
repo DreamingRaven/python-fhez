@@ -29,7 +29,7 @@ class Fhe(object):
     :example: Fhe()
     """
 
-    def __init__(self, args=None, logger=None):
+    def __init__(self, data=None, args=None, logger=None):
         """Init class with defaults.
 
         optionally accepts dictionary of default and logger overrides.
@@ -42,6 +42,7 @@ class Fhe(object):
         :rtype: object
         """
         args = args if args is not None else dict()
+        self.data = data if data is not None else None
         self.home = os.path.expanduser("~")
         defaults = {
             "pylog": logger if logger is not None else print,
@@ -359,40 +360,40 @@ class Fhe_tests(unittest.TestCase):
 
     def test_init(self):
         """Test fhe object initialisation, by using magic function"""
-        self.assertEqual(Fhe({"fhe_data": [30], "pylog": null_printer})
+        self.assertEqual(Fhe(args={"fhe_data": [30], "pylog": null_printer})
                          ["fhe_data"], [30],
                          msg="Init did not create our expected object.")
 
     def test_magic_get(self):
-        obj = Fhe({"test": 30, "pylog": null_printer})
+        obj = Fhe(args={"test": 30, "pylog": null_printer})
         self.assertEqual(obj["test"], 30, msg="Magic get did not get.")
 
     def test_magic_set(self):
-        obj = Fhe({"test": 30, "pylog": null_printer})
+        obj = Fhe(args={"test": 30, "pylog": null_printer})
         obj["test"] = 40
         self.assertEqual(obj["test"], 40, msg="Magic set did not set.")
 
     def test_magic_del(self):
-        obj = Fhe({"test": 30, "pylog": null_printer})
+        obj = Fhe(args={"test": 30, "pylog": null_printer})
         del obj["test"]
         self.assertEqual(obj["test"], None, msg="Magic del did not delete.")
 
     def test_merge_dictionary(self):
         self.assertEqual(
-            Fhe({"pylog": null_printer})
+            Fhe(args={"pylog": null_printer})
             ._merge_dictionary({"x": 1, "y": 1},
                                {"x": 2}), {"x": 2, "y": 1},
             msg="Fhe()._merge_dictionary did not merge dictionaries properly.")
 
     def test_create_context(self):
-        context = Fhe({"pylog": null_printer}).create_context()
+        context = Fhe(args={"pylog": null_printer}).create_context()
         self.assertIsInstance(
             context,
             seal.SEALContext,
             msg="Fhe().create_context() did not return a seal.SEALContext.")
 
     def test_generate_keys(self):
-        fhe = Fhe({"pylog": null_printer})
+        fhe = Fhe(args={"pylog": null_printer})
         fhe.create_context()
         result = fhe.generate_keys()
         self.assertIsInstance(
@@ -413,7 +414,7 @@ class Fhe_tests(unittest.TestCase):
                     msg="result['{}'] is not a key we expect".format(key))
 
     def test_get_encryptor(self):
-        fhe = Fhe({"pylog": null_printer})
+        fhe = Fhe(args={"pylog": null_printer})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -427,7 +428,7 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(fhe["fhe_encryptor"], seal.Encryptor)
 
     def test_get_evaluator(self):
-        fhe = Fhe({"pylog": null_printer})
+        fhe = Fhe(args={"pylog": null_printer})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -440,7 +441,7 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(fhe["fhe_evaluator"], seal.Evaluator)
 
     def test_get_decryptor(self):
-        fhe = Fhe({"pylog": null_printer})
+        fhe = Fhe(args={"pylog": null_printer})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -454,8 +455,8 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
 
     def test_get_encoder_ckks(self):
-        fhe = Fhe({"pylog": null_printer,
-                   "fhe_scheme_type": seal.scheme_type.CKKS})
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -470,8 +471,8 @@ class Fhe_tests(unittest.TestCase):
     def test_get_encoder(self):
         # testing CKKS version not BFV yet
         # TODO add section for BFV when its ready
-        fhe = Fhe({"pylog": null_printer,
-                   "fhe_scheme_type": seal.scheme_type.CKKS})
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -486,8 +487,8 @@ class Fhe_tests(unittest.TestCase):
     def test_experiments(self):
         # testing CKKS version not BFV yet
         # TODO add section for BFV when its ready
-        fhe = Fhe({"pylog": null_printer,
-                   "fhe_scheme_type": seal.scheme_type.CKKS})
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
