@@ -483,6 +483,33 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(encoder, seal.CKKSEncoder)
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
 
+    def test_experiments(self):
+        # testing CKKS version not BFV yet
+        # TODO add section for BFV when its ready
+        fhe = Fhe({"pylog": null_printer,
+                   "fhe_scheme_type": seal.scheme_type.CKKS})
+        context = fhe.create_context()
+        keys = fhe.generate_keys()
+        # without overrides
+        encoder = fhe.get_encoder()
+        self.assertIsInstance(encoder, seal.CKKSEncoder)
+        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        # with overrides
+        encoder = fhe.get_encoder(fhe_context=context)
+        self.assertIsInstance(encoder, seal.CKKSEncoder)
+        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        slot_count = encoder.slot_count()
+
+        inputs = seal.DoubleVector()
+        curr_point = 0.0
+        step_size = 1.0 / (slot_count - 1)
+
+        for i in range(slot_count):
+            inputs.append(curr_point)
+            curr_point += step_size
+        print(pow(2.0, 40))
+        print(seal.DoubleVector(np.array(inputs)))
+
 
 def null_printer(*args):
     # do absoluteley nothing, i.e dont print
