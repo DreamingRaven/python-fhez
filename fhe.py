@@ -188,7 +188,15 @@ class Fhe(object):
                                      "return": dict}
 
     def get_encryptor(self, fhe_context=None, fhe_public_key=None):
-        """Get encryptor object."""
+        """Get encryptor object.
+
+        :param fhe_context: Seal context to use for encryption.
+        :type fhe_context: seal.SEALContext
+        :param fhe_public_key: Public key to be used for encryption.
+        :type fhe_public_key: seal.PublicKey
+        :return: Encryptor object to encrypt with.
+        :rtype: seal.Encryptor
+        """
         context = fhe_context if fhe_context is not None else \
             self.args["fhe_context"]
         public_key = fhe_public_key if fhe_public_key is not None else \
@@ -198,8 +206,47 @@ class Fhe(object):
         return encryptor
 
     get_encryptor.__annotations__ = {"fhe_context": seal.SEALContext,
-                                     "fhe_public_key": seal.PublicKey
-                                     "return": dict}
+                                     "fhe_public_key": seal.PublicKey,
+                                     "return": seal.Encryptor}
+
+    def get_evaluator(self, fhe_context=None):
+        """Get evaluator object.
+
+        :param fhe_context: Seal context to use for evaluation.
+        :type fhe_context: seal.SEALContext
+        :return: Evaluator object to evaluate circuits with.
+        :rtype: seal.Evaluator
+        """
+        context = fhe_context if fhe_context is not None else \
+            self.args["fhe_context"]
+        evaluator = seal.Evaluator(context)
+        self.args["fhe_evaluator"] = evaluator
+        return evaluator
+
+    get_evaluator.__annotations__ = {"fhe_context": seal.SEALContext,
+                                     "return": seal.Evaluator}
+
+    def get_decryptor(self, fhe_context=None, fhe_secret_key=None):
+        """Get decryptor object.
+
+        :param get_decryptor: Seal context to use for decryption.
+        :type fhe_context: seal.SEALContext
+        :param fhe_private_key: Private key to be used for decryption.
+        :type fhe_private_key: seal.PrivateKey
+        :return: Decryptor object to decrypt with.
+        :rtype: seal.Decryptor
+        """
+        context = fhe_context if fhe_context is not None else \
+            self.args["fhe_context"]
+        secret_key = fhe_secret_key if fhe_secret_key is not None else \
+            self.args["fhe_secret_key"]
+        decryptor = seal.Decryptor(context, secret_key)
+        self.args["fhe_decryptor"] = decryptor
+        return decryptor
+
+    get_decryptor.__annotations__ = {"fhe_context": seal.SEALContext,
+                                     "fhe_secret_key": seal.SecretKey,
+                                     "return": seal.Decryptor}
 
     def debug(self):
         """Display current internal state of all values.
@@ -314,6 +361,47 @@ class Fhe_tests(unittest.TestCase):
                 self.assertFalse(
                     1,
                     msg="result['{}'] is not a key we expect".format(key))
+
+    def test_get_encryptor(self):
+        fhe = Fhe({"pylog": null_printer})
+        context = fhe.create_context()
+        keys = fhe.generate_keys()
+        # without overrides
+        encryptor = fhe.get_encryptor()
+        self.assertIsInstance(encryptor, seal.Encryptor)
+        self.assertIsInstance(fhe["fhe_encryptor"], seal.Encryptor)
+        # with overrides
+        encryptor = fhe.get_encryptor(fhe_context=context,
+                                      fhe_public_key=keys["fhe_public_key"])
+        self.assertIsInstance(encryptor, seal.Encryptor)
+        self.assertIsInstance(fhe["fhe_encryptor"], seal.Encryptor)
+
+    def test_get_evaluator(self):
+        fhe = Fhe({"pylog": null_printer})
+        context = fhe.create_context()
+        keys = fhe.generate_keys()
+        # without overrides
+        evaluator = fhe.get_evaluator()
+        self.assertIsInstance(evaluator, seal.Evaluator)
+        self.assertIsInstance(fhe["fhe_evaluator"], seal.Evaluator)
+        # with overrides
+        evaluator = fhe.get_evaluator(fhe_context=context)
+        self.assertIsInstance(evaluator, seal.Evaluator)
+        self.assertIsInstance(fhe["fhe_evaluator"], seal.Evaluator)
+
+    def test_get_decryptor(self):
+        fhe = Fhe({"pylog": null_printer})
+        context = fhe.create_context()
+        keys = fhe.generate_keys()
+        # without overrides
+        decryptor = fhe.get_decryptor()
+        self.assertIsInstance(decryptor, seal.Decryptor)
+        self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
+        # with overrides
+        decryptor = fhe.get_decryptor(fhe_context=context,
+                                      fhe_secret_key=keys["fhe_secret_key"])
+        self.assertIsInstance(decryptor, seal.Decryptor)
+        self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
 
 
 def null_printer(*args):
