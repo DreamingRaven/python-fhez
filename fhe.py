@@ -248,6 +248,36 @@ class Fhe(object):
                                      "fhe_secret_key": seal.SecretKey,
                                      "return": seal.Decryptor}
 
+    def get_encoder(self, fhe_scheme_type=None, fhe_context=None):
+        """Get encoder depending on current scheme
+
+        :param fhe_scheme_type: Intended scheme type for checking.
+        :type fhe_scheme_type: seal.scheme_type
+        :param fhe_context: Seal context to use for encoding.
+        :type fhe_context: seal.SEALContext
+        :return: Encoder object.
+        :rtype: seal.CKKSEncoder
+        """
+        context = fhe_context if fhe_context is not None else \
+            self.args["fhe_context"]
+        scheme_type = fhe_scheme_type if fhe_scheme_type is not None else \
+            self.args["fhe_scheme_type"]
+
+        if(scheme_type != fhe_scheme_type):
+            self.args["pylog"](
+                "scheme mismatch, be carefull the context is correct")
+            # TODO complete this to make it rebuild the context
+        if(scheme_type == seal.scheme_type.CKKS):
+            return self.get_encoder_ckks(fhe_context=context)
+        elif(scheme_type == seal.scheme_type.BFV):
+            self.args["pylog"](
+                "BFV scheme is not currentley supported")
+            # TODO: complete this to make it error
+
+    get_encoder.__annotations__ = {"fhe_scheme_type": seal.scheme_type,
+                                   "fhe_context": seal.SEALContext,
+                                   "return": [seal.CKKSEncoder]}
+
     def get_encoder_ckks(self, fhe_context=None):
         """Get encoder object for CKKS scheme.
 
@@ -430,6 +460,22 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
         # with overrides
         encoder = fhe.get_encoder_ckks(fhe_context=context)
+        self.assertIsInstance(encoder, seal.CKKSEncoder)
+        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+
+    def test_get_encoder(self):
+        # testing CKKS version not BFV yet
+        # TODO add section for BFV when its ready
+        fhe = Fhe({"pylog": null_printer,
+                   "fhe_scheme_type": seal.scheme_type.CKKS})
+        context = fhe.create_context()
+        keys = fhe.generate_keys()
+        # without overrides
+        encoder = fhe.get_encoder()
+        self.assertIsInstance(encoder, seal.CKKSEncoder)
+        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        # with overrides
+        encoder = fhe.get_encoder(fhe_context=context)
         self.assertIsInstance(encoder, seal.CKKSEncoder)
         self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
 
