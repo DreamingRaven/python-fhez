@@ -187,6 +187,20 @@ class Fhe(object):
     generate_keys.__annotations__ = {"fhe_context": seal.SEALContext,
                                      "return": dict}
 
+    def get_encryptor(self, fhe_context=None, fhe_public_key=None):
+        """Get encryptor object."""
+        context = fhe_context if fhe_context is not None else \
+            self.args["fhe_context"]
+        public_key = fhe_public_key if fhe_public_key is not None else \
+            self.args["fhe_public_key"]
+        encryptor = seal.Encryptor(context, public_key)
+        self.args["fhe_encryptor"] = encryptor
+        return encryptor
+
+    get_encryptor.__annotations__ = {"fhe_context": seal.SEALContext,
+                                     "fhe_public_key": seal.PublicKey
+                                     "return": dict}
+
     def debug(self):
         """Display current internal state of all values.
 
