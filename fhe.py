@@ -248,6 +248,23 @@ class Fhe(object):
                                      "fhe_secret_key": seal.SecretKey,
                                      "return": seal.Decryptor}
 
+    def get_encoder_ckks(self, fhe_context=None):
+        """Get encoder object for CKKS scheme.
+
+        :param fhe_context: Seal context to use for encoding.
+        :type fhe_context: seal.SEALContext
+        :return: Encoder object.
+        :rtype: seal.CKKSEncoder
+        """
+        context = fhe_context if fhe_context is not None else \
+            self.args["fhe_context"]
+        encoder = seal.CKKSEncoder(context)
+        self.args["fhe_encoder"] = encoder
+        return encoder
+
+    get_encoder_ckks.__annotations__ = {"fhe_context": seal.SEALContext,
+                                        "return": seal.CKKSEncoder}
+
     def debug(self):
         """Display current internal state of all values.
 
@@ -402,6 +419,19 @@ class Fhe_tests(unittest.TestCase):
                                       fhe_secret_key=keys["fhe_secret_key"])
         self.assertIsInstance(decryptor, seal.Decryptor)
         self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
+
+    def test_get_encoder_ckks(self):
+        fhe = Fhe({"pylog": null_printer})
+        context = fhe.create_context()
+        keys = fhe.generate_keys()
+        # without overrides
+        encoder = fhe.get_encoder_ckks()
+        self.assertIsInstance(encoder, seal.CKKSEncoder)
+        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        # with overrides
+        encoder = fhe.get_encoder_ckks(fhe_context=context)
+        self.assertIsInstance(encoder, seal.CKKSEncoder)
+        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
 
 
 def null_printer(*args):
