@@ -451,7 +451,8 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
 
     def test_get_encoder_ckks(self):
-        fhe = Fhe({"pylog": null_printer})
+        fhe = Fhe({"pylog": null_printer,
+                   "fhe_scheme_type": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -481,6 +482,7 @@ class Fhe_tests(unittest.TestCase):
 
 
 def null_printer(*args):
+    # do absoluteley nothing, i.e dont print
     pass
 
 
