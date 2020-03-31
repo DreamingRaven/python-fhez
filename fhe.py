@@ -3,13 +3,14 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-03-31T12:07:53+01:00
+# @Last modified time: 2020-03-31T17:25:45+01:00
 # @License: please see LICENSE file in project root
 
 import os
 import unittest
 import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
 import numpy as np
+import math
 import pickle
 
 
@@ -52,6 +53,10 @@ class Fhe(object):
             "fhe_coeff_modulus": [60, 40, 40, 60],
             "fhe_context": None,
             "fhe_scale": pow(2.0, 40),
+            "fhe_private_key": None,
+            "fhe_secret_key": None,
+            "fhe_relin_keys": None,
+            # "": None,
         }
         self.state = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
@@ -490,7 +495,6 @@ class Fhe_tests(unittest.TestCase):
 
     def test_experiments(self):
         # testing CKKS version not BFV yet
-        # TODO add section for BFV when its ready
         fhe = Fhe(args={"fhe_scheme": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
@@ -505,7 +509,7 @@ class Fhe_tests(unittest.TestCase):
         for i in range(slot_count):
             inputs.append(curr_point)
             curr_point += step_size
-        scale = pow(2.0, 40)
+
         # encoding
         x_plain = seal.Plaintext()
         plain_coeff3 = seal.Plaintext()
@@ -523,7 +527,102 @@ class Fhe_tests(unittest.TestCase):
         fhe.state["fhe_encoder"].encode(1,
                                         fhe.state["fhe_scale"],
                                         plain_coeff0)
+
         # encrypting
+        fhe.get_encryptor()
+        x1_encrypted = seal.Ciphertext()
+        x1_encrypted_coeff3 = seal.Ciphertext()
+        x3_encrypted = seal.Ciphertext()
+        fhe.state["fhe_encryptor"].encrypt(x_plain, x1_encrypted)
+
+        # evaluating PI*x^3 + 0.4x + 1
+        fhe.get_evaluator()
+        # # x^2
+        fhe.state["fhe_evaluator"].square(x1_encrypted, x3_encrypted)
+        fhe.state["fhe_evaluator"].relinearize_inplace(
+            x3_encrypted,
+            fhe.state["fhe_relin_keys"])
+        # # # when math.log(x3_encrypted.scale(), 2) exceeds 80 prior to new
+        # # # computation then we need to rescale
+        fhe.state["fhe_evaluator"].rescale_to_next_inplace(x3_encrypted)
+        # # PI*x
+        fhe.state["fhe_evaluator"].multiply_plain(x1_encrypted,
+                                                  plain_coeff3,
+                                                  x1_encrypted_coeff3)
+        fhe.state["fhe_evaluator"].rescale_to_next_inplace(x1_encrypted_coeff3)
+        # # (PI*x)*(x^2)
+        fhe.state["fhe_evaluator"].multiply_inplace(x3_encrypted,
+                                                    x1_encrypted_coeff3)
+        fhe.state["fhe_evaluator"].relinearize_inplace(
+            x3_encrypted,
+            fhe.state["fhe_relin_keys"])
+        fhe.state["fhe_evaluator"].rescale_to_next_inplace(x3_encrypted)
+        # # 0.4*x
+        fhe.state["fhe_evaluator"].multiply_plain_inplace(x1_encrypted,
+                                                          plain_coeff1)
+        fhe.state["fhe_evaluator"].rescale_to_next_inplace(x1_encrypted)
+        print(enc_scale_bits(x3_encrypted))
+        # # set scales of encrypted partials to be the same
+        x3_encrypted.scale(fhe.state["fhe_scale"])
+        x1_encrypted.scale(fhe.state["fhe_scale"])
+        # # # print out current scales they should be the same
+        print(x3_encrypted.scale())
+        print(x1_encrypted.scale())
+        print(plain_coeff0.scale())  # this was never modified so no change
+        # # find out which has been rescaled the most i.e lowest on chain
+        print(context.get_context_data(x3_encrypted.parms_id()).chain_index())
+        last_parms_id = x3_encrypted.parms_id()
+        fhe.state["fhe_evaluator"].mod_switch_to_inplace(x1_encrypted,
+                                                         last_parms_id)
+        fhe.state["fhe_evaluator"].mod_switch_to_inplace(plain_coeff0,
+                                                         last_parms_id)
+        # # finally add together (PI*x^3)+(0.4*x)+1
+        encrypted_result = seal.Ciphertext()
+
+        fhe.state["fhe_evaluator"].add(x3_encrypted,
+                                       x1_encrypted,
+                                       encrypted_result)
+        fhe.state["fhe_evaluator"].add_plain_inplace(encrypted_result,
+                                                     plain_coeff0)
+
+        # decrypt
+        plain_result = seal.Plaintext()
+        fhe.get_decryptor()
+        fhe.state["fhe_decryptor"].decrypt(encrypted_result, plain_result)
+        result = seal.DoubleVector()
+        fhe.state["fhe_encoder"].decode(plain_result, result)
+        print_vector(result, 3, 7)
+
+        # get true result
+        plain_result = seal.Plaintext()
+        true_result = []
+        for x in inputs:
+            true_result.append((3.14159265 * x * x + 0.4) * x + 1)
+        print_vector(true_result, 3, 7)
+
+
+def print_vector(vec, print_size=4, prec=3):
+    slot_count = len(vec)
+    print()
+    if slot_count <= 2*print_size:
+        print("    [", end="")
+        for i in range(slot_count):
+            print(" " + (f"%.{prec}f" % vec[i]) +
+                  ("," if (i != slot_count - 1) else " ]\n"), end="")
+    else:
+        print("    [", end="")
+        for i in range(print_size):
+            print(" " + (f"%.{prec}f" % vec[i]) + ",", end="")
+        if len(vec) > 2*print_size:
+            print(" ...,", end="")
+        for i in range(slot_count - print_size, slot_count):
+            print(" " + (f"%.{prec}f" % vec[i]) +
+                  ("," if (i != slot_count - 1) else " ]\n"), end="")
+    print()
+
+
+def enc_scale_bits(ciphertext):
+    return math.log(ciphertext.scale(), 2)
 
 
 def null_printer(*args):
