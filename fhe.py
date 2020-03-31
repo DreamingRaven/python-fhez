@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-03-27T15:05:23+00:00
+# @Last modified time: 2020-03-31T12:07:53+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -51,8 +51,9 @@ class Fhe(object):
             "fhe_poly_modulus_degree": 8192,
             "fhe_coeff_modulus": [60, 40, 40, 60],
             "fhe_context": None,
+            "fhe_scale": pow(2.0, 40),
         }
-        self.args = self._merge_dictionary(defaults, args)
+        self.state = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
 
     __init__.__annotations__ = {"args": dict, "logger": print,
@@ -90,36 +91,36 @@ class Fhe(object):
         """
         # manage all inputs
         scheme = fhe_scheme_type if fhe_scheme_type is not None \
-            else self.args["fhe_scheme_type"]
+            else self.state["fhe_scheme_type"]
         poly_mod_deg = fhe_poly_modulus_degree if fhe_poly_modulus_degree is \
-            not None else self.args["fhe_poly_modulus_degree"]
+            not None else self.state["fhe_poly_modulus_degree"]
         coeff_mod = fhe_coeff_modulus if fhe_coeff_modulus is not None else \
-            self.args["fhe_coeff_modulus"]
+            self.state["fhe_coeff_modulus"]
 
-        self.args["pylog"](seal.CoeffModulus.MaxBitCount(poly_mod_deg),
-                           "is the max number of bits we can use in the poly",
-                           "modulus degree")
+        self.state["pylog"](seal.CoeffModulus.MaxBitCount(poly_mod_deg),
+                            "is the max number of bits we can use in the poly",
+                            "modulus degree")
         # check if we exceed the maximum number of bits in coefficient modulus
         max_bit_count = seal.CoeffModulus.MaxBitCount(poly_mod_deg)
-        bit_count = np.array(self.args["fhe_coeff_modulus"]).sum()
+        bit_count = np.array(self.state["fhe_coeff_modulus"]).sum()
         if(bit_count <= max_bit_count):
 
             params = seal.EncryptionParameters(scheme)
             params.set_poly_modulus_degree(poly_mod_deg)
             params.set_coeff_modulus(
                 seal.CoeffModulus.Create(poly_mod_deg,
-                                         self.args["fhe_coeff_modulus"]))
+                                         self.state["fhe_coeff_modulus"]))
 
             context = seal.SEALContext.Create(params)
-            self.args["fhe_context"] = context
+            self.state["fhe_context"] = context
             # self.log_parameters(context)
             return context
         else:
-            self.args["pylog"](self.args["fhe_coeff_modulus"],
-                               "exceeds the maximum number of bits for a",
-                               "poly_modulus_degree of:",
-                               poly_mod_deg, "which is a cumulative total of:",
-                               max_bit_count)
+            self.state["pylog"](self.state["fhe_coeff_modulus"],
+                                "exceeds the maximum number of bits for a",
+                                "poly_modulus_degree of:",
+                                poly_mod_deg, "which is a cumulative total of:",
+                                max_bit_count)
             return None
 
     create_context.__annotations__ = {"fhe_scheme_type": seal.scheme_type,
@@ -135,7 +136,7 @@ class Fhe(object):
         :rtype: None
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         context_data = context.key_context_data()
         if context_data.parms().scheme() == seal.scheme_type.BFV:
             scheme_name = "BFV"
@@ -176,14 +177,14 @@ class Fhe(object):
         :rtype: dict
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         keygen = seal.KeyGenerator(context)
         key_dict = {
             "fhe_public_key": keygen.public_key(),
             "fhe_secret_key": keygen.secret_key(),
             "fhe_relin_keys": keygen.relin_keys(),
         }
-        self.args = self._merge_dictionary(self.args, key_dict)
+        self.state = self._merge_dictionary(self.state, key_dict)
         return key_dict
 
     generate_keys.__annotations__ = {"fhe_context": seal.SEALContext,
@@ -200,11 +201,11 @@ class Fhe(object):
         :rtype: seal.Encryptor
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         public_key = fhe_public_key if fhe_public_key is not None else \
-            self.args["fhe_public_key"]
+            self.state["fhe_public_key"]
         encryptor = seal.Encryptor(context, public_key)
-        self.args["fhe_encryptor"] = encryptor
+        self.state["fhe_encryptor"] = encryptor
         return encryptor
 
     get_encryptor.__annotations__ = {"fhe_context": seal.SEALContext,
@@ -220,9 +221,9 @@ class Fhe(object):
         :rtype: seal.Evaluator
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         evaluator = seal.Evaluator(context)
-        self.args["fhe_evaluator"] = evaluator
+        self.state["fhe_evaluator"] = evaluator
         return evaluator
 
     get_evaluator.__annotations__ = {"fhe_context": seal.SEALContext,
@@ -239,11 +240,11 @@ class Fhe(object):
         :rtype: seal.Decryptor
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         secret_key = fhe_secret_key if fhe_secret_key is not None else \
-            self.args["fhe_secret_key"]
+            self.state["fhe_secret_key"]
         decryptor = seal.Decryptor(context, secret_key)
-        self.args["fhe_decryptor"] = decryptor
+        self.state["fhe_decryptor"] = decryptor
         return decryptor
 
     get_decryptor.__annotations__ = {"fhe_context": seal.SEALContext,
@@ -261,18 +262,20 @@ class Fhe(object):
         :rtype: seal.CKKSEncoder
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         scheme_type = fhe_scheme_type if fhe_scheme_type is not None else \
-            self.args["fhe_scheme_type"]
+            self.state["fhe_scheme_type"]
 
-        if(scheme_type != fhe_scheme_type):
-            self.args["pylog"](
-                "scheme mismatch, be carefull the context is correct")
+        if(scheme_type != self.state["fhe_scheme_type"]):
+            self.state["pylog"](
+                "scheme mismatch (given|existing):", scheme_type, "!=",
+                fhe_scheme_type,
+                "be carefull the context is correct")
             # TODO complete this to make it rebuild the context
         if(scheme_type == seal.scheme_type.CKKS):
             return self.get_encoder_ckks(fhe_context=context)
         elif(scheme_type == seal.scheme_type.BFV):
-            self.args["pylog"](
+            self.state["pylog"](
                 "BFV scheme is not currentley supported")
             # TODO: complete this to make it error
 
@@ -289,12 +292,12 @@ class Fhe(object):
         :rtype: seal.CKKSEncoder
         """
         context = fhe_context if fhe_context is not None else \
-            self.args["fhe_context"]
+            self.state["fhe_context"]
         encoder = seal.CKKSEncoder(context)
-        # self.args["fhe_encoder_slot_count"] = encoder.slot_count()
-        # self.args["pylog"]("Encoder number of slots",
-        #                    self.args["fhe_encoder_slot_count"])
-        self.args["fhe_encoder"] = encoder
+        # self.state["fhe_encoder_slot_count"] = encoder.slot_count()
+        # self.state["pylog"]("Encoder number of slots",
+        #                    self.state["fhe_encoder_slot_count"])
+        self.state["fhe_encoder"] = encoder
         return encoder
 
     get_encoder_ckks.__annotations__ = {"fhe_context": seal.SEALContext,
@@ -306,8 +309,8 @@ class Fhe(object):
         :return: Returns the internal dictionary.
         :rtype: dict
         """
-        self.args["pylog"](self.args)
-        return self.args
+        self.state["pylog"](self.state)
+        return self.state
 
     debug.__annotations__ = {"return": None}
 
@@ -321,7 +324,7 @@ class Fhe(object):
         :return: Either the value held in that key or None.
         :rtype: any
         """
-        self.args[key] = value
+        self.state[key] = value
 
     __setitem__.__annotations__ = {"key": str, "value": any, "return": None}
 
@@ -334,7 +337,7 @@ class Fhe(object):
         :rtype: any
         """
         try:
-            return self.args[key]
+            return self.state[key]
         except KeyError:
             return None  # does not exist is the same as None, gracefull catch
 
@@ -349,7 +352,7 @@ class Fhe(object):
         :rtype: any
         """
         try:
-            del self.args[key]
+            del self.state[key]
         except KeyError:
             pass  # job is not done but equivalent outcomes so will not error
 
@@ -421,12 +424,12 @@ class Fhe_tests(unittest.TestCase):
         # without overrides
         encryptor = fhe.get_encryptor()
         self.assertIsInstance(encryptor, seal.Encryptor)
-        self.assertIsInstance(fhe["fhe_encryptor"], seal.Encryptor)
+        self.assertIsInstance(fhe.state["fhe_encryptor"], seal.Encryptor)
         # with overrides
         encryptor = fhe.get_encryptor(fhe_context=context,
                                       fhe_public_key=keys["fhe_public_key"])
         self.assertIsInstance(encryptor, seal.Encryptor)
-        self.assertIsInstance(fhe["fhe_encryptor"], seal.Encryptor)
+        self.assertIsInstance(fhe.state["fhe_encryptor"], seal.Encryptor)
 
     def test_get_evaluator(self):
         fhe = Fhe(args={"pylog": null_printer})
@@ -435,11 +438,11 @@ class Fhe_tests(unittest.TestCase):
         # without overrides
         evaluator = fhe.get_evaluator()
         self.assertIsInstance(evaluator, seal.Evaluator)
-        self.assertIsInstance(fhe["fhe_evaluator"], seal.Evaluator)
+        self.assertIsInstance(fhe.state["fhe_evaluator"], seal.Evaluator)
         # with overrides
         evaluator = fhe.get_evaluator(fhe_context=context)
         self.assertIsInstance(evaluator, seal.Evaluator)
-        self.assertIsInstance(fhe["fhe_evaluator"], seal.Evaluator)
+        self.assertIsInstance(fhe.state["fhe_evaluator"], seal.Evaluator)
 
     def test_get_decryptor(self):
         fhe = Fhe(args={"pylog": null_printer})
@@ -448,12 +451,12 @@ class Fhe_tests(unittest.TestCase):
         # without overrides
         decryptor = fhe.get_decryptor()
         self.assertIsInstance(decryptor, seal.Decryptor)
-        self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
+        self.assertIsInstance(fhe.state["fhe_decryptor"], seal.Decryptor)
         # with overrides
         decryptor = fhe.get_decryptor(fhe_context=context,
                                       fhe_secret_key=keys["fhe_secret_key"])
         self.assertIsInstance(decryptor, seal.Decryptor)
-        self.assertIsInstance(fhe["fhe_decryptor"], seal.Decryptor)
+        self.assertIsInstance(fhe.state["fhe_decryptor"], seal.Decryptor)
 
     def test_get_encoder_ckks(self):
         fhe = Fhe(args={"pylog": null_printer,
@@ -463,11 +466,11 @@ class Fhe_tests(unittest.TestCase):
         # without overrides
         encoder = fhe.get_encoder_ckks()
         self.assertIsInstance(encoder, seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        self.assertIsInstance(fhe.state["fhe_encoder"], seal.CKKSEncoder)
         # with overrides
         encoder = fhe.get_encoder_ckks(fhe_context=context)
         self.assertIsInstance(encoder, seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        self.assertIsInstance(fhe.state["fhe_encoder"], seal.CKKSEncoder)
 
     def test_get_encoder(self):
         # testing CKKS version not BFV yet
@@ -479,27 +482,20 @@ class Fhe_tests(unittest.TestCase):
         # without overrides
         encoder = fhe.get_encoder()
         self.assertIsInstance(encoder, seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        self.assertIsInstance(fhe.state["fhe_encoder"], seal.CKKSEncoder)
         # with overrides
         encoder = fhe.get_encoder(fhe_context=context)
         self.assertIsInstance(encoder, seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
+        self.assertIsInstance(fhe.state["fhe_encoder"], seal.CKKSEncoder)
 
     def test_experiments(self):
         # testing CKKS version not BFV yet
         # TODO add section for BFV when its ready
-        fhe = Fhe(args={"pylog": null_printer,
-                        "fhe_scheme_type": seal.scheme_type.CKKS})
+        fhe = Fhe(args={"fhe_scheme": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
         encoder = fhe.get_encoder()
-        self.assertIsInstance(encoder, seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
-        # with overrides
-        encoder = fhe.get_encoder(fhe_context=context)
-        self.assertIsInstance(encoder, seal.CKKSEncoder)
-        self.assertIsInstance(fhe["fhe_encoder"], seal.CKKSEncoder)
         slot_count = encoder.slot_count()
 
         inputs = seal.DoubleVector()
@@ -509,8 +505,25 @@ class Fhe_tests(unittest.TestCase):
         for i in range(slot_count):
             inputs.append(curr_point)
             curr_point += step_size
-        print(pow(2.0, 40))
-        print(seal.DoubleVector(np.array(inputs)))
+        scale = pow(2.0, 40)
+        # encoding
+        x_plain = seal.Plaintext()
+        plain_coeff3 = seal.Plaintext()
+        plain_coeff1 = seal.Plaintext()
+        plain_coeff0 = seal.Plaintext()
+        fhe.state["fhe_encoder"].encode(inputs,
+                                        fhe.state["fhe_scale"],
+                                        x_plain)
+        fhe.state["fhe_encoder"].encode(3.14159265,
+                                        fhe.state["fhe_scale"],
+                                        plain_coeff3)
+        fhe.state["fhe_encoder"].encode(0.4,
+                                        fhe.state["fhe_scale"],
+                                        plain_coeff1)
+        fhe.state["fhe_encoder"].encode(1,
+                                        fhe.state["fhe_scale"],
+                                        plain_coeff0)
+        # encrypting
 
 
 def null_printer(*args):
