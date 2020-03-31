@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-03-31T17:25:45+01:00
+# @Last modified time: 2020-03-31T23:14:35+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -308,6 +308,11 @@ class Fhe(object):
     get_encoder_ckks.__annotations__ = {"fhe_context": seal.SEALContext,
                                         "return": seal.CKKSEncoder}
 
+    def encrypt(self):
+        pass
+
+    encrypt.__annotations__ = {"return": None}
+
     def debug(self):
         """Display current internal state of all values.
 
@@ -495,7 +500,8 @@ class Fhe_tests(unittest.TestCase):
 
     def test_experiments(self):
         # testing CKKS version not BFV yet
-        fhe = Fhe(args={"fhe_scheme": seal.scheme_type.CKKS})
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme": seal.scheme_type.CKKS})
         context = fhe.create_context()
         keys = fhe.generate_keys()
         # without overrides
@@ -561,16 +567,17 @@ class Fhe_tests(unittest.TestCase):
         fhe.state["fhe_evaluator"].multiply_plain_inplace(x1_encrypted,
                                                           plain_coeff1)
         fhe.state["fhe_evaluator"].rescale_to_next_inplace(x1_encrypted)
-        print(enc_scale_bits(x3_encrypted))
+        # print(enc_scale_bits(x3_encrypted))
         # # set scales of encrypted partials to be the same
         x3_encrypted.scale(fhe.state["fhe_scale"])
         x1_encrypted.scale(fhe.state["fhe_scale"])
         # # # print out current scales they should be the same
-        print(x3_encrypted.scale())
-        print(x1_encrypted.scale())
-        print(plain_coeff0.scale())  # this was never modified so no change
+        # print(x3_encrypted.scale())
+        # print(x1_encrypted.scale())
+        # print(plain_coeff0.scale())  # this was never modified so no change
         # # find out which has been rescaled the most i.e lowest on chain
-        print(context.get_context_data(x3_encrypted.parms_id()).chain_index())
+        # print(context.get_context_data(
+        #     x3_encrypted.parms_id()).chain_index())
         last_parms_id = x3_encrypted.parms_id()
         fhe.state["fhe_evaluator"].mod_switch_to_inplace(x1_encrypted,
                                                          last_parms_id)
@@ -591,14 +598,19 @@ class Fhe_tests(unittest.TestCase):
         fhe.state["fhe_decryptor"].decrypt(encrypted_result, plain_result)
         result = seal.DoubleVector()
         fhe.state["fhe_encoder"].decode(plain_result, result)
-        print_vector(result, 3, 7)
+        # print_vector(result, 3, 7)
 
         # get true result
         plain_result = seal.Plaintext()
         true_result = []
         for x in inputs:
             true_result.append((3.14159265 * x * x + 0.4) * x + 1)
-        print_vector(true_result, 3, 7)
+        # print_vector(true_result, 3, 7)
+
+    def test_encrypt(self):
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
+        fhe.encrypt()
 
 
 def print_vector(vec, print_size=4, prec=3):
