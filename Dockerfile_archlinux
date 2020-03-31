@@ -14,16 +14,17 @@ RUN pacman -Syyuu \
     python-configargparse \
     --noconfirm
 
-RUN git clone -b master https://github.com/DreamingRaven/seal-python
+RUN git clone -b 3.4.5 https://github.com/DreamingRaven/seal-python
 
 # Build SEAL packages in seal-python
 RUN cd /seal-python/SEAL/native/src && \
     cmake . && \
     make && \
-    make install
+    make install && \
+    echo "/usr/local/lib" >> /etc/ld.so.conf.d/seal.conf
 
 # Install requirements of seal-python
-RUN cd /seal-python/src && \
+RUN cd /seal-python && \
     pip3 install -r requirements.txt
 
 # Build pybind11
@@ -35,7 +36,7 @@ RUN cd /seal-python/pybind11 && \
     make install
 
 # Package wrapper
-RUN cd /seal-python/src && \
+RUN cd /seal-python && \
     python3 setup.py build_ext -i && \
     python3 setup.py install
 
