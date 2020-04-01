@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-01T16:01:41+01:00
+# @Last modified time: 2020-04-01T16:18:31+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -315,14 +315,13 @@ class Fhe(object):
 
         plaintexts = plaintexts if plaintexts is not None else \
             self.state["fhe_data"]
-
         # error if it is still empty
         if(plaintexts == None):
             raise TypeError("No data has been provided to encrypt.")
         elif(type(plaintexts) != list):
             raise TypeError(
-                "Data of type {} is not of the correct type.".format(
-                    type(plaintexts)))
+                "Data of type {} is not of the correct type {}.".format(
+                    type(plaintexts), type(list)))
 
         list(map(self.single_encrypt, plaintexts))
         raise NotImplementedError("This function is incomplete please wait.")
