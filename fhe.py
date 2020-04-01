@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-03-31T23:14:35+01:00
+# @Last modified time: 2020-04-01T16:01:41+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -44,10 +44,11 @@ class Fhe(object):
         :rtype: object
         """
         args = args if args is not None else dict()
-        self.data = data if data is not None else None
+        # self.data = data if data is not None else None
         self.home = os.path.expanduser("~")
         defaults = {
             "pylog": logger if logger is not None else print,
+            "fhe_data": None,
             "fhe_scheme_type": seal.scheme_type.CKKS,
             "fhe_poly_modulus_degree": 8192,
             "fhe_coeff_modulus": [60, 40, 40, 60],
@@ -60,6 +61,8 @@ class Fhe(object):
         }
         self.state = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
+        self.state["fhe_data"] = data if data is not None else \
+            self.state["fhe_data"]
 
     __init__.__annotations__ = {"args": dict, "logger": print,
                                 "return": object}
@@ -308,10 +311,27 @@ class Fhe(object):
     get_encoder_ckks.__annotations__ = {"fhe_context": seal.SEALContext,
                                         "return": seal.CKKSEncoder}
 
-    def encrypt(self):
-        pass
+    def encrypt(self, plaintexts=None):
+
+        plaintexts = plaintexts if plaintexts is not None else \
+            self.state["fhe_data"]
+
+        # error if it is still empty
+        if(plaintexts == None):
+            raise TypeError("No data has been provided to encrypt.")
+        elif(type(plaintexts) != list):
+            raise TypeError(
+                "Data of type {} is not of the correct type.".format(
+                    type(plaintexts)))
+
+        list(map(self.single_encrypt, plaintexts))
+        raise NotImplementedError("This function is incomplete please wait.")
+        return [seal.Ciphertext()]
 
     encrypt.__annotations__ = {"return": None}
+
+    def single_encrypt(self, plaintext):
+        pass
 
     def debug(self):
         """Display current internal state of all values.
@@ -637,7 +657,8 @@ def enc_scale_bits(ciphertext):
     return math.log(ciphertext.scale(), 2)
 
 
-def null_printer(*args):
+def null_printer(*text, log_min_level=None,
+                 log_delimiter=None):
     # do absoluteley nothing, i.e dont print
     pass
 
