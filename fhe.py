@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T16:34:30+01:00
+# @Last modified time: 2020-04-02T16:38:21+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -420,6 +420,9 @@ class Fhe(object):
             self.state["fhe_decryptor"]
         self.state["fhe_decryptor"] = decryptor if decryptor is not None else \
             self.get_decryptor(fhe_context=context, fhe_secret_key=secret_key)
+
+        raise NotImplementedError("Fhe().decrypt not yet implemented fully.")
+        return seal.Plaintext()
 
     decrypt.__annotations__ = {"return": [list, np.ndarray]}
 
