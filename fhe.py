@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T14:44:45+01:00
+# @Last modified time: 2020-04-02T15:52:48+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -314,7 +314,22 @@ class Fhe(object):
 
     def encrypt(self, fhe_plaintext=None, fhe_context=None,
                 fhe_public_key=None, fhe_encryptor=None, fhe_encoder=None):
-        """Encrypt numerical."""
+        """Encrypt numerical.
+
+        :param fhe_plaintext: Plaintext(s) to encrypt.
+        :type fhe_plaintext: list, np.ndarray
+        :param fhe_context: Seal context to use for encoding and encryption.
+        :type fhe_context: seal.SEALContext
+        :param fhe_public_key: Public key to encrypt with.
+        :type fhe_public_key: seal.PublicKey
+        :param fhe_encryptor: Seal encryption object used for encryption.
+        :type fhe_encryptor: seal.Encryptor
+        :param fhe_encoder: Encoder to prime plaintext for encryption.
+        :type fhe_encoder: seal.Encoder
+        :return: Encrypted array or list (same type as plaintext input).
+        :rtype: seal.Ciphertext, np.array, list
+        :example: Fhe().encrypt( [[1,2,3], [4,5,6]] )
+        """
 
         plaintexts = fhe_plaintext if fhe_plaintext is not None else \
             self.state["fhe_data"]
@@ -333,15 +348,15 @@ class Fhe(object):
         # use existing encryptor or create as above
         encryptor = fhe_encryptor if fhe_encryptor is not None else \
             self.state["fhe_encryptor"]
-        encryptor if encryptor is not None else self.get_encryptor(
-            fhe_context=context,
-            fhe_public_key=public_key)
+        self.state["fhe_encryptor"] = encryptor if encryptor is not None else \
+            self.get_encryptor(fhe_context=context,
+                               fhe_public_key=public_key)
 
         # use existing encoder or create as above
         encoder = encoder if fhe_encoder is not None else \
             self.state["fhe_encoder"]
-        encoder if encoder is not None else self.get_encoder(
-            fhe_context=context)
+        self.state["fhe_encoder"] = encoder if encoder is not None else \
+            self.get_encoder(fhe_context=context)
 
         # check if one of our compatible types
         was_numpy = False
