@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T16:38:21+01:00
+# @Last modified time: 2020-04-02T22:04:11+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -727,21 +727,23 @@ class Fhe_tests(unittest.TestCase):
 
         # list
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten().tolist())
-        print(ciphertext, plaintext.flatten().tolist())
+        # print(ciphertext, plaintext.flatten().tolist())
         self.assertIsInstance(ciphertext, seal.Ciphertext)
 
         # list of lists
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.tolist())
-        print(ciphertext, plaintext.tolist())
+        # print(ciphertext, plaintext.tolist())
         self.assertIsInstance(ciphertext, list)
 
         # numpy.array
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
-        print(ciphertext, plaintext.flatten())
+        # print(ciphertext, plaintext.flatten())
+        self.assertIsInstance(ciphertext, seal.Ciphertext)
 
         # numpy.ndarray
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
-        print(ciphertext, plaintext)
+        # print(ciphertext, plaintext)
+        self.assertIsInstance(ciphertext, np.ndarray)
 
     def test_encrypt_decrypt(self):
         fhe = Fhe(args={"pylog": null_printer,
