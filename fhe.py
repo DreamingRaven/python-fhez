@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T16:12:48+01:00
+# @Last modified time: 2020-04-02T16:34:30+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -48,7 +48,8 @@ class Fhe(object):
         self.home = os.path.expanduser("~")
         defaults = {
             "pylog": logger if logger is not None else print,
-            "fhe_data": None,
+            "fhe_plaintext": None,
+            "fhe_ciphertext": None,
             "fhe_scheme_type": seal.scheme_type.CKKS,
             "fhe_poly_modulus_degree": 8192,
             "fhe_coeff_modulus": [60, 40, 40, 60],
@@ -332,7 +333,7 @@ class Fhe(object):
         """
 
         plaintexts = fhe_plaintext if fhe_plaintext is not None else \
-            self.state["fhe_data"]
+            self.state["fhe_plaintext"]
 
         # use existing or if none create new context
         context = fhe_context if fhe_context is not None else \
@@ -395,6 +396,32 @@ class Fhe(object):
         return seal_ciphertext
 
     _single_encrypt.__annotations__ = {"return": seal.Ciphertext}
+
+    def decrypt(self, fhe_ciphertext=None, fhe_context=None,
+                fhe_secret_key=None, fhe_decryptor=None):
+        """Decrypt encrypted ciphertext."""
+
+        ciphertext = fhe_ciphertext if fhe_ciphertext is not None else \
+            self.state["fhe_ciphertext"]
+
+        # use existing or if none create new context
+        context = fhe_context if fhe_context is not None else \
+            self.state["fhe_context"]
+        context = context if context is not None else self.create_context()
+
+        # use existing keys or create as above
+        secret_key = fhe_secret_key if fhe_secret_key is not None else \
+            self.state["fhe_secret_key"]
+        secret_key = secret_key if secret_key is not None else \
+            self.generate_keys(fhe_context=context)["fhe_secret_key"]
+
+        # use existing decryptor or create as above
+        decryptor = fhe_decryptor if fhe_decryptor is not None else \
+            self.state["fhe_decryptor"]
+        self.state["fhe_decryptor"] = decryptor if decryptor is not None else \
+            self.get_decryptor(fhe_context=context, fhe_secret_key=secret_key)
+
+    decrypt.__annotations__ = {"return": [list, np.ndarray]}
 
     def debug(self):
         """Display current internal state of all values.
@@ -712,6 +739,31 @@ class Fhe_tests(unittest.TestCase):
         # numpy.ndarray
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
         print(ciphertext, plaintext)
+
+    def test_encrypt_decrypt(self):
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
+        plaintext = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
+        # list
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten().tolist())
+        self.assertIsInstance(ciphertext, seal.Ciphertext)
+        fhe.decrypt(fhe_ciphertext=ciphertext)
+
+        # list of lists
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext.tolist())
+        self.assertIsInstance(ciphertext, list)
+        fhe.decrypt(fhe_ciphertext=ciphertext)
+
+        # numpy.array
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
+        self.assertIsInstance(ciphertext, seal.Ciphertext)
+        fhe.decrypt(fhe_ciphertext=ciphertext)
+
+        # numpy.ndarray
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
+        self.assertIsInstance(ciphertext, np.ndarray)
+        fhe.decrypt(fhe_ciphertext=ciphertext)
 
 
 def print_vector(vec, print_size=4, prec=3):
