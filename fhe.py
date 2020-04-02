@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T11:18:41+01:00
+# @Last modified time: 2020-04-02T13:22:34+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -30,7 +30,7 @@ class Fhe(object):
     :example: Fhe()
     """
 
-    def __init__(self, data=None, args=None, logger=None):
+    def __init__(self, args=None, logger=None):
         """Init class with defaults.
 
         optionally accepts dictionary of default and logger overrides.
@@ -54,15 +54,16 @@ class Fhe(object):
             "fhe_coeff_modulus": [60, 40, 40, 60],
             "fhe_context": None,
             "fhe_scale": pow(2.0, 40),
-            "fhe_private_key": None,
+            "fhe_public_key": None,
             "fhe_secret_key": None,
             "fhe_relin_keys": None,
+            "fhe_encryptor": None,
+            "fhe_encoder": None,
+            "fhe_decryptor": None,
             # "": None,
         }
         self.state = self._merge_dictionary(defaults, args)
         # final adjustments to newly defined dictionary
-        self.state["fhe_data"] = data if data is not None else \
-            self.state["fhe_data"]
 
     __init__.__annotations__ = {"args": dict, "logger": print,
                                 "return": object}
@@ -311,30 +312,56 @@ class Fhe(object):
     get_encoder_ckks.__annotations__ = {"fhe_context": seal.SEALContext,
                                         "return": seal.CKKSEncoder}
 
-    def encrypt(self, plaintexts=None):
-        """Encrypt numerical iterable."""
+    def encrypt(self, fhe_plaintext=None, fhe_context=None,
+                fhe_public_key=None, fhe_encryptor=None, fhe_encoder=None):
+        """Encrypt numerical."""
 
-        plaintexts = plaintexts if plaintexts is not None else \
+        plaintexts = fhe_plaintext if fhe_plaintext is not None else \
             self.state["fhe_data"]
-        # # error if it is still empty
-        # if(plaintexts == None):
-        #     raise TypeError("No data has been provided to encrypt.")
-        # elif(type(plaintexts) != list):
-        #     raise TypeError(
-        #         "Data of type {} is not of the correct type {}.".format(
-        #             type(plaintexts), type(list)))
 
-        return list(map(self._single_encrypt, plaintexts))
+        # use existing or if none create new context
+        context = fhe_context if fhe_context is not None else \
+            self.state["fhe_context"]
+        context = context if context is not None else self.create_context()
 
-    encrypt.__annotations__ = {"return": None}
+        # use existing keys or create as above
+        public_key = fhe_public_key if fhe_public_key is not None else \
+            self.state["fhe_public_key"]
+        public_key = public_key if public_key is not None else \
+            self.generate_keys(fhe_context=context)["fhe_public_key"]
+
+        # use existing encryptor or create as above
+        encryptor = fhe_encryptor if fhe_encryptor is not None else \
+            self.state["fhe_encryptor"]
+        encryptor if encryptor is not None else self.get_encryptor(
+            fhe_context=context,
+            fhe_public_key=public_key)
+
+        # use existing encoder or create as above
+        encoder = encoder if fhe_encoder is not None else \
+            self.state["fhe_encoder"]
+        encoder if encoder is not None else self.get_encoder(
+            fhe_context=context)
+
+        # if iterable split appart before encryption
+        if(hasattr(plaintexts[0], "__iter__")):
+            return list(map(self.encrypt, plaintexts))
+        else:
+            return self._single_encrypt(plaintexts)
+
+    encrypt.__annotations__ = {"return": seal.Ciphertext}
 
     def _single_encrypt(self, plaintext):
-        self.create_context()
-        self.generate_keys()
-        self.get_encryptor()
-        print(plaintext)
-        raise NotImplementedError("_single_encrypt not yet implemented.")
-        return seal.Ciphertext()
+        plaintext = seal.DoubleVector(plaintext) if plaintext is not None \
+            else None
+        seal_plaintext = seal.Plaintext()
+        seal_ciphertext = seal.Ciphertext()
+        self.state["pylog"](plaintext, seal_plaintext, seal_ciphertext)
+        self.state["fhe_encoder"].encode(plaintext,
+                                         self.state["fhe_scale"],
+                                         seal_plaintext)
+        self.state["fhe_encryptor"].encrypt(seal_plaintext, seal_ciphertext)
+        return seal_ciphertext
 
     _single_encrypt.__annotations__ = {"return": seal.Ciphertext}
 
@@ -636,18 +663,25 @@ class Fhe_tests(unittest.TestCase):
         fhe = Fhe(args={"pylog": null_printer,
                         "fhe_scheme_type": seal.scheme_type.CKKS})
         plaintext = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
         # list
-        ciphertext = fhe.encrypt(plaintexts=plaintext.flatten().tolist())
-        print(ciphertext)
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten().tolist())
+        print(ciphertext, plaintext.flatten().tolist())
+        # print(np.array(ciphertext))
+        self.assertIsInstance(ciphertext, seal.Ciphertext)
+
         # list of lists
-        ciphertext = fhe.encrypt(plaintexts=plaintext.tolist())
-        print(ciphertext)
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext.tolist())
+        print(ciphertext, plaintext.tolist())
+        self.assertIsInstance(ciphertext, list)
+
         # numpy.array
-        ciphertext = fhe.encrypt(plaintexts=plaintext.flatten())
-        print(ciphertext)
+        # ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
+        # print(ciphertext)
+
         # numpy.ndarray
-        ciphertext = fhe.encrypt(plaintexts=plaintext)
-        print(ciphertext)
+        # ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
+        # print(ciphertext)
 
 
 def print_vector(vec, print_size=4, prec=3):
