@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T15:52:48+01:00
+# @Last modified time: 2020-04-02T16:12:48+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -325,7 +325,7 @@ class Fhe(object):
         :param fhe_encryptor: Seal encryption object used for encryption.
         :type fhe_encryptor: seal.Encryptor
         :param fhe_encoder: Encoder to prime plaintext for encryption.
-        :type fhe_encoder: seal.Encoder
+        :type fhe_encoder: seal.CKKSEncoder
         :return: Encrypted array or list (same type as plaintext input).
         :rtype: seal.Ciphertext, np.array, list
         :example: Fhe().encrypt( [[1,2,3], [4,5,6]] )
@@ -375,7 +375,12 @@ class Fhe(object):
         else:
             return self._single_encrypt(plaintexts)
 
-    encrypt.__annotations__ = {"return": seal.Ciphertext}
+    encrypt.__annotations__ = {"fhe_plaintext": [list, np.ndarray],
+                               "fhe_context": seal.SEALContext,
+                               "fhe_public_key": seal.PublicKey,
+                               "fhe_encryptor": seal.Encryptor,
+                               "fhe_encoder": seal.CKKSEncoder,
+                               "return": [seal.Ciphertext, np.ndarray, list]}
 
     def _single_encrypt(self, plaintext):
         plaintext = seal.DoubleVector(plaintext) if plaintext is not None \
