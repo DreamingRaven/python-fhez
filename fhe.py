@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T13:22:34+01:00
+# @Last modified time: 2020-04-02T14:44:45+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -343,9 +343,20 @@ class Fhe(object):
         encoder if encoder is not None else self.get_encoder(
             fhe_context=context)
 
+        # check if one of our compatible types
+        was_numpy = False
+        if isinstance(plaintexts, (np.ndarray)):
+            self.state["pylog"]("plaintext is np array converting to list")
+            plaintexts = plaintexts.tolist()
+            was_numpy = True
+
         # if iterable split appart before encryption
         if(hasattr(plaintexts[0], "__iter__")):
-            return list(map(self.encrypt, plaintexts))
+            result = list(map(self.encrypt, plaintexts))
+            if(was_numpy):
+                return np.array(result)  # return as numpy like input was
+            else:
+                return result  # return as list just like input was
         else:
             return self._single_encrypt(plaintexts)
 
@@ -667,7 +678,6 @@ class Fhe_tests(unittest.TestCase):
         # list
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten().tolist())
         print(ciphertext, plaintext.flatten().tolist())
-        # print(np.array(ciphertext))
         self.assertIsInstance(ciphertext, seal.Ciphertext)
 
         # list of lists
@@ -676,12 +686,12 @@ class Fhe_tests(unittest.TestCase):
         self.assertIsInstance(ciphertext, list)
 
         # numpy.array
-        # ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
-        # print(ciphertext)
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
+        print(ciphertext, plaintext.flatten())
 
         # numpy.ndarray
-        # ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
-        # print(ciphertext)
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
+        print(ciphertext, plaintext)
 
 
 def print_vector(vec, print_size=4, prec=3):
