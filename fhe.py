@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-01T16:18:31+01:00
+# @Last modified time: 2020-04-02T11:18:41+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -312,25 +312,31 @@ class Fhe(object):
                                         "return": seal.CKKSEncoder}
 
     def encrypt(self, plaintexts=None):
+        """Encrypt numerical iterable."""
 
         plaintexts = plaintexts if plaintexts is not None else \
             self.state["fhe_data"]
-        # error if it is still empty
-        if(plaintexts == None):
-            raise TypeError("No data has been provided to encrypt.")
-        elif(type(plaintexts) != list):
-            raise TypeError(
-                "Data of type {} is not of the correct type {}.".format(
-                    type(plaintexts), type(list)))
+        # # error if it is still empty
+        # if(plaintexts == None):
+        #     raise TypeError("No data has been provided to encrypt.")
+        # elif(type(plaintexts) != list):
+        #     raise TypeError(
+        #         "Data of type {} is not of the correct type {}.".format(
+        #             type(plaintexts), type(list)))
 
-        list(map(self.single_encrypt, plaintexts))
-        raise NotImplementedError("This function is incomplete please wait.")
-        return [seal.Ciphertext()]
+        return list(map(self._single_encrypt, plaintexts))
 
     encrypt.__annotations__ = {"return": None}
 
-    def single_encrypt(self, plaintext):
-        pass
+    def _single_encrypt(self, plaintext):
+        self.create_context()
+        self.generate_keys()
+        self.get_encryptor()
+        print(plaintext)
+        raise NotImplementedError("_single_encrypt not yet implemented.")
+        return seal.Ciphertext()
+
+    _single_encrypt.__annotations__ = {"return": seal.Ciphertext}
 
     def debug(self):
         """Display current internal state of all values.
@@ -629,7 +635,19 @@ class Fhe_tests(unittest.TestCase):
     def test_encrypt(self):
         fhe = Fhe(args={"pylog": null_printer,
                         "fhe_scheme_type": seal.scheme_type.CKKS})
-        fhe.encrypt()
+        plaintext = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        # list
+        ciphertext = fhe.encrypt(plaintexts=plaintext.flatten().tolist())
+        print(ciphertext)
+        # list of lists
+        ciphertext = fhe.encrypt(plaintexts=plaintext.tolist())
+        print(ciphertext)
+        # numpy.array
+        ciphertext = fhe.encrypt(plaintexts=plaintext.flatten())
+        print(ciphertext)
+        # numpy.ndarray
+        ciphertext = fhe.encrypt(plaintexts=plaintext)
+        print(ciphertext)
 
 
 def print_vector(vec, print_size=4, prec=3):
