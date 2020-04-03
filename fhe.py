@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-03T13:53:22+01:00
+# @Last modified time: 2020-04-03T15:16:58+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -440,7 +440,11 @@ class Fhe(object):
     decrypt.__annotations__ = {"return": [list, np.ndarray]}
 
     def _single_decrypt(self, ciphertext):
-        return seal.Plaintext()
+        seal_plaintext = seal.Plaintext()
+        self.state["fhe_decryptor"].decrypt(ciphertext, seal_plaintext)
+        plaintext = seal.DoubleVector()
+        self.state["fhe_encoder"].decode(seal_plaintext, plaintext)
+        return plaintext
 
     _single_decrypt.__annotations__ = {"return": seal.Plaintext}
 
