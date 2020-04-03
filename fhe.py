@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-02T22:04:11+01:00
+# @Last modified time: 2020-04-03T10:36:44+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -420,11 +420,28 @@ class Fhe(object):
             self.state["fhe_decryptor"]
         self.state["fhe_decryptor"] = decryptor if decryptor is not None else \
             self.get_decryptor(fhe_context=context, fhe_secret_key=secret_key)
-
-        raise NotImplementedError("Fhe().decrypt not yet implemented fully.")
-        return seal.Plaintext()
+        print()
+        print(ciphertext)
+        # raise NotImplementedError("Fhe().decrypt not yet implemented fully.")
+        if(isinstance(ciphertext, seal.Ciphertext)):
+            return self._single_decrypt(ciphertext)
+        elif(hasattr(ciphertext[0], "__iter__")):
+            result = list(map(self.decrypt, ciphertext))
+            if(was_numpy):
+                return np.array(result)  # return as numpy like input was
+            else:
+                return result  # return as list just like input was
+        # else:
+        #     raise NotImplementedError("Have not yet implemented handling",
+        #                               "for a case that should not happen.")
+        #     return self._single_decrypt(ciphertext)
 
     decrypt.__annotations__ = {"return": [list, np.ndarray]}
+
+    def _single_decrypt(self, ciphertext):
+        return seal.Plaintext()
+
+    _single_decrypt.__annotations__ = {"return": seal.Plaintext}
 
     def debug(self):
         """Display current internal state of all values.
@@ -753,22 +770,26 @@ class Fhe_tests(unittest.TestCase):
         # list
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten().tolist())
         self.assertIsInstance(ciphertext, seal.Ciphertext)
-        fhe.decrypt(fhe_ciphertext=ciphertext)
+        result = fhe.decrypt(fhe_ciphertext=ciphertext)
+        print("list", result)
 
         # list of lists
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.tolist())
         self.assertIsInstance(ciphertext, list)
-        fhe.decrypt(fhe_ciphertext=ciphertext)
+        result = fhe.decrypt(fhe_ciphertext=ciphertext)
+        print("list of lists", result)
 
         # numpy.array
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
         self.assertIsInstance(ciphertext, seal.Ciphertext)
-        fhe.decrypt(fhe_ciphertext=ciphertext)
+        result = fhe.decrypt(fhe_ciphertext=ciphertext)
+        print("np.array", result)
 
         # numpy.ndarray
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
         self.assertIsInstance(ciphertext, np.ndarray)
-        fhe.decrypt(fhe_ciphertext=ciphertext)
+        reult = fhe.decrypt(fhe_ciphertext=ciphertext)
+        print("np.ndarray", result)
 
 
 def print_vector(vec, print_size=4, prec=3):
