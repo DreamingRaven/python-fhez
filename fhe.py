@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-03T10:36:44+01:00
+# @Last modified time: 2020-04-03T13:49:29+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -366,7 +366,7 @@ class Fhe(object):
             plaintexts = plaintexts.tolist()
             was_numpy = True
 
-        # if iterable split appart before encryption
+        # if items within are iterable split appart before encryption
         if(hasattr(plaintexts[0], "__iter__")):
             result = list(map(self.encrypt, plaintexts))
             if(was_numpy):
@@ -420,21 +420,24 @@ class Fhe(object):
             self.state["fhe_decryptor"]
         self.state["fhe_decryptor"] = decryptor if decryptor is not None else \
             self.get_decryptor(fhe_context=context, fhe_secret_key=secret_key)
-        print()
-        print(ciphertext)
-        # raise NotImplementedError("Fhe().decrypt not yet implemented fully.")
+
+        # check if one of our compatible types
+        was_numpy = False
+        if isinstance(ciphertext, (np.ndarray)):
+            self.state["pylog"]("ciphertext is np array converting to list")
+            ciphertext = ciphertext.tolist()
+            was_numpy = True
+
+        # if iterable split apart and process
         if(isinstance(ciphertext, seal.Ciphertext)):
             return self._single_decrypt(ciphertext)
-        elif(hasattr(ciphertext[0], "__iter__")):
+        elif(hasattr(ciphertext, "__iter__")):
+            print(ciphertext)
             result = list(map(self.decrypt, ciphertext))
             if(was_numpy):
-                return np.array(result)  # return as numpy like input was
-            else:
-                return result  # return as list just like input was
-        # else:
-        #     raise NotImplementedError("Have not yet implemented handling",
-        #                               "for a case that should not happen.")
-        #     return self._single_decrypt(ciphertext)
+                result = np.array(result)  # return as numpy like input was
+            print(result)
+            return result  # return as list just like input was
 
     decrypt.__annotations__ = {"return": [list, np.ndarray]}
 
@@ -771,25 +774,21 @@ class Fhe_tests(unittest.TestCase):
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten().tolist())
         self.assertIsInstance(ciphertext, seal.Ciphertext)
         result = fhe.decrypt(fhe_ciphertext=ciphertext)
-        print("list", result)
 
         # list of lists
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.tolist())
         self.assertIsInstance(ciphertext, list)
         result = fhe.decrypt(fhe_ciphertext=ciphertext)
-        print("list of lists", result)
 
         # numpy.array
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext.flatten())
         self.assertIsInstance(ciphertext, seal.Ciphertext)
         result = fhe.decrypt(fhe_ciphertext=ciphertext)
-        print("np.array", result)
 
         # numpy.ndarray
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
         self.assertIsInstance(ciphertext, np.ndarray)
         reult = fhe.decrypt(fhe_ciphertext=ciphertext)
-        print("np.ndarray", result)
 
 
 def print_vector(vec, print_size=4, prec=3):
