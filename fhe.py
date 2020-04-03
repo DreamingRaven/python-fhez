@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-03T13:49:29+01:00
+# @Last modified time: 2020-04-03T13:53:22+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -432,11 +432,9 @@ class Fhe(object):
         if(isinstance(ciphertext, seal.Ciphertext)):
             return self._single_decrypt(ciphertext)
         elif(hasattr(ciphertext, "__iter__")):
-            print(ciphertext)
             result = list(map(self.decrypt, ciphertext))
             if(was_numpy):
                 result = np.array(result)  # return as numpy like input was
-            print(result)
             return result  # return as list just like input was
 
     decrypt.__annotations__ = {"return": [list, np.ndarray]}
