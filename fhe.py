@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-06T15:40:22+01:00
+# @Last modified time: 2020-04-06T15:58:05+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -446,6 +446,8 @@ class Fhe(object):
 
         return seal_plaintext
 
+    encode.__annotations__ = {"return": seal.Plaintext}
+
     def decode(self, fhe_encoded, fhe_context=None, fhe_encoder=None):
 
         seal_plaintext = fhe_encoded
@@ -466,7 +468,7 @@ class Fhe(object):
                        plaintext)
         return np.array(plaintext)
 
-    encode.__annotations__ = {"return": seal.Plaintext}
+    decode.__annotations__ = {"return": np.array}
 
     def decrypt(self, fhe_ciphertext=None, fhe_context=None,
                 fhe_secret_key=None, fhe_decryptor=None):
