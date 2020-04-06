@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-03T15:16:58+01:00
+# @Last modified time: 2020-04-06T13:43:11+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -423,7 +423,7 @@ class Fhe(object):
 
         # check if one of our compatible types
         was_numpy = False
-        if isinstance(ciphertext, (np.ndarray)):
+        if(isinstance(ciphertext, (np.ndarray))):
             self.state["pylog"]("ciphertext is np array converting to list")
             ciphertext = ciphertext.tolist()
             was_numpy = True
@@ -790,7 +790,12 @@ class Fhe_tests(unittest.TestCase):
         # numpy.ndarray
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
         self.assertIsInstance(ciphertext, np.ndarray)
-        reult = fhe.decrypt(fhe_ciphertext=ciphertext)
+        result = fhe.decrypt(fhe_ciphertext=ciphertext)
+        result = np.round_(result)
+        # checking input shape is shared by output shape
+        self.assertEqual(plaintext.shape, result.shape)
+        # check input is equal to output by rounding and casting back to int
+        self.assertEqual(plaintext, np.round_(result).astype(int))
 
 
 def print_vector(vec, print_size=4, prec=3):
