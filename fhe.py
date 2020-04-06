@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-06T13:43:11+01:00
+# @Last modified time: 2020-04-06T15:40:22+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -20,8 +20,30 @@ class Fhe(object):
     This library is designed to streamline and simplify FHE encryption,
     decryption, abstraction, serialisation, and integration. In particular
     this library is intended for use in deep learning to fascilitate a
-    more private echosystem.
+    more private echosystem. Thus the need for floating point operations means,
+    we use the Cheon-Kim-Kim-Song (CKKS) scheme.
 
+    table showing noise budget increase as poly modulus degree increases,
+    allowing more computations.
+
+    +----------------------------------------------------+
+    | poly_modulus_degree | max coeff_modulus bit-length |
+    +---------------------+------------------------------+
+    | 1024                | 27                           |
+    | 2048                | 54                           |
+    | 4096                | 109                          |
+    | 8192                | 218                          |
+    | 16384               | 438                          |
+    | 32768               | 881                          |
+    +---------------------+------------------------------+
+
+    number of slots = poly_modulus_degree/2.
+    all encoded inputs are padded to the full length of slots.
+    scale is the bit-precision of the encoding, and must not get too close to,
+    the total size of coeff_modulus.
+
+    CKKS does not use plain_modulus.
+    CKKS coeff_modulus has to be selected carefully.
 
     :param args: Dictionary of overides.
     :param logger: Function address to print/ log to (default: print).
@@ -397,6 +419,55 @@ class Fhe(object):
 
     _single_encrypt.__annotations__ = {"return": seal.Ciphertext}
 
+    def encode(self, fhe_plaintext=None, fhe_context=None, fhe_encoder=None,
+               fhe_scale=None):
+        """Encoder plaintext into plaintext object that can be encrypted."""
+
+        plaintext = fhe_plaintext if fhe_plaintext is not None else \
+            self.state["fhe_plaintext"]
+
+        scale = fhe_scale if fhe_scale is not None else self.state["fhe_scale"]
+
+        # use existing or if none create new context
+        context = fhe_context if fhe_context is not None else \
+            self.state["fhe_context"]
+        context = context if context is not None else self.create_context()
+
+        # use existing encoder or create as above
+        encoder = fhe_encoder if fhe_encoder is not None else \
+            self.state["fhe_encoder"]
+        encoder = encoder if encoder is not None else \
+            self.get_encoder(fhe_context=context)
+
+        seal_plaintext = seal.Plaintext()
+        encoder.encode(plaintext,
+                       self.state["fhe_scale"],
+                       seal_plaintext)
+
+        return seal_plaintext
+
+    def decode(self, fhe_encoded, fhe_context=None, fhe_encoder=None):
+
+        seal_plaintext = fhe_encoded
+
+        # use existing or if none create new context
+        context = fhe_context if fhe_context is not None else \
+            self.state["fhe_context"]
+        context = context if context is not None else self.create_context()
+
+        # use existing encoder or create as above
+        encoder = fhe_encoder if fhe_encoder is not None else \
+            self.state["fhe_encoder"]
+        encoder = encoder if encoder is not None else \
+            self.get_encoder(fhe_context=context)
+
+        plaintext = seal.DoubleVector()
+        encoder.decode(seal_plaintext,
+                       plaintext)
+        return np.array(plaintext)
+
+    encode.__annotations__ = {"return": seal.Plaintext}
+
     def decrypt(self, fhe_ciphertext=None, fhe_context=None,
                 fhe_secret_key=None, fhe_decryptor=None):
         """Decrypt encrypted ciphertext."""
@@ -441,6 +512,9 @@ class Fhe(object):
 
     def _single_decrypt(self, ciphertext):
         seal_plaintext = seal.Plaintext()
+        # noise_budget = self.state[
+        #     "fhe_decryptor"].invariant_noise_budget(ciphertext)
+        # print(noise_budget)
         self.state["fhe_decryptor"].decrypt(ciphertext, seal_plaintext)
         plaintext = seal.DoubleVector()
         self.state["fhe_encoder"].decode(seal_plaintext, plaintext)
@@ -796,6 +870,29 @@ class Fhe_tests(unittest.TestCase):
         self.assertEqual(plaintext.shape, result.shape)
         # check input is equal to output by rounding and casting back to int
         self.assertEqual(plaintext, np.round_(result).astype(int))
+
+    def test_encode(self):
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
+        context = fhe.create_context()
+        encoder = fhe.get_encoder()
+        plaintext = 300
+        fhe.encode(fhe_plaintext=plaintext)
+        fhe.encode(fhe_plaintext=plaintext/3, fhe_context=context,
+                   fhe_encoder=encoder, fhe_scale=fhe.state["fhe_scale"])
+
+    def test_encode_decode(self):
+        fhe = Fhe(args={"pylog": null_printer,
+                        "fhe_scheme_type": seal.scheme_type.CKKS})
+        context = fhe.create_context()
+        encoder = fhe.get_encoder()
+        plaintext = 300
+        encoded = fhe.encode(fhe_plaintext=plaintext)
+        encoded = fhe.encode(fhe_plaintext=plaintext/3, fhe_context=context,
+                             fhe_encoder=encoder,
+                             fhe_scale=fhe.state["fhe_scale"])
+        decoded = fhe.decode(fhe_encoded=encoded)
+        self.assertEqual(plaintext/3, decoded[0])
 
 
 def print_vector(vec, print_size=4, prec=3):
