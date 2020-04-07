@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-06T15:58:05+01:00
+# @Last modified time: 2020-04-07T10:03:51+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -869,27 +869,42 @@ class Fhe_tests(unittest.TestCase):
         result = fhe.decrypt(fhe_ciphertext=ciphertext)
         result = np.round_(result)
         # checking input shape is shared by output shape
-        self.assertEqual(plaintext.shape, result.shape)
+        self.assertEqual((plaintext.shape[0],
+                          fhe.state["fhe_encoder"].slot_count()),
+                         result.shape)
+        # cleaning up result array by slicing out what was added during encode
+        # print(result[:3, :3])
+        result = np.round_(
+            result[:plaintext.shape[0], :plaintext.shape[1]]).astype(int)
         # check input is equal to output by rounding and casting back to int
-        self.assertEqual(plaintext, np.round_(result).astype(int))
+        self.assertEqual(plaintext.tolist(), result.tolist())
 
     def test_encode(self):
         fhe = Fhe(args={"pylog": null_printer,
                         "fhe_scheme_type": seal.scheme_type.CKKS})
+        plaintext = 300
+        # using only automation
+        encoded = fhe.encode(fhe_plaintext=plaintext)
+        self.assertIsInstance(encoded, seal.Plaintext)
+        # using all manual
         context = fhe.create_context()
         encoder = fhe.get_encoder()
-        plaintext = 300
-        fhe.encode(fhe_plaintext=plaintext)
-        fhe.encode(fhe_plaintext=plaintext/3, fhe_context=context,
-                   fhe_encoder=encoder, fhe_scale=fhe.state["fhe_scale"])
+        encoded = fhe.encode(fhe_plaintext=plaintext/3, fhe_context=context,
+                             fhe_encoder=encoder,
+                             fhe_scale=fhe.state["fhe_scale"])
+        self.assertIsInstance(encoded, seal.Plaintext)
 
     def test_encode_decode(self):
         fhe = Fhe(args={"pylog": null_printer,
                         "fhe_scheme_type": seal.scheme_type.CKKS})
+        plaintext = 300
+        # using all automation
+        encoded = fhe.encode(fhe_plaintext=plaintext)
+        decoded = fhe.decode(fhe_encoded=encoded)
+        self.assertEqual(plaintext, decoded[0])
+        # using all manual
         context = fhe.create_context()
         encoder = fhe.get_encoder()
-        plaintext = 300
-        encoded = fhe.encode(fhe_plaintext=plaintext)
         encoded = fhe.encode(fhe_plaintext=plaintext/3, fhe_context=context,
                              fhe_encoder=encoder,
                              fhe_scale=fhe.state["fhe_scale"])
