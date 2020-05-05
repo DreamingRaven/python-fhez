@@ -7,6 +7,7 @@
 # @License: please see LICENSE file in project root
 
 import os
+import copy
 import unittest
 import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
 import numpy as np
@@ -99,6 +100,7 @@ class Fhe(object):
         :return: None.
         :rtype: None
         """
+        # dicts = copy.deepcopy(dicts)
         result = {}
         for dictionary in dicts:
             result.update(dictionary)  # merge each dictionary in order
