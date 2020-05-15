@@ -378,7 +378,7 @@ class Fhe(object):
                                fhe_public_key=public_key)
 
         # use existing encoder or create as above
-        encoder = encoder if fhe_encoder is not None else \
+        encoder = fhe_encoder if fhe_encoder is not None else \
             self.state["fhe_encoder"]
         self.state["fhe_encoder"] = encoder if encoder is not None else \
             self.get_encoder(fhe_context=context)
