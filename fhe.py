@@ -143,18 +143,19 @@ class Fhe(object):
             params.set_poly_modulus_degree(poly_mod_deg)
             params.set_coeff_modulus(
                 seal.CoeffModulus.Create(poly_mod_deg,
-                                         self.state["fhe_coeff_modulus"]))
+                                         coeff_mod))
 
             context = seal.SEALContext.Create(params)
             self.state["fhe_context"] = context
             # self.log_parameters(context)
             return context
         else:
-            self.state["pylog"](self.state["fhe_coeff_modulus"],
-                                "exceeds the maximum number of bits for a",
-                                "poly_modulus_degree of:",
-                                poly_mod_deg, "which is a cumulative total of:",
-                                max_bit_count)
+            self.state["pylog"](
+                self.state["fhe_coeff_modulus"],
+                "exceeds the maximum number of bits for a",
+                "poly_modulus_degree of:",
+                poly_mod_deg, "which is a cumulative total of:",
+                max_bit_count)
             return None
 
     create_context.__annotations__ = {"fhe_scheme_type": seal.scheme_type,
@@ -443,7 +444,7 @@ class Fhe(object):
 
         seal_plaintext = seal.Plaintext()
         encoder.encode(plaintext,
-                       self.state["fhe_scale"],
+                       scale,
                        seal_plaintext)
 
         return seal_plaintext
