@@ -11,4 +11,5 @@ pyrtd
   :caption: Table of Contents
   :numbered:
 
+  license
   usage
