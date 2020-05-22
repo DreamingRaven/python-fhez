@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-05-22T12:45:29+01:00
+# @Last modified time: 2020-05-22T13:19:43+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -108,6 +108,13 @@ class Fhe(object):
         return result
 
     _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
+
+    @property
+    def scheme(self):
+        return {
+            "ckks": seal.scheme_type.CKKS,
+            # TODO: "BFV"
+        }
 
     def create_context(self, fhe_scheme_type=None,
                        fhe_poly_modulus_degree=None,
