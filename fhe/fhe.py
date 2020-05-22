@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-07T10:03:51+01:00
+# @Last modified time: 2020-05-22T12:45:29+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -950,4 +950,5 @@ def null_printer(*text, log_min_level=None,
 
 if __name__ == "__main__":
     # run all the unit-tests
+    print("now testing:", __file__, "...")
     unittest.main()
