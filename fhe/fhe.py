@@ -92,7 +92,7 @@ class Fhe(object):
     __init__.__annotations__ = {"args": dict, "logger": print,
                                 "return": object}
 
-    def _merge_dictionary(self, *dicts):
+    def _merge_dictionary(self, *dicts, to_copy=True):
         """Given multiple dictionaries, merge together in order.
 
         :param *dicts: dictionaries merged from low to high priority.
@@ -100,7 +100,8 @@ class Fhe(object):
         :return: None.
         :rtype: None
         """
-        # dicts = copy.deepcopy(dicts)
+        if(to_copy):
+            dicts = copy.deepcopy(dicts)
         result = {}
         for dictionary in dicts:
             result.update(dictionary)  # merge each dictionary in order
@@ -219,7 +220,9 @@ class Fhe(object):
             "fhe_secret_key": keygen.secret_key(),
             "fhe_relin_keys": keygen.relin_keys(),
         }
-        self.state = self._merge_dictionary(self.state, key_dict)
+        # TODO current version of python-seal does not support pickling
+        self.state = self._merge_dictionary(self.state, key_dict,
+                                            to_copy=False)
         return key_dict
 
     generate_keys.__annotations__ = {"fhe_context": seal.SEALContext,
