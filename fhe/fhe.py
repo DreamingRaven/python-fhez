@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-05-22T13:19:43+01:00
+# @Last modified time: 2020-05-22T13:29:43+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -38,7 +38,7 @@ class Fhe(object):
     | 32768               | 881                          |
     +---------------------+------------------------------+
 
-    number of slots = poly_modulus_degree/2.
+    number of slots = poly_modulus_degree/2 for CKKS.
     all encoded inputs are padded to the full length of slots.
     scale is the bit-precision of the encoding, and must not get too close to,
     the total size of coeff_modulus.
@@ -110,7 +110,7 @@ class Fhe(object):
     _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
 
     @property
-    def scheme(self):
+    def scheme_type(self):
         return {
             "ckks": seal.scheme_type.CKKS,
             # TODO: "BFV"
