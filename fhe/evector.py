@@ -53,6 +53,7 @@ class Evector(object):
             raise NotImplementedError(
                 "Non CKKS schemes have not been implemented yet" +
                 "please come back later")
+        # self.fhe = Fhe(self.state)
 
     def __str__(self):
         """Turning self/ object print statements to something we define.
@@ -86,12 +87,27 @@ class Evector(object):
         Takes a numpy array, and encryption keys, and changes it to a
         seal.Ciphertext array, padding with 0's any unfilled slots.
         """
+
         # create FHE object with all our current setting like keys etc
         fhe = Fhe(self.state)
         plaintext = self.data
+        print("plaintext:", plaintext, type(plaintext))
+
         # encrypting using availiable keys and generating any if not here
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
         self.data = ciphertext
+        print("ciphertext:", ciphertext, type(ciphertext))
+
+        # in the case keys have been generated, we now copy the exact
+        # encryption keys used to create this ciphertext, will have
+        # no effect if the keys were passed in originally, as they will
+        # be equal.
+        self.state["fhe_public_key"] = fhe.state["fhe_public_key"]
+        self.state["fhe_secret_key"] = fhe.state["fhe_secret_key"]
+        self.state["fhe_relin_keys"] = fhe.state["fhe_relin_keys"]
+
+        # similarly we also get the exact context used for reuse
+        self.state["fhe_contex"] = fhe.state["fhe_context"]
 
     def decrypt(self):
         """Decrypt vector and return to original format.
@@ -100,6 +116,9 @@ class Evector(object):
         and return array to original numpy format and shape by stripping any
         added 0's"""
         pass
+        # fhe = Fhe(self.state)
+        # ciphertext = self.data
+        # print("ciphertext:", ciphertext, type(ciphertext))
 
     def add(self):
         """Add evector with another numeric like object.
@@ -107,7 +126,10 @@ class Evector(object):
         Detects what type of addition this is, whether that be, encrypted +
         unencrypted or encrypted + encrypted so that the correct computation
         can be conducted, then calls underlying seal implementation of this
-        addition via our abstraction Fhe().
+        addition via our abstraction Fhe(). We shoul for ease of use, also
+        support addition of unecnrypted + unencrypted data but this
+        is more so people do not have to extract and then re-instantiate the
+        class each time they need to do some small operation.
         """
         pass
 

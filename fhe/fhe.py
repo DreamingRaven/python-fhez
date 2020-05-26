@@ -96,10 +96,30 @@ class Fhe(object):
         """Given multiple dictionaries, merge together in order.
 
         :param *dicts: dictionaries merged from low to high priority.
-        :type *dicts: dict list
+        :type *dicts: tuple
         :return: None.
         :rtype: None
         """
+
+        # def split_dissidents(dissident_keys, *dicts):
+        #     legals = {}
+        #     dissidents = {}
+        #
+        #     for d in dicts:
+        #         d.pop()
+        #         # for d in dicts:
+        #         #     a = {key: d[key] for key in dissident_keys}
+        #         #     print(a)
+        #     return (legals, dissidents)
+        #
+        # # certain objects cannot be deep copied because of our underlying
+        # # library and its support for copy operations. We isolate these
+        # # dissidents until we can deal with them properly.
+        # dissident_keys = ["fhe_public_key",
+        #                   "fhe_secret_key",
+        #                   "fhe_relin_keys"]
+        # x = split_dissidents(dissident_keys, dicts)
+
         if(to_copy):
             dicts = copy.deepcopy(dicts)
         result = {}
@@ -107,7 +127,7 @@ class Fhe(object):
             result.update(dictionary)  # merge each dictionary in order
         return result
 
-    _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
+    _merge_dictionary.__annotations__ = {"*dicts": tuple, "return": dict}
 
     @property
     def scheme_type(self):
