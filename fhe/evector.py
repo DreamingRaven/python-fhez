@@ -3,10 +3,11 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-05-22T10:23:21+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-05-22T14:47:08+01:00
+# @Last modified time: 2020-05-22T15:47:34+01:00
 # @License: please see LICENSE file in project root
 
 from fhe import Fhe
+from logger import Logger
 import unittest
 import numpy as np
 import copy
@@ -17,7 +18,7 @@ class Evector(object):
 
     def __init__(self, array, **kwargs):
         defaults = {
-            "pylog": print,
+            "pylog": Logger(),
             "fhe_plaintext": None,
             "fhe_ciphertext": None,
             "fhe_scheme_type": Fhe().scheme_type["ckks"],
@@ -34,12 +35,24 @@ class Evector(object):
             # "": None,
         }
         self.state = self._merge_dictionary(defaults, kwargs)
+
         if(isinstance(array, (np.ndarray))):
             self.data = array
         else:
             self.data = np.array(array)
+
         # shape will change need to store it now so can return to origin format
         self.state["fhe_data_shape"] = self.data.shape
+
+        if(self.state["fhe_scheme_type"] == Fhe().scheme_type["ckks"]):
+            self.state["pylog"](
+                "CKKS poly modulus of {}, slots availiable: {}".format(
+                    self.state["fhe_poly_modulus_degree"],
+                    self.state["fhe_poly_modulus_degree"]/2))
+        else:
+            raise NotImplementedError(
+                "Non CKKS schemes have not been implemented yet" +
+                "please come back later")
 
     def __str__(self):
         """Turning self/ object print statements to something we define.
@@ -68,23 +81,51 @@ class Evector(object):
         return result
 
     def encrypt(self):
-        """Encrypt whole vector ready for computation."""
-        pass
+        """Encrypt whole vector ready for computation.
+
+        Takes a numpy array, and encryption keys, and changes it to a
+        seal.Ciphertext array, padding with 0's any unfilled slots.
+        """
+        # create FHE object with all our current setting like keys etc
+        fhe = Fhe(self.state)
+        plaintext = self.data
+        # encrypting using availiable keys and generating any if not here
+        ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
+        self.data = ciphertext
 
     def decrypt(self):
-        """Decrypt vector and return to original format."""
+        """Decrypt vector and return to original format.
+
+        Takes seal.Ciphertext array, and private encryption keys, to decrypts
+        and return array to original numpy format and shape by stripping any
+        added 0's"""
         pass
 
     def add(self):
-        """Add evector with another numeric like object."""
+        """Add evector with another numeric like object.
+
+        Detects what type of addition this is, whether that be, encrypted +
+        unencrypted or encrypted + encrypted so that the correct computation
+        can be conducted, then calls underlying seal implementation of this
+        addition via our abstraction Fhe().
+        """
         pass
 
     def multiply(self):
-        """Multiply evector with another numberic like object."""
+        """Multiply evector with another numberic like object.
+
+        Detects what type of multiplication this is, whether that be, Encrypted
+        * unencrypted or encrypted * encrypted so that the correct computation
+        can be conducted, then calls underlying seal implementation of this
+        multiplication via our abstraction Fhe()."""
         pass
 
     def save(self):
-        """Save the encrypted vector to file-like object."""
+        """Save the encrypted vector to file-like object.
+
+        Storing plaintext values is easily conducted without this library,
+        so instead we only save encrypted values. We take seal.ciphertext
+        and pickle it using the pybind11 implementation by Huelse et al."""
         pass
 
 
