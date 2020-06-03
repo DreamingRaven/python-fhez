@@ -13,6 +13,43 @@ import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
 import numpy as np
 import math
 import pickle
+import tempfile
+
+
+def __getstate__(self):
+    """Create and return serialised object state."""
+    tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_get_", delete=False)
+    self.save(tf.name)
+    with open(tf.name, "rb") as file:
+        f = file.read()
+    os.remove(tf.name)
+    return f
+
+
+def __setstate__(self, file):
+    """Regenerate object state from serialised object."""
+    tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
+    with open(tf.name, "wb") as f:
+        # f.write(file.getbuffer())
+        f.write(file)
+    self.load(tf.name)
+    os.remove(tf.name)
+
+
+seal.EncryptionParameters.__getstate__ = __getstate__
+seal.EncryptionParameters.__setstate__ = __setstate__
+seal.Ciphertext.__getstate__ = __getstate__
+seal.Ciphertext.__setstate__ = __setstate__
+seal.PublicKey.__getstate__ = __getstate__
+seal.PublicKey.__setstate__ = __setstate__
+seal.SecretKey.__getstate__ = __getstate__
+seal.SecretKey.__setstate__ = __setstate__
+seal.KSwitchKeys.__getstate__ = __getstate__
+seal.KSwitchKeys.__setstate__ = __setstate__
+seal.RelinKeys.__getstate__ = __getstate__
+seal.RelinKeys.__setstate__ = __setstate__
+seal.GaloisKeys.__getstate__ = __getstate__
+seal.GaloisKeys.__setstate__ = __setstate__
 
 
 class Fhe(object):
@@ -120,8 +157,12 @@ class Fhe(object):
         #                   "fhe_relin_keys"]
         # x = split_dissidents(dissident_keys, dicts)
 
-        if(to_copy):
-            dicts = copy.deepcopy(dicts)
+        # for d in dicts:
+        #     copy.deepcopy(d)
+
+        # if(to_copy):
+        #     dicts = copy.deepcopy(dicts)
+
         result = {}
         for dictionary in dicts:
             result.update(dictionary)  # merge each dictionary in order
@@ -172,7 +213,11 @@ class Fhe(object):
             params.set_coeff_modulus(
                 seal.CoeffModulus.Create(poly_mod_deg,
                                          coeff_mod))
-
+            # TODO remove the getstate setstate tests
+            temp = params.__getstate__()
+            params.__setstate__(temp)
+            parms = seal.EncryptionParameters(scheme)
+            parms.__setstate__(temp)
             context = seal.SEALContext.Create(params)
             self.state["fhe_context"] = context
             # self.log_parameters(context)
@@ -504,7 +549,7 @@ class Fhe(object):
     decode.__annotations__ = {"return": np.array}
 
     def decrypt(self, fhe_ciphertext=None, fhe_context=None,
-                fhe_secret_key=None, fhe_decryptor=None):
+                fhe_secret_key=None, fhe_decryptor=None, fhe_encoder=None):
         """Decrypt encrypted ciphertext."""
 
         ciphertext = fhe_ciphertext if fhe_ciphertext is not None else \
@@ -526,6 +571,12 @@ class Fhe(object):
             self.state["fhe_decryptor"]
         self.state["fhe_decryptor"] = decryptor if decryptor is not None else \
             self.get_decryptor(fhe_context=context, fhe_secret_key=secret_key)
+
+        # use existing encoder
+        encoder = fhe_encoder if fhe_encoder is not None else \
+            self.state["fhe_encoder"]
+        self.state["fhe_encoder"] = encoder if encoder is not None else \
+            self.get_encoder_ckks(fhe_context=context)
 
         # check if one of our compatible types
         was_numpy = False
