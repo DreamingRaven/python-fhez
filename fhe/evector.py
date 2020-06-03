@@ -41,9 +41,6 @@ class Evector(object):
         else:
             self.data = np.array(array)
 
-        # shape will change need to store it now so can return to origin format
-        self.state["fhe_data_shape"] = self.data.shape
-
         if(self.state["fhe_scheme_type"] == Fhe().scheme_type["ckks"]):
             self.state["pylog"](
                 "CKKS poly modulus of {}, slots availiable: {}".format(
@@ -91,12 +88,13 @@ class Evector(object):
         # create FHE object with all our current setting like keys etc
         fhe = Fhe(self.state)
         plaintext = self.data
-        print("plaintext:", plaintext, type(plaintext))
+
+        # shape will change need to store it now so can return to origin format
+        self.state["fhe_data_shape"] = self.data.shape
 
         # encrypting using availiable keys and generating any if not here
         ciphertext = fhe.encrypt(fhe_plaintext=plaintext)
         self.data = ciphertext
-        print("ciphertext:", ciphertext, type(ciphertext))
 
         # in the case keys have been generated, we now copy the exact
         # encryption keys used to create this ciphertext, will have
@@ -115,10 +113,20 @@ class Evector(object):
         Takes seal.Ciphertext array, and private encryption keys, to decrypts
         and return array to original numpy format and shape by stripping any
         added 0's"""
-        pass
-        # fhe = Fhe(self.state)
-        # ciphertext = self.data
-        # print("ciphertext:", ciphertext, type(ciphertext))
+        fhe = Fhe(self.state)
+        ciphertext = self.data
+        plaintext = fhe.decrypt(fhe_ciphertext=ciphertext)
+
+        def testing(a):
+            print(a)
+
+        # get rid of all those noisy zeros we padded earlier
+        plaintext = np.array(list(map(testing, plaintext)))
+        # plaintext.resize(self.state["fhe_data_shape"])
+        # plaintext = np.resize(plaintext, self.state["fhe_data_shape"])
+
+        self.data = plaintext
+        print(self.data, self.data.shape, self.state["fhe_data_shape"])
 
     def add(self):
         """Add evector with another numeric like object.
