@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-06-04T16:56:06+01:00
+# @Last modified time: 2020-06-05T11:31:32+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -93,10 +93,17 @@ class Reseal(object):
         print(self.__dict__)
 
     def __getstate__(self):
-        pass
+        state = {}
+        for key in self.__dict__:
+            state[key] = self.__dict__[key].__getstate__()
+        return state
 
-    def __setstate__(self):
-        pass
+    def __setstate__(self, state):
+        for key in state:
+            if key in ["_ciphertext"]:
+                print(key, "context enabled unpack")
+            else:
+                print(key, "normal unpack")
 
 
 class Reseal_tests(unittest.TestCase):
@@ -112,7 +119,12 @@ class Reseal_tests(unittest.TestCase):
         params.set_coeff_modulus(
             seal.CoeffModulus.Create(poly_mod_deg,
                                      coeff_mod))
-        Reseal(parameters=params)
+        r = Reseal(parameters=params)
+        d = r.__getstate__()
+        print(d)
+        r2 = Reseal()
+        r2.__setstate__(d)
+        print("output", r2.__dict__)
 
 
 if __name__ == "__main__":
