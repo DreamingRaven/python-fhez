@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-06-05T16:31:53+01:00
+# @Last modified time: 2020-06-05T22:09:16+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -154,6 +154,8 @@ class Reseal(object):
     def __str__(self):
         return str(self.__dict__)
 
+    # # # basic primitive building blocks (scheme, poly-mod, coeff)
+
     @property
     def scheme(self):
         return self._scheme
@@ -165,6 +167,8 @@ class Reseal(object):
     @property
     def coefficient_modulus(self):
         return self._coefficient_modulus
+
+    # # # Encryptor orchestrators and helpers (parameters, context, keygen)
 
     @property
     def parameters(self):
@@ -194,6 +198,8 @@ class Reseal(object):
     @property
     def key_generator(self):
         return seal.KeyGenerator(self.context)
+
+    # # # Keys (public, private, relin)
 
     @property
     def public_key(self):
@@ -248,6 +254,28 @@ class Reseal(object):
     @relin_keys.setter
     def relin_keys(self, key):
         self._relin_keys = key
+
+    # # # workers (encryptor, decryptor, encoder, evaluator)
+
+    # # # ciphertext
+
+    @property
+    def ciphertext(self):
+        return self._ciphertext
+
+    @ciphertext.setter
+    def ciphertext(self, data):
+        if isinstance(data, seal.Ciphertext):
+            self._ciphertext = data
+        else:
+            if isinstance(data, seal.Plaintext):
+                plaintext = data
+            else:
+                plaintext = seal.Plaintext()
+                self.encoder.encode(data, self.scale, plaintext)
+            ciphertext = seal.Ciphertext()
+            self.encryptor.encrypt(plaintext, ciphertext)
+            self._ciphertext = ciphertext
 
 
 class Reseal_tests(unittest.TestCase):
@@ -305,6 +333,17 @@ class Reseal_tests(unittest.TestCase):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
         self.assertIsInstance(r.relin_keys, seal.RelinKeys)
+
+    def test_ciphertext_property(self):
+        import numpy as np
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = 100
+        self.assertIsInstance(r.ciphertext, seal.Ciphertext)
+        r.ciphertext = [1, 2, 3, 4, 5, 100]
+        self.assertIsInstance(r.ciphertext, seal.Ciphertext)
+        r.ciphertext = np.array[1, 2, 3, 4, 5, 100]
+        self.assertIsInstance(r.ciphertext, seal.Ciphertext)
 
     def test_pickle(self):
         import pickle
