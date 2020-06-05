@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-06-05T14:02:17+01:00
+# @Last modified time: 2020-06-05T16:31:53+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -11,10 +11,6 @@ import tempfile
 import unittest
 
 import seal
-
-
-# def force_context(self, context):
-#     self.context = context
 
 
 def getstate_normal(self):
@@ -32,7 +28,10 @@ def setstate_normal(self, d):
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
     with open(tf.name, "wb") as f:
         f.write(d["file_contents"])
-    self.load(tf.name)
+    if d.get("context"):
+        self.load(d["context"], tf.name)
+    else:
+        self.load(tf.name)
     os.remove(tf.name)
 
 
@@ -84,7 +83,6 @@ class Reseal(object):
         # BFV specific parameters with defaults
         else:
             raise NotImplementedError("BFV scheme init not yet implemented")
-            pass
 
         if parameters is not None:
             self._parameters = parameters
@@ -129,102 +127,203 @@ class Reseal(object):
                 self._ciphertext = ciphertext
             elif key == "_public_key":
                 public_key = seal.PublicKey()
+                state[key].update({"context": self.context})
                 public_key.__setstate__(state[key])
                 self._public_key = public_key
             elif key == "_private_key":
                 private_key = seal.SecretKey()
+                state[key].update({"context": self.context})
                 private_key.__setstate__(state[key])
                 self._private_key = private_key
             elif key == "_switch_keys":
                 switch_keys = seal.KSwitchKeys()
+                state[key].update({"context": self.context})
                 switch_keys.__setstate__(state[key])
                 self._switch_keys = switch_keys
             elif key == "_relin_keys":
                 relin_keys = seal.RelinKeys()
+                state[key].update({"context": self.context})
                 relin_keys.__setstate__(state[key])
                 self._relin_keys = relin_keys
             elif key == "_galois_keys":
                 galois_keys = seal.GaloisKeys()
+                state[key].update({"context": self.context})
                 galois_keys.__setstate__(state[key])
                 self._galois_keys = galois_keys
+
+    def __str__(self):
+        return str(self.__dict__)
 
     @property
     def scheme(self):
         return self._scheme
 
     @property
+    def poly_modulus_degree(self):
+        return self._poly_modulus_degree
+
+    @property
+    def coefficient_modulus(self):
+        return self._coefficient_modulus
+
+    @property
     def parameters(self):
-        if self._public_key:
+        if self.__dict__.get("_parameters"):
             return self._parameters
         else:
             if self.scheme == seal.scheme_type.CKKS or self.scheme == 2:
                 params = seal.EncryptionParameters(self.scheme)
                 params.set_poly_modulus_degree(self.poly_modulus_degree)
                 params.set_coeff_modulus(seal.CoeffModulus.Create(
-                    self.poly_moduluse_degree,
+                    self.poly_modulus_degree,
                     self.coefficient_modulus))
-                self.parameters = params
-                return self.parameters
             else:
                 raise NotImplementedError("BFV parameters not yet implemented")
+
+            self.parameters = params
+            return self.parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        self._parameters = parameters
 
     @property
     def context(self):
         return seal.SEALContext.Create(self.parameters)
 
     @property
+    def key_generator(self):
+        return seal.KeyGenerator(self.context)
+
+    @property
     def public_key(self):
-        if self._public_key:
+        if self.__dict__.get("_public_key"):
             return self._public_key
         else:
-            return None
+            keygen = self.key_generator
+            self.public_key = keygen.public_key()
+            self.private_key = keygen.secret_key()
+            if (self.scheme == seal.scheme_type.CKKS) or (self.scheme == 2):
+                self.relin_keys = keygen.relin_keys()
+            else:
+                raise NotImplementedError("BFV key generation not complete")
+            return self.public_key
+
+    @public_key.setter
+    def public_key(self, key):
+        self._public_key = key
+
+    @property
+    def private_key(self):
+        if self.__dict__.get("_private_key"):
+            return self._private_key
+        else:
+            keygen = self.key_generator
+            self.public_key = keygen.public_key()
+            self.private_key = keygen.secret_key()
+            if (self.scheme == seal.scheme_type.CKKS) or (self.scheme == 2):
+                self.relin_keys = keygen.relin_keys()
+            else:
+                raise NotImplementedError("BFV key generation not complete")
+            return self.private_key
+
+    @private_key.setter
+    def private_key(self, key):
+        self._private_key = key
+
+    @property
+    def relin_keys(self):
+        if self.__dict__.get("_relin_keys"):
+            return self._relin_keys
+        else:
+            keygen = self.key_generator
+            self.public_key = keygen.public_key()
+            self.private_key = keygen.secret_key()
+            if (self.scheme == seal.scheme_type.CKKS) or (self.scheme == 2):
+                self.relin_keys = keygen.relin_keys()
+            else:
+                raise NotImplementedError("BFV key generation not complete")
+            return self.relin_keys
+
+    @relin_keys.setter
+    def relin_keys(self, key):
+        self._relin_keys = key
 
 
 class Reseal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
 
-    def test_init(self):
-        scheme = seal.scheme_type.CKKS
-        poly_mod_deg = 8192
-        coeff_mod = [60, 40, 40, 60]
+    def defaults_ckks(self):
+        return {
+            "scheme": seal.scheme_type.CKKS,
+            "poly_mod_deg": 8192,
+            "coeff_mod": [60, 40, 40, 60],
+        }
 
-        params = seal.EncryptionParameters(scheme)
-        params.set_poly_modulus_degree(poly_mod_deg)
-        params.set_coeff_modulus(
-            seal.CoeffModulus.Create(poly_mod_deg,
-                                     coeff_mod))
-        Reseal(scheme=scheme, parameters=params)
+    def gen_reseal(self, defaults):
+        if defaults["scheme"] == seal.scheme_type.CKKS:
+            r = Reseal(scheme=defaults["scheme"],
+                       poly_modulus_degree=defaults["poly_mod_deg"],
+                       coefficient_modulus=defaults["coeff_mod"])
+        else:
+            raise NotImplementedError("BFV default gen_reseal not implemented")
+        return r
+
+    def test_init(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r, Reseal)
 
     def test_serialize_deserialize(self):
-        scheme = seal.scheme_type.CKKS
-        poly_mod_deg = 8192
-        coeff_mod = [60, 40, 40, 60]
-
-        params = seal.EncryptionParameters(scheme)
-        params.set_poly_modulus_degree(poly_mod_deg)
-        params.set_coeff_modulus(
-            seal.CoeffModulus.Create(poly_mod_deg,
-                                     coeff_mod))
-        r = Reseal(scheme=scheme, parameters=params)
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
         d = r.__getstate__()
         r2 = Reseal()
         r2.__setstate__(d)
 
-    def test_context_property(self):
-        scheme = seal.scheme_type.CKKS
-        poly_mod_deg = 8192
-        coeff_mod = [60, 40, 40, 60]
+    def test_param_property(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.parameters, seal.EncryptionParameters)
 
-        params = seal.EncryptionParameters(scheme)
-        params.set_poly_modulus_degree(poly_mod_deg)
-        params.set_coeff_modulus(
-            seal.CoeffModulus.Create(poly_mod_deg,
-                                     coeff_mod))
-        r = Reseal(scheme=scheme, parameters=params)
-        context = r.context
-        self.assertIsInstance(context, seal.SEALContext)
-        context2 = r.context
-        print(context, context2)
+    def test_context_property(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.context, seal.SEALContext)
+
+    def test_publickey_property(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.public_key, seal.PublicKey)
+
+    def test_privatekey_property(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.private_key, seal.SecretKey)
+
+    def test_relinkeys_property(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.relin_keys, seal.RelinKeys)
+
+    def test_pickle(self):
+        import pickle
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.relin_keys, seal.RelinKeys)
+        dump = pickle.dumps(r)
+        rp = pickle.loads(dump)
+        print("original:", r)
+        print("unpickled:", rp)
+
+    def test_deepcopy(self):
+        import copy
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.relin_keys, seal.RelinKeys)
+        rc = copy.deepcopy(r)
+        print("original:", r)
+        print("copied:", rc)
 
 
 if __name__ == "__main__":
