@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-06-05T22:09:16+01:00
+# @Last modified time: 2020-06-05T23:16:32+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -67,43 +67,40 @@ class Reseal(object):
     """
 
     def __init__(self, scheme=None, poly_modulus_degree=None,
-                 coefficient_modulus=None, parameters=None, ciphertext=None,
+                 coefficient_modulus=None, scale=None, parameters=None,
+                 ciphertext=None,
                  public_key=None, private_key=None, switch_keys=None,
                  relin_keys=None,
                  galois_keys=None):
-
-        self._scheme = scheme if scheme is not None else seal.scheme_type.CKKS
-
-        # CKKS specific parameters with defaults
-        if (self._scheme == 2) or (self._scheme == seal.scheme_type.CKKS):
-            self._poly_modulus_degree = poly_modulus_degree if \
-                poly_modulus_degree is not None else 8192
-            self._coefficient_modulus = coefficient_modulus if \
-                coefficient_modulus is not None else [60, 40, 40, 60]
-        # BFV specific parameters with defaults
-        else:
-            raise NotImplementedError("BFV scheme init not yet implemented")
-
-        if parameters is not None:
+        if scheme:
+            self._scheme = scheme
+        if poly_modulus_degree:
+            self._poly_modulus_degree = poly_modulus_degree
+        if coefficient_modulus:
+            self._coefficient_modulus = coefficient_modulus
+        if scale:
+            self._scale = scale
+        if parameters:
             self._parameters = parameters
-        if ciphertext is not None:
+        if ciphertext:
             self._ciphertext = ciphertext
-        if public_key is not None:
+        if public_key:
             self._public_key = public_key
-        if private_key is not None:
+        if private_key:
             self._private_key = private_key
-        if switch_keys is not None:
+        if switch_keys:
             self._switch_keys = switch_keys
-        if relin_keys is not None:
+        if relin_keys:
             self._relin_keys = relin_keys
-        if galois_keys is not None:
+        if galois_keys:
             self._galois_keys = galois_keys
 
     def __getstate__(self):
         """Create single unified state to allow serialisation."""
         state = {}
         for key in self.__dict__:
-            if key in ["_poly_modulus_degree", "_coefficient_modulus"]:
+            if key in ["_poly_modulus_degree", "_coefficient_modulus",
+                       "_scale"]:
                 state[key] = self.__dict__[key]
             else:
                 state[key] = self.__dict__[key].__getstate__()
@@ -111,9 +108,9 @@ class Reseal(object):
 
     def __setstate__(self, state):
         """Rebuild all constituent objects from serialised state."""
-        # note: seal getstate of CKKS is the int 2 which can be used directly
-        # so do not be confused if you see it as seal.scheme_type.CKKS or as 2
-        self._scheme = state["_scheme"]
+        # ensuring scheme type is decoded first and must always exist
+        self._scheme = seal.scheme_type(state["_scheme"])
+        # self._scheme = state["_scheme"]
         for key in state:
             if key == "_scheme":
                 pass  # skip already unpacked first
@@ -150,12 +147,13 @@ class Reseal(object):
                 state[key].update({"context": self.context})
                 galois_keys.__setstate__(state[key])
                 self._galois_keys = galois_keys
+            else:
+                self.__dict__[key] = state[key]
 
     def __str__(self):
         return str(self.__dict__)
 
     # # # basic primitive building blocks (scheme, poly-mod, coeff)
-
     @property
     def scheme(self):
         return self._scheme
@@ -168,8 +166,11 @@ class Reseal(object):
     def coefficient_modulus(self):
         return self._coefficient_modulus
 
-    # # # Encryptor orchestrators and helpers (parameters, context, keygen)
+    @property
+    def scale(self):
+        return self._scale
 
+    # # # Encryptor orchestrators and helpers (parameters, context, keygen)
     @property
     def parameters(self):
         if self.__dict__.get("_parameters"):
@@ -200,7 +201,6 @@ class Reseal(object):
         return seal.KeyGenerator(self.context)
 
     # # # Keys (public, private, relin)
-
     @property
     def public_key(self):
         if self.__dict__.get("_public_key"):
@@ -256,9 +256,24 @@ class Reseal(object):
         self._relin_keys = key
 
     # # # workers (encryptor, decryptor, encoder, evaluator)
+    @property
+    def encoder(self):
+        # BFV does not use an encoder so will always be CKKS variant
+        return seal.CKKSEncoder(self.context)
+
+    @property
+    def encryptor(self):
+        return seal.Encryptor(self.context, self.public_key)
+
+    @property
+    def evaluator(self):
+        return seal.Evaluator(self.context)
+
+    @property
+    def decryptor(self):
+        return seal.Decryptor(self.context, self.private_key)
 
     # # # ciphertext
-
     @property
     def ciphertext(self):
         return self._ciphertext
@@ -286,13 +301,15 @@ class Reseal_tests(unittest.TestCase):
             "scheme": seal.scheme_type.CKKS,
             "poly_mod_deg": 8192,
             "coeff_mod": [60, 40, 40, 60],
+            "scale": pow(2.0, 40)
         }
 
     def gen_reseal(self, defaults):
         if defaults["scheme"] == seal.scheme_type.CKKS:
             r = Reseal(scheme=defaults["scheme"],
                        poly_modulus_degree=defaults["poly_mod_deg"],
-                       coefficient_modulus=defaults["coeff_mod"])
+                       coefficient_modulus=defaults["coeff_mod"],
+                       scale=defaults["scale"])
         else:
             raise NotImplementedError("BFV default gen_reseal not implemented")
         return r
@@ -352,8 +369,8 @@ class Reseal_tests(unittest.TestCase):
         self.assertIsInstance(r.relin_keys, seal.RelinKeys)
         dump = pickle.dumps(r)
         rp = pickle.loads(dump)
-        print("original:", r)
-        print("unpickled:", rp)
+        # print("original:", r)
+        # print("unpickled:", rp)
 
     def test_deepcopy(self):
         import copy
@@ -361,8 +378,8 @@ class Reseal_tests(unittest.TestCase):
         r = self.gen_reseal(defaults)
         self.assertIsInstance(r.relin_keys, seal.RelinKeys)
         rc = copy.deepcopy(r)
-        print("original:", r)
-        print("copied:", rc)
+        # print("original:", r)
+        # print("copied:", rc)
 
 
 if __name__ == "__main__":
