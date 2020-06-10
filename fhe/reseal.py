@@ -14,7 +14,7 @@ import numpy as np
 import seal
 
 
-def getstate_normal(self):
+def _getstate_normal(self):
     """Create and return serialised object state."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_get_", delete=False)
     self.save(tf.name)
@@ -24,7 +24,7 @@ def getstate_normal(self):
     return {"file_contents": f}
 
 
-def setstate_normal(self, d):
+def _setstate_normal(self, d):
     """Regenerate object state from serialised object."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
     with open(tf.name, "wb") as f:
@@ -38,26 +38,26 @@ def setstate_normal(self, d):
 
 # rebind setstate and getstate to workable versions
 # https://stackoverflow.com/questions/972/adding-a-method-to-an-existing-object-instance
-seal.EncryptionParameters.__getstate__ = getstate_normal
-seal.EncryptionParameters.__setstate__ = setstate_normal
+seal.EncryptionParameters.__getstate__ = _getstate_normal
+seal.EncryptionParameters.__setstate__ = _setstate_normal
 
-seal.Ciphertext.__getstate__ = getstate_normal
-seal.Ciphertext.__setstate__ = setstate_normal
+seal.Ciphertext.__getstate__ = _getstate_normal
+seal.Ciphertext.__setstate__ = _setstate_normal
 
-seal.PublicKey.__getstate__ = getstate_normal
-seal.PublicKey.__setstate__ = setstate_normal
+seal.PublicKey.__getstate__ = _getstate_normal
+seal.PublicKey.__setstate__ = _setstate_normal
 
-seal.SecretKey.__getstate__ = getstate_normal
-seal.SecretKey.__setstate__ = setstate_normal
+seal.SecretKey.__getstate__ = _getstate_normal
+seal.SecretKey.__setstate__ = _setstate_normal
 
-seal.KSwitchKeys.__getstate__ = getstate_normal
-seal.KSwitchKeys.__setstate__ = setstate_normal
+seal.KSwitchKeys.__getstate__ = _getstate_normal
+seal.KSwitchKeys.__setstate__ = _setstate_normal
 
-seal.RelinKeys.__getstate__ = getstate_normal
-seal.RelinKeys.__setstate__ = setstate_normal
+seal.RelinKeys.__getstate__ = _getstate_normal
+seal.RelinKeys.__setstate__ = _setstate_normal
 
-seal.GaloisKeys.__getstate__ = getstate_normal
-seal.GaloisKeys.__setstate__ = setstate_normal
+seal.GaloisKeys.__getstate__ = _getstate_normal
+seal.GaloisKeys.__setstate__ = _setstate_normal
 
 
 class Reseal(object):
@@ -380,17 +380,15 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = np.array([1, 2, 3])
         dump = pickle.dumps(r)
         rp = pickle.loads(dump)
-        # print("original:", r)
-        # print("unpickled:", rp)
+        self.assertIsInstance(rp, Reseal)
 
     def test_deepcopy(self):
         import copy
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
         r.ciphertext = np.array([1, 2, 3])
-        copy.deepcopy(r)
-        # print("original:", r)
-        # print("copied:", rc)
+        rp = copy.deepcopy(r)
+        self.assertIsInstance(rp, Reseal)
 
 
 if __name__ == "__main__":
