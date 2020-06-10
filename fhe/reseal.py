@@ -9,6 +9,7 @@
 import os
 import tempfile
 import unittest
+import numpy as np
 
 import seal
 
@@ -150,8 +151,22 @@ class Reseal(object):
             else:
                 self.__dict__[key] = state[key]
 
-    def __str__(self):
-        return str(self.__dict__)
+    def _to_plaintext(self, data):
+        plaintext = seal.Plaintext()
+        if isinstance(data, (int, float)):
+            data = [data]
+        elif isinstance(data, np.ndarray):
+            data = data.tolist()
+
+        if isinstance(data, seal.Plaintext):
+            plaintext = data
+        elif isinstance(data, seal.DoubleVector):
+            vector = data
+            self.encoder.encode(vector, self.scale, plaintext)
+        else:
+            vector = seal.DoubleVector(data)
+            self.encoder.encode(vector, self.scale, plaintext)
+        return plaintext
 
     # # # basic primitive building blocks (scheme, poly-mod, coeff)
     @property
@@ -283,11 +298,7 @@ class Reseal(object):
         if isinstance(data, seal.Ciphertext):
             self._ciphertext = data
         else:
-            if isinstance(data, seal.Plaintext):
-                plaintext = data
-            else:
-                plaintext = seal.Plaintext()
-                self.encoder.encode(data, self.scale, plaintext)
+            plaintext = self._to_plaintext(data)
             ciphertext = seal.Ciphertext()
             self.encryptor.encrypt(plaintext, ciphertext)
             self._ciphertext = ciphertext
@@ -352,14 +363,13 @@ class Reseal_tests(unittest.TestCase):
         self.assertIsInstance(r.relin_keys, seal.RelinKeys)
 
     def test_ciphertext_property(self):
-        import numpy as np
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
         r.ciphertext = 100
         self.assertIsInstance(r.ciphertext, seal.Ciphertext)
         r.ciphertext = [1, 2, 3, 4, 5, 100]
         self.assertIsInstance(r.ciphertext, seal.Ciphertext)
-        r.ciphertext = np.array[1, 2, 3, 4, 5, 100]
+        r.ciphertext = np.array([1, 2, 3, 4, 5, 100])
         self.assertIsInstance(r.ciphertext, seal.Ciphertext)
 
     def test_pickle(self):
