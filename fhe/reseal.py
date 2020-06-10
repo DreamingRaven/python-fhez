@@ -121,6 +121,7 @@ class Reseal(object):
                 self._parameters = parameters
             elif key == "_ciphertext":
                 ciphertext = seal.Ciphertext()
+                state[key].update({"context": self.context})
                 ciphertext.__setstate__(state[key])
                 self._ciphertext = ciphertext
             elif key == "_public_key":
@@ -376,7 +377,7 @@ class Reseal_tests(unittest.TestCase):
         import pickle
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        self.assertIsInstance(r.relin_keys, seal.RelinKeys)
+        r.ciphertext = np.array([1, 2, 3])
         dump = pickle.dumps(r)
         rp = pickle.loads(dump)
         # print("original:", r)
@@ -386,8 +387,8 @@ class Reseal_tests(unittest.TestCase):
         import copy
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        self.assertIsInstance(r.relin_keys, seal.RelinKeys)
-        rc = copy.deepcopy(r)
+        r.ciphertext = np.array([1, 2, 3])
+        copy.deepcopy(r)
         # print("original:", r)
         # print("copied:", rc)
 
