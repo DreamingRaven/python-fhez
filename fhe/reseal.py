@@ -61,10 +61,60 @@ seal.GaloisKeys.__setstate__ = _setstate_normal
 
 
 class Reseal(object):
-    """Re-binder/ handler for serialisation of Seal objects.
+    """Re-binder/ handler for serialisation of MS-Seal objects.
 
+    This is also a Fully Homomorphic Encryption (FHE) utility library.
+
+    This library is designed to streamline and simplify FHE encryption,
+    decryption, abstraction, serialisation, and integration. In particular
+    this library is intended for use in deep learning to fascilitate a
+    more private echosystem. Thus the need for floating point operations means,
+    we use the Cheon-Kim-Kim-Song (CKKS) scheme, However BFV will also be
+    supported in future
     MS-Seal can be complex and has multiple quirky objects that require
     unique serialisation handling.
+
+    Table showing noise budget increase as poly modulus degree increases,
+    allowing more computations.
+
+    +----------------------------------------------------+
+    | poly_modulus_degree | max coeff_modulus bit-length |
+    +---------------------+------------------------------+
+    | 1024                | 27                           |
+    | 2048                | 54                           |
+    | 4096                | 109                          |
+    | 8192                | 218                          |
+    | 16384               | 438                          |
+    | 32768               | 881                          |
+    +---------------------+------------------------------+
+
+    number of slots = poly_modulus_degree/2 for CKKS.
+    all encoded inputs are padded to the full length of slots.
+    scale is the bit-precision of the encoding, and must not get too close to,
+    the total size of coeff_modulus.
+
+    CKKS does not use plain_modulus.
+    CKKS coeff_modulus has to be selected carefully.
+
+
+    :param scheme: What type of encryption scheme to use (BFV or CKKS).
+    :type scheme: seal.scheme_type
+    :type poly_modulus_degree: int
+    :type coefficient_modulus: list
+    :param scale: Computational scale/ fixed point precision.
+    :type scale: float
+    :param parameters: FHE MS-Seal encryption parameters to use throught.
+    :type parameters: seal.EncryptionParameters
+    :param ciphertext: The encrypted ciphertext with which to compute with.
+    :type ciphertext: seal.Ciphertexts
+    :param public_key: The key used for encrypting plaintext to ciphertext.
+    :type public_key: seal.PublicKey
+    :param private_key: The key used for decrypting ciphertext to plaintext.
+    :type private_key: seal.PrivateKey
+    :type switch_keys: seal.KSwitchKeys
+    :type relin_keys: seal.RelinKeys
+    :type galois_keys: seal.GaloisKeys
+    :example: Reseal(scheme=seal.scheme_type.CKKS)
     """
 
     def __init__(self, scheme=None, poly_modulus_degree=None,
