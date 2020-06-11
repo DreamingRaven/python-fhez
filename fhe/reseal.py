@@ -471,45 +471,59 @@ class Reseal_tests(unittest.TestCase):
     def test_ciphertext_add_plaintext(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        r.ciphertext = 100
+        data = np.array([100, 200, 300])
+        r.ciphertext = data
         r.ciphertext = r + 2
         r.ciphertext = r + 4
+        result = r.plaintext
+        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        self.assertEqual((data+6).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_add_ciphertext(self):
         import copy
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        r.ciphertext = 100
+        data = np.array([100, 200, 300])
+        r.ciphertext = data
         r2 = copy.deepcopy(r)
         r.ciphertext = r + r2
         r.ciphertext = r + r2
+        result = r.plaintext
+        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        self.assertEqual((data*3).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_multiply_plaintext(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        r.ciphertext = 100
+        data = np.array([100, 200, 300])
+        r.ciphertext = data
         r.ciphertext = r * 2
         r.ciphertext = r * 4
+        result = r.plaintext
+        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        self.assertEqual((data*8).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_multiply_ciphertext(self):
         import copy
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        r.ciphertext = 100
+        data = np.array([100, 200, 300])
+        r.ciphertext = data
         r2 = copy.deepcopy(r)
         r.ciphertext = r * r2
-        r.ciphertext = r * r2
+        # r.ciphertext = r * r2
+        result = r.plaintext
+        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        self.assertEqual((data ^ 2).tolist(), rounded_reshaped_result.tolist())
 
     def test_encrypt_decrypt(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
         data = np.array([100, 200, 300])
-        r.ciphertext = 100
-        r.ciphertext = r + 2
-        r.ciphertext = r + 10
+        r.ciphertext = data
         result = r.plaintext
         rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
-        self.assertEqual((data+12).tolist(), rounded_reshaped_result.tolist())
+        self.assertEqual((data).tolist(), rounded_reshaped_result.tolist())
         # result = np.round_(
         #     result[:data.shape[0], :data.shape[1]]).astype(int)
 
