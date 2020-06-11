@@ -210,8 +210,11 @@ class Reseal(object):
             raise NotImplementedError("ciphertext + ciphertext not availiable")
         else:
             # if adding ciphertext + numeric plaintext
+            # print("modulus id", self._ciphertext.parms_id())
             encrypted_result = seal.Ciphertext()
             plaintext = self._to_plaintext(other)
+            self.evaluator.mod_switch_to_inplace(plaintext,
+                                                 self._ciphertext.parms_id())
             self.evaluator.add_plain(self._ciphertext, plaintext,
                                      encrypted_result)
         return encrypted_result
@@ -387,6 +390,15 @@ class Reseal(object):
             self.encryptor.encrypt(plaintext, ciphertext)
             self._ciphertext = ciphertext
 
+    # # # plaintext
+    @property
+    def plaintext(self):
+        seal_plaintext = seal.Plaintext()
+        self.decryptor.decrypt(self._ciphertext, seal_plaintext)
+        vector_plaintext = seal.DoubleVector()
+        self.encoder.decode(seal_plaintext, vector_plaintext)
+        return np.array(vector_plaintext)
+
 
 class Reseal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
@@ -487,6 +499,19 @@ class Reseal_tests(unittest.TestCase):
         r2 = copy.deepcopy(r)
         r.ciphertext = r * r2
         r.ciphertext = r * r2
+
+    def test_encrypt_decrypt(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        data = np.array([100, 200, 300])
+        r.ciphertext = 100
+        r.ciphertext = r + 2
+        r.ciphertext = r + 10
+        result = r.plaintext
+        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        self.assertEqual((data+12).tolist(), rounded_reshaped_result.tolist())
+        # result = np.round_(
+        #     result[:data.shape[0], :data.shape[1]]).astype(int)
 
     def test_pickle(self):
         import pickle
