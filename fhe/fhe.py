@@ -3,15 +3,52 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-03-21T11:30:56+00:00
 # @Last modified by:   archer
-# @Last modified time: 2020-04-07T10:03:51+01:00
+# @Last modified time: 2020-05-22T13:29:43+01:00
 # @License: please see LICENSE file in project root
 
 import os
+import copy
 import unittest
 import seal  # github.com/Huelse/SEAL-Python or DreamingRaven/seal-python
 import numpy as np
 import math
 import pickle
+import tempfile
+
+
+def __getstate__(self):
+    """Create and return serialised object state."""
+    tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_get_", delete=False)
+    self.save(tf.name)
+    with open(tf.name, "rb") as file:
+        f = file.read()
+    os.remove(tf.name)
+    return f
+
+
+def __setstate__(self, file):
+    """Regenerate object state from serialised object."""
+    tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
+    with open(tf.name, "wb") as f:
+        f.write(file)
+    self.load(tf.name)
+    os.remove(tf.name)
+
+
+seal.EncryptionParameters.__getstate__ = __getstate__
+seal.EncryptionParameters.__setstate__ = __setstate__
+seal.Ciphertext.__getstate__ = __getstate__
+seal.Ciphertext.__setstate__ = __setstate__
+seal.PublicKey.__getstate__ = __getstate__
+seal.PublicKey.__setstate__ = __setstate__
+seal.SecretKey.__getstate__ = __getstate__
+seal.SecretKey.__setstate__ = __setstate__
+seal.KSwitchKeys.__getstate__ = __getstate__
+seal.KSwitchKeys.__setstate__ = __setstate__
+seal.RelinKeys.__getstate__ = __getstate__
+seal.RelinKeys.__setstate__ = __setstate__
+seal.GaloisKeys.__getstate__ = __getstate__
+seal.GaloisKeys.__setstate__ = __setstate__
 
 
 class Fhe(object):
@@ -37,7 +74,7 @@ class Fhe(object):
     | 32768               | 881                          |
     +---------------------+------------------------------+
 
-    number of slots = poly_modulus_degree/2.
+    number of slots = poly_modulus_degree/2 for CKKS.
     all encoded inputs are padded to the full length of slots.
     scale is the bit-precision of the encoding, and must not get too close to,
     the total size of coeff_modulus.
@@ -91,20 +128,53 @@ class Fhe(object):
     __init__.__annotations__ = {"args": dict, "logger": print,
                                 "return": object}
 
-    def _merge_dictionary(self, *dicts):
+    def _merge_dictionary(self, *dicts, to_copy=True):
         """Given multiple dictionaries, merge together in order.
 
         :param *dicts: dictionaries merged from low to high priority.
-        :type *dicts: dict list
+        :type *dicts: tuple
         :return: None.
         :rtype: None
         """
+
+        # def split_dissidents(dissident_keys, *dicts):
+        #     legals = {}
+        #     dissidents = {}
+        #
+        #     for d in dicts:
+        #         d.pop()
+        #         # for d in dicts:
+        #         #     a = {key: d[key] for key in dissident_keys}
+        #         #     print(a)
+        #     return (legals, dissidents)
+        #
+        # # certain objects cannot be deep copied because of our underlying
+        # # library and its support for copy operations. We isolate these
+        # # dissidents until we can deal with them properly.
+        # dissident_keys = ["fhe_public_key",
+        #                   "fhe_secret_key",
+        #                   "fhe_relin_keys"]
+        # x = split_dissidents(dissident_keys, dicts)
+
+        # for d in dicts:
+        #     copy.deepcopy(d)
+
+        if(to_copy):
+            dicts = copy.deepcopy(dicts)
+
         result = {}
         for dictionary in dicts:
             result.update(dictionary)  # merge each dictionary in order
         return result
 
-    _merge_dictionary.__annotations__ = {"*dicts": dict, "return": dict}
+    _merge_dictionary.__annotations__ = {"*dicts": tuple, "return": dict}
+
+    @property
+    def scheme_type(self):
+        return {
+            "ckks": seal.scheme_type.CKKS,
+            # TODO: "BFV"
+        }
 
     def create_context(self, fhe_scheme_type=None,
                        fhe_poly_modulus_degree=None,
@@ -141,18 +211,23 @@ class Fhe(object):
             params.set_poly_modulus_degree(poly_mod_deg)
             params.set_coeff_modulus(
                 seal.CoeffModulus.Create(poly_mod_deg,
-                                         self.state["fhe_coeff_modulus"]))
-
+                                         coeff_mod))
+            # TODO remove the getstate setstate tests
+            temp = params.__getstate__()
+            params.__setstate__(temp)
+            parms = seal.EncryptionParameters(scheme)
+            parms.__setstate__(temp)
             context = seal.SEALContext.Create(params)
             self.state["fhe_context"] = context
             # self.log_parameters(context)
             return context
         else:
-            self.state["pylog"](self.state["fhe_coeff_modulus"],
-                                "exceeds the maximum number of bits for a",
-                                "poly_modulus_degree of:",
-                                poly_mod_deg, "which is a cumulative total of:",
-                                max_bit_count)
+            self.state["pylog"](
+                self.state["fhe_coeff_modulus"],
+                "exceeds the maximum number of bits for a",
+                "poly_modulus_degree of:",
+                poly_mod_deg, "which is a cumulative total of:",
+                max_bit_count)
             return None
 
     create_context.__annotations__ = {"fhe_scheme_type": seal.scheme_type,
@@ -216,7 +291,9 @@ class Fhe(object):
             "fhe_secret_key": keygen.secret_key(),
             "fhe_relin_keys": keygen.relin_keys(),
         }
-        self.state = self._merge_dictionary(self.state, key_dict)
+        # TODO current version of python-seal does not support pickling
+        self.state = self._merge_dictionary(self.state, key_dict,
+                                            to_copy=False)
         return key_dict
 
     generate_keys.__annotations__ = {"fhe_context": seal.SEALContext,
@@ -376,7 +453,7 @@ class Fhe(object):
                                fhe_public_key=public_key)
 
         # use existing encoder or create as above
-        encoder = encoder if fhe_encoder is not None else \
+        encoder = fhe_encoder if fhe_encoder is not None else \
             self.state["fhe_encoder"]
         self.state["fhe_encoder"] = encoder if encoder is not None else \
             self.get_encoder(fhe_context=context)
@@ -441,7 +518,7 @@ class Fhe(object):
 
         seal_plaintext = seal.Plaintext()
         encoder.encode(plaintext,
-                       self.state["fhe_scale"],
+                       scale,
                        seal_plaintext)
 
         return seal_plaintext
@@ -471,7 +548,7 @@ class Fhe(object):
     decode.__annotations__ = {"return": np.array}
 
     def decrypt(self, fhe_ciphertext=None, fhe_context=None,
-                fhe_secret_key=None, fhe_decryptor=None):
+                fhe_secret_key=None, fhe_decryptor=None, fhe_encoder=None):
         """Decrypt encrypted ciphertext."""
 
         ciphertext = fhe_ciphertext if fhe_ciphertext is not None else \
@@ -493,6 +570,12 @@ class Fhe(object):
             self.state["fhe_decryptor"]
         self.state["fhe_decryptor"] = decryptor if decryptor is not None else \
             self.get_decryptor(fhe_context=context, fhe_secret_key=secret_key)
+
+        # use existing encoder
+        encoder = fhe_encoder if fhe_encoder is not None else \
+            self.state["fhe_encoder"]
+        self.state["fhe_encoder"] = encoder if encoder is not None else \
+            self.get_encoder_ckks(fhe_context=context)
 
         # check if one of our compatible types
         was_numpy = False
@@ -944,4 +1027,5 @@ def null_printer(*text, log_min_level=None,
 
 if __name__ == "__main__":
     # run all the unit-tests
+    print("now testing:", __file__, "...")
     unittest.main()

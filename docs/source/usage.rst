@@ -1,5 +1,5 @@
 Usage
 #####
 
-.. autoclass:: fhe.Fhe
+.. autoclass:: fhe.fhe.Fhe
   :members:
