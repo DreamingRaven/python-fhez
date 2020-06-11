@@ -30,7 +30,6 @@ def __setstate__(self, file):
     """Regenerate object state from serialised object."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
     with open(tf.name, "wb") as f:
-        # f.write(file.getbuffer())
         f.write(file)
     self.load(tf.name)
     os.remove(tf.name)
@@ -160,8 +159,8 @@ class Fhe(object):
         # for d in dicts:
         #     copy.deepcopy(d)
 
-        # if(to_copy):
-        #     dicts = copy.deepcopy(dicts)
+        if(to_copy):
+            dicts = copy.deepcopy(dicts)
 
         result = {}
         for dictionary in dicts:
