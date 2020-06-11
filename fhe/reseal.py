@@ -202,6 +202,39 @@ class Reseal(object):
             else:
                 self.__dict__[key] = state[key]
 
+    # arithmetic operations
+
+    def __add__(self, other):
+        if isinstance(other, (Reseal, seal.Ciphertext)):
+            # if adding ciphertexts
+            raise NotImplementedError("ciphertext + ciphertext not availiable")
+        else:
+            # if adding ciphertext + numeric plaintext
+            encrypted_result = seal.Ciphertext()
+            plaintext = self._to_plaintext(other)
+            self.evaluator.add_plain(self._ciphertext, plaintext,
+                                     encrypted_result)
+        return encrypted_result
+
+    def __mul__(self, other):
+        if isinstance(other, (Reseal, seal.Ciphertext)):
+            # if multiplying ciphertexts
+            raise NotImplementedError("ciphertext * ciphertext not availiable")
+        else:
+            # if multiplying ciphertext * numeric
+            raise NotImplementedError("ciphertext * plaintext not availiable")
+        return None
+
+    # reverse arithmetic operations
+
+    def __radd__(self, other):
+        return self.__add__(self, other)
+
+    def __rmul__(self, other):
+        return self.__mul__(self, other)
+
+    # helpers
+
     def _to_plaintext(self, data):
         plaintext = seal.Plaintext()
         if isinstance(data, (int, float)):
@@ -422,6 +455,38 @@ class Reseal_tests(unittest.TestCase):
         self.assertIsInstance(r.ciphertext, seal.Ciphertext)
         r.ciphertext = np.array([1, 2, 3, 4, 5, 100])
         self.assertIsInstance(r.ciphertext, seal.Ciphertext)
+
+    def test_ciphertext_add_plaintext(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = 100
+        r.ciphertext = r + 2
+        r.ciphertext = r + 4
+
+    def test_ciphertext_add_ciphertext(self):
+        import copy
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = 100
+        r2 = copy.deepcopy(r)
+        r.ciphertext = r + r2
+        r.ciphertext = r + r2
+
+    def test_ciphertext_multiply_plaintext(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = 100
+        r.ciphertext = r * 2
+        r.ciphertext = r * 4
+
+    def test_ciphertext_multiply_ciphertext(self):
+        import copy
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = 100
+        r2 = copy.deepcopy(r)
+        r.ciphertext = r * r2
+        r.ciphertext = r * r2
 
     def test_pickle(self):
         import pickle
