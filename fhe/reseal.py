@@ -150,8 +150,10 @@ class Reseal(object):
         """Create single unified state to allow serialisation."""
         state = {}
         for key in self.__dict__:
-            if key in ["_poly_modulus_degree", "_coefficient_modulus",
-                       "_scale"]:
+            if key in ["_cache"]:
+                pass
+            elif key in ["_poly_modulus_degree", "_coefficient_modulus",
+                         "_scale"]:
                 state[key] = self.__dict__[key]
             else:
                 state[key] = self.__dict__[key].__getstate__()
@@ -211,8 +213,9 @@ class Reseal(object):
         else:
             # if adding ciphertext + numeric plaintext
             # print("modulus id", self._ciphertext.parms_id())
+            plaintext = seal.Plaintext()
             encrypted_result = seal.Ciphertext()
-            plaintext = self._to_plaintext(other)
+            self.encoder.encode(other, self.scale, plaintext)
             self.evaluator.mod_switch_to_inplace(plaintext,
                                                  self._ciphertext.parms_id())
             self.evaluator.add_plain(self._ciphertext, plaintext,
@@ -255,7 +258,16 @@ class Reseal(object):
             self.encoder.encode(vector, self.scale, plaintext)
         return plaintext
 
+    @property
+    def cache(self):
+        if self.__dict__.get("_cache"):
+            return self._cache
+        else:
+            self._cache = ReCache()
+            return self.cache
+
     # # # basic primitive building blocks (scheme, poly-mod, coeff)
+
     @property
     def scheme(self):
         return self._scheme
@@ -400,6 +412,68 @@ class Reseal(object):
         return np.array(vector_plaintext)
 
 
+class ReCache():
+    @property
+    def context(self):
+        if self.__dict__.get("_context"):
+            return self._context
+        return None
+
+    @context.setter
+    def context(self, context):
+        self._context = context
+
+    @property
+    def keygen(self):
+        if self.__dict__.get("_keygen"):
+            return self._keygen
+        return None
+
+    @keygen.setter
+    def keygen(self, keygen):
+        self._keygen = keygen
+
+    @property
+    def encoder(self):
+        if self.__dict__.get("_encoder"):
+            return self._encoder
+        return None
+
+    @encoder.setter
+    def encoder(self, encoder):
+        self._encoder = encoder
+
+    @property
+    def encryptor(self):
+        if self.__dict__.get("_encryptor"):
+            return self._encryptor
+        return None
+
+    @encryptor.setter
+    def encryptor(self, encryptor):
+        self._encryptor = encryptor
+
+    @property
+    def evaluator(self):
+        if self.__dict__.get("_evaluator"):
+            return self._evaluator
+        return None
+
+    @evaluator.setter
+    def evaluator(self, evaluator):
+        self._evaluator = evaluator
+
+    @property
+    def decryptor(self):
+        if self.__dict__.get("_decryptor"):
+            return self._decryptor
+        return None
+
+    @decryptor.setter
+    def evaluator(self, decryptor):
+        self._decryptor = decryptor
+
+
 class Reseal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
 
@@ -471,36 +545,36 @@ class Reseal_tests(unittest.TestCase):
     def test_ciphertext_add_plaintext(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        data = np.array([100, 200, 300])
+        data = np.array([1, 2, 3])
         r.ciphertext = data
         r.ciphertext = r + 2
         r.ciphertext = r + 4
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
         self.assertEqual((data+6).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_add_ciphertext(self):
         import copy
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        data = np.array([100, 200, 300])
+        data = np.array([1, 2, 3])
         r.ciphertext = data
         r2 = copy.deepcopy(r)
         r.ciphertext = r + r2
         r.ciphertext = r + r2
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
         self.assertEqual((data*3).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_multiply_plaintext(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        data = np.array([100, 200, 300])
+        data = np.array([1, 2, 3])
         r.ciphertext = data
         r.ciphertext = r * 2
         r.ciphertext = r * 4
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
         self.assertEqual((data*8).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_multiply_ciphertext(self):
@@ -513,13 +587,13 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r * r2
         # r.ciphertext = r * r2
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
         self.assertEqual((data ^ 2).tolist(), rounded_reshaped_result.tolist())
 
     def test_encrypt_decrypt(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        data = np.array([100, 200, 300])
+        data = np.array([1, 2, 3])
         r.ciphertext = data
         result = r.plaintext
         rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
@@ -543,6 +617,11 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = np.array([1, 2, 3])
         rp = copy.deepcopy(r)
         self.assertIsInstance(rp, Reseal)
+
+    def test_cache(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        self.assertIsInstance(r.cache, ReCache)
 
 
 if __name__ == "__main__":
