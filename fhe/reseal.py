@@ -122,7 +122,7 @@ class Reseal(object):
                  ciphertext=None,
                  public_key=None, private_key=None, switch_keys=None,
                  relin_keys=None,
-                 galois_keys=None):
+                 galois_keys=None, cache=None):
         if scheme:
             self._scheme = scheme
         if poly_modulus_degree:
@@ -145,6 +145,9 @@ class Reseal(object):
             self._relin_keys = relin_keys
         if galois_keys:
             self._galois_keys = galois_keys
+
+        cache = cache if cache is not None else True
+        self._cache = ReCache(enable=cache)
 
     def __getstate__(self):
         """Create single unified state to allow serialisation."""
@@ -308,7 +311,11 @@ class Reseal(object):
 
     @property
     def context(self):
-        return seal.SEALContext.Create(self.parameters)
+        if self.cache.context:
+            return self.cache.context
+        context = seal.SEALContext.Create(self.parameters)
+        self.cache.context = context
+        return context
 
     @property
     def key_generator(self):
@@ -373,19 +380,35 @@ class Reseal(object):
     @property
     def encoder(self):
         # BFV does not use an encoder so will always be CKKS variant
-        return seal.CKKSEncoder(self.context)
+        if self.cache.encoder:
+            return self.cache.encoder
+        encoder = seal.CKKSEncoder(self.context)
+        self.cache.encoder = encoder
+        return encoder
 
     @property
     def encryptor(self):
-        return seal.Encryptor(self.context, self.public_key)
+        if self.cache.encryptor:
+            return self.cache.encryptor
+        encryptor = seal.Encryptor(self.context, self.public_key)
+        self.cache.encryptor = encryptor
+        return encryptor
 
     @property
     def evaluator(self):
-        return seal.Evaluator(self.context)
+        if self.cache.evaluator:
+            return self.cache.evaluator
+        evaluator = seal.Evaluator(self.context)
+        self.cache.evaluator = evaluator
+        return evaluator
 
     @property
     def decryptor(self):
-        return seal.Decryptor(self.context, self.private_key)
+        if self.cache.decryptor:
+            return self.cache.decryptor
+        decryptor = seal.Decryptor(self.context, self.private_key)
+        self.cache.decryptor = decryptor
+        return decryptor
 
     # # # ciphertext
     @property
@@ -413,9 +436,13 @@ class Reseal(object):
 
 
 class ReCache():
+
+    def __init__(self, enable=None):
+        self.enabled = enable if enable is not None else True
+
     @property
     def context(self):
-        if self.__dict__.get("_context"):
+        if self.__dict__.get("_context") and self.enabled:
             return self._context
         return None
 
@@ -425,7 +452,7 @@ class ReCache():
 
     @property
     def keygen(self):
-        if self.__dict__.get("_keygen"):
+        if self.__dict__.get("_keygen") and self.enabled:
             return self._keygen
         return None
 
@@ -435,7 +462,7 @@ class ReCache():
 
     @property
     def encoder(self):
-        if self.__dict__.get("_encoder"):
+        if self.__dict__.get("_encoder") and self.enabled:
             return self._encoder
         return None
 
@@ -445,7 +472,7 @@ class ReCache():
 
     @property
     def encryptor(self):
-        if self.__dict__.get("_encryptor"):
+        if self.__dict__.get("_encryptor") and self.enabled:
             return self._encryptor
         return None
 
@@ -455,7 +482,7 @@ class ReCache():
 
     @property
     def evaluator(self):
-        if self.__dict__.get("_evaluator"):
+        if self.__dict__.get("_evaluator") and self.enabled:
             return self._evaluator
         return None
 
@@ -465,12 +492,12 @@ class ReCache():
 
     @property
     def decryptor(self):
-        if self.__dict__.get("_decryptor"):
+        if self.__dict__.get("_decryptor") and self.enabled:
             return self._decryptor
         return None
 
     @decryptor.setter
-    def evaluator(self, decryptor):
+    def decryptor(self, decryptor):
         self._decryptor = decryptor
 
 
