@@ -237,8 +237,13 @@ class Reseal(object):
             raise NotImplementedError("ciphertext * ciphertext not availiable")
         else:
             # if multiplying ciphertext * numeric
-            raise NotImplementedError("ciphertext * plaintext not availiable")
-        return None
+            plaintext = seal.Plaintext()
+            encrypted_result = seal.Ciphertext()
+            self.encoder.encode(other, self.scale, plaintext)
+            self.evaluator.multiply_plain(self.ciphertext,
+                                          plaintext, encrypted_result)
+            self.evaluator.rescale_to_next_inplace(encrypted_result)
+        return encrypted_result
 
     # reverse arithmetic operations
 
