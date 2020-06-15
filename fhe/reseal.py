@@ -278,6 +278,15 @@ class Reseal(object):
     # helpers
 
     def _homogenise_parameters(self, a, b):
+        """Function to harmonise encryption parameters between objects.
+
+        In particular this prevents:
+            ValueError: encrypted1 and encrypted2 parameter mismatch
+        which is caused by the encryption parameters such as scale, and
+        modulus chain being mismatched.
+        This function varied depending on if two ciphers or cipher and plain
+        is supplied.
+        """
         if isinstance(a, seal.Ciphertext) and isinstance(b, seal.Ciphertext):
             # find which one is lowest on modulus chain and swap both to that
             return (a, b)  # todo complete this finding lowest
