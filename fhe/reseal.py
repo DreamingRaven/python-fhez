@@ -436,8 +436,13 @@ class Reseal(object):
 
 
 class ReCache():
+    """Core caching object for Reseal."""
 
     def __init__(self, enable=None):
+        """Object caching.
+
+        If enabled will cache all Reseal objects not already stored,
+        to avoid having to regenrate them."""
         self.enabled = enable if enable is not None else True
 
     @property
@@ -577,6 +582,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r + 2
         r.ciphertext = r + 4
         result = r.plaintext
+        print("c+p: 6 +", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data+6).tolist(), rounded_reshaped_result.tolist())
 
@@ -590,6 +596,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r + r2
         r.ciphertext = r + r2
         result = r.plaintext
+        print("c+c: 2 *", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data*3).tolist(), rounded_reshaped_result.tolist())
 
@@ -601,6 +608,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r * 2
         r.ciphertext = r * 4
         result = r.plaintext
+        print("c*p: 8 *", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data*8).tolist(), rounded_reshaped_result.tolist())
 
@@ -614,6 +622,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r * r2
         # r.ciphertext = r * r2
         result = r.plaintext
+        print("c*c:", data, " ^ 2 =", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data ^ 2).tolist(), rounded_reshaped_result.tolist())
 
@@ -623,7 +632,7 @@ class Reseal_tests(unittest.TestCase):
         data = np.array([1, 2, 3])
         r.ciphertext = data
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]].astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data).tolist(), rounded_reshaped_result.tolist())
         # result = np.round_(
         #     result[:data.shape[0], :data.shape[1]]).astype(int)
