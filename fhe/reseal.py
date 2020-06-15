@@ -577,7 +577,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r + 2
         r.ciphertext = r + 4
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data+6).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_add_ciphertext(self):
@@ -590,7 +590,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r + r2
         r.ciphertext = r + r2
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data*3).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_multiply_plaintext(self):
@@ -601,7 +601,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r * 2
         r.ciphertext = r * 4
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data*8).tolist(), rounded_reshaped_result.tolist())
 
     def test_ciphertext_multiply_ciphertext(self):
@@ -614,7 +614,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r * r2
         # r.ciphertext = r * r2
         result = r.plaintext
-        rounded_reshaped_result = np.round(result[:data.shape[0]])  # .astype(int))
+        rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data ^ 2).tolist(), rounded_reshaped_result.tolist())
 
     def test_encrypt_decrypt(self):
