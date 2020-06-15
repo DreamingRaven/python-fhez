@@ -13,6 +13,12 @@ import numpy as np
 
 import seal
 
+# pyseal does not at this point support pickling, so what you see here is a
+# workaround using seals save and load function to tempfiles so that we can
+# read in those files and uses that as a serialised variant instead.
+# We cannot use bytesio as seal only accepts file names not the file object
+# otherwise this would have been an easy fix to make.
+
 
 def _getstate_normal(self):
     """Create and return serialised object state."""
