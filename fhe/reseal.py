@@ -217,31 +217,54 @@ class Reseal(object):
 
     def __add__(self, other):
         if isinstance(other, (Reseal, seal.Ciphertext)):
-            # if adding ciphertexts
-            raise NotImplementedError("ciphertext + ciphertext not availiable")
+            # if adding ciphertext + ciphertext
+            encrypted_result = seal.Ciphertext()
+            if isinstance(other, Reseal):
+                other = other.ciphertext
+            # # finding lowest parameter id
+            # print("self", self.ciphertext.parms_id(),
+            #   self.ciphertext.scale())
+            # print("other", other.parms_id(), other.scale())
+
+            self.evaluator.add(self.ciphertext,
+                               other, encrypted_result)
+            # addition of two ciphertexts does not require relinearization
+            # or rescaling (by modulus swapping).
         else:
             # if adding ciphertext + numeric plaintext
-            # print("modulus id", self._ciphertext.parms_id())
-            plaintext = seal.Plaintext()
+            plaintext = self._to_plaintext(other)
             encrypted_result = seal.Ciphertext()
-            self.encoder.encode(other, self.scale, plaintext)
-            self.evaluator.mod_switch_to_inplace(plaintext,
-                                                 self._ciphertext.parms_id())
-            self.evaluator.add_plain(self._ciphertext, plaintext,
+            # switching modulus chain of plaintex to ciphertexts level
+            # so computation is possible
+            ciphertext, plaintext = self._homogenise_parameters(
+                a=self.ciphertext, b=plaintext)
+            self.evaluator.add_plain(ciphertext, plaintext,
                                      encrypted_result)
+            # no need to drop modulus chain addition is fairly small
         return encrypted_result
 
     def __mul__(self, other):
         if isinstance(other, (Reseal, seal.Ciphertext)):
-            # if multiplying ciphertexts
-            raise NotImplementedError("ciphertext * ciphertext not availiable")
+            # if multiplying ciphertext * ciphertext
+            encrypted_result = seal.Ciphertext()
+            if isinstance(other, Reseal):
+                other = other.ciphertext
+            self.evaluator.multiply(self.ciphertext, other, encrypted_result)
+            self.evaluator.relinearize_inplace(encrypted_result,
+                                               self.relin_keys)
+            self.evaluator.rescale_to_next_inplace(encrypted_result)
         else:
             # if multiplying ciphertext * numeric
-            plaintext = seal.Plaintext()
+            plaintext = self._to_plaintext(other)
             encrypted_result = seal.Ciphertext()
-            self.encoder.encode(other, self.scale, plaintext)
-            self.evaluator.multiply_plain(self.ciphertext,
+            # switching modulus chain of plaintex to ciphertexts level
+            # so computation is possible
+            ciphertext, plaintext = self._homogenise_parameters(
+                a=self.ciphertext, b=plaintext)
+            # the computation
+            self.evaluator.multiply_plain(ciphertext,
                                           plaintext, encrypted_result)
+            # dropping one level of modulus chain to stabalise ciphertext
             self.evaluator.rescale_to_next_inplace(encrypted_result)
         return encrypted_result
 
@@ -255,14 +278,35 @@ class Reseal(object):
 
     # helpers
 
+    def _homogenise_parameters(self, a, b):
+        if isinstance(a, seal.Ciphertext) and isinstance(b, seal.Ciphertext):
+            # find which one is lowest on modulus chain and swap both to that
+            pass
+        elif isinstance(a, seal.Ciphertext) and isinstance(b, seal.Plaintext):
+            # swap modulus chain of plaintext to be that of ciphertext
+            ciphertext, plaintext = seal.Ciphertext(), seal.Plaintext()
+            # doing both so they are both copied exactly as each other
+            # rather than one being a reference, and the other being a new obj
+            self.evaluator.mod_switch_to(a, a.parms_id(), ciphertext)
+            self.evaluator.mod_switch_to(b, a.parms_id(), plaintext)
+            return (ciphertext, plaintext)
+        elif isinstance(b, seal.Ciphertext) and isinstance(a, seal.Plaintext):
+            # same as above by swapping a and b around so code is reused
+            flipped_tuple = self._homogenise_parameters(a=b, b=a)
+            return (flipped_tuple[1], flipped_tuple[0])
+        else:
+            # someone has been naughty and not given this function propper
+            # encryption based objects to work with.
+            raise TypeError("Neither parameters are ciphertext or plaintext.")
+
     def _to_plaintext(self, data):
         plaintext = seal.Plaintext()
-        if isinstance(data, (int, float)):
-            data = [data]
-        elif isinstance(data, np.ndarray):
+        if isinstance(data, np.ndarray):
             data = data.tolist()
 
-        if isinstance(data, seal.Plaintext):
+        if isinstance(data, (int, float)):
+            self.encoder.encode(data, self.scale, plaintext)
+        elif isinstance(data, seal.Plaintext):
             plaintext = data
         elif isinstance(data, seal.DoubleVector):
             vector = data
@@ -525,8 +569,14 @@ class Reseal_tests(unittest.TestCase):
             "scheme": seal.scheme_type.CKKS,
             "poly_mod_deg": 8192,
             "coeff_mod": [60, 40, 40, 60],
-            "scale": pow(2.0, 40)
+            "scale": pow(2.0, 40),
+            "cache": True,
         }
+
+    def defaults_ckks_nocache(self):
+        options = self.defaults_ckks()
+        options["cache"] = False
+        return options
 
     def gen_reseal(self, defaults):
         if defaults["scheme"] == seal.scheme_type.CKKS:
@@ -631,11 +681,12 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = data
         r2 = copy.deepcopy(r)
         r.ciphertext = r * r2
-        # r.ciphertext = r * r2
+        r.ciphertext = r * r2
         result = r.plaintext
-        print("c*c:", data, " ^ 2 =", np.round(result[:data.shape[0]]))
+        print("c*c:", data, " ^ 3 =", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
-        self.assertEqual((data ^ 2).tolist(), rounded_reshaped_result.tolist())
+        self.assertEqual((data * data * data).tolist(),
+                         rounded_reshaped_result.tolist())
 
     def test_encrypt_decrypt(self):
         defaults = self.defaults_ckks()
