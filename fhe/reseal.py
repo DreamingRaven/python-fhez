@@ -221,12 +221,9 @@ class Reseal(object):
             encrypted_result = seal.Ciphertext()
             if isinstance(other, Reseal):
                 other = other.ciphertext
-            # # finding lowest parameter id
-            # print("self", self.ciphertext.parms_id(),
-            #   self.ciphertext.scale())
-            # print("other", other.parms_id(), other.scale())
-
-            self.evaluator.add(self.ciphertext,
+            ciphertext, other = self._homogenise_parameters(
+                self.ciphertext, other)
+            self.evaluator.add(ciphertext,
                                other, encrypted_result)
             # addition of two ciphertexts does not require relinearization
             # or rescaling (by modulus swapping).
@@ -249,7 +246,9 @@ class Reseal(object):
             encrypted_result = seal.Ciphertext()
             if isinstance(other, Reseal):
                 other = other.ciphertext
-            self.evaluator.multiply(self.ciphertext, other, encrypted_result)
+            ciphertext, other = self._homogenise_parameters(
+                self.ciphertext, other)
+            self.evaluator.multiply(ciphertext, other, encrypted_result)
             self.evaluator.relinearize_inplace(encrypted_result,
                                                self.relin_keys)
             self.evaluator.rescale_to_next_inplace(encrypted_result)
@@ -281,7 +280,7 @@ class Reseal(object):
     def _homogenise_parameters(self, a, b):
         if isinstance(a, seal.Ciphertext) and isinstance(b, seal.Ciphertext):
             # find which one is lowest on modulus chain and swap both to that
-            pass
+            return (a, b)  # todo complete this finding lowest
         elif isinstance(a, seal.Ciphertext) and isinstance(b, seal.Plaintext):
             # swap modulus chain of plaintext to be that of ciphertext
             ciphertext, plaintext = seal.Ciphertext(), seal.Plaintext()
