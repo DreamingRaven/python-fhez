@@ -311,7 +311,14 @@ class Reseal(object):
                 lowest_parms_id = a.parms_id()
             self.evaluator.mod_switch_to(a, lowest_parms_id, a_new)
             self.evaluator.mod_switch_to(b, lowest_parms_id, b_new)
-            return (a_new, b_new)  # TODO unify scales
+            # lie to ms seal about scales since they SHOULD BE CLOSE!
+            # TODO should happen before modulus switching where we have
+            # a bigger noise budget
+            a_new.scale()
+            b_new.scale()
+            a_new.scale(pow(2.0, 40))
+            b_new.scale(pow(2.0, 40))
+            return (a_new, b_new)
         elif isinstance(a, seal.Ciphertext) and isinstance(b, seal.Plaintext):
             # swap modulus chain of plaintext to be that of ciphertext
             ciphertext, plaintext = seal.Ciphertext(), seal.Plaintext()
