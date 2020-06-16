@@ -213,6 +213,9 @@ class Reseal(object):
             else:
                 self.__dict__[key] = state[key]
 
+    def __str__(self):
+        return str(self.__dict__)
+
     # arithmetic operations
 
     def __add__(self, other):
@@ -277,6 +280,14 @@ class Reseal(object):
 
     # helpers
 
+    def new(self):
+        r = Reseal()
+        # r.__dict__ == self.__dict__
+        d = {
+            k: v for (k, v) in self.__dict__.items() if "_ciphertext" not in k}
+        r.__dict__ = d
+        return r
+
     def _homogenise_parameters(self, a, b):
         """Function to harmonise encryption parameters between objects.
 
@@ -289,7 +300,18 @@ class Reseal(object):
         """
         if isinstance(a, seal.Ciphertext) and isinstance(b, seal.Ciphertext):
             # find which one is lowest on modulus chain and swap both to that
-            return (a, b)  # todo complete this finding lowest
+            a_new, b_new = seal.Ciphertext(), seal.Ciphertext()
+            a_chain_id = self.context.get_context_data(
+                a.parms_id()).chain_index()
+            b_chain_id = self.context.get_context_data(
+                b.parms_id()).chain_index()
+            if b_chain_id < a_chain_id:
+                lowest_parms_id = b.parms_id()
+            else:
+                lowest_parms_id = a.parms_id()
+            self.evaluator.mod_switch_to(a, lowest_parms_id, a_new)
+            self.evaluator.mod_switch_to(b, lowest_parms_id, b_new)
+            return (a_new, b_new)  # TODO unify scales
         elif isinstance(a, seal.Ciphertext) and isinstance(b, seal.Plaintext):
             # swap modulus chain of plaintext to be that of ciphertext
             ciphertext, plaintext = seal.Ciphertext(), seal.Plaintext()
@@ -704,8 +726,13 @@ class Reseal_tests(unittest.TestCase):
         result = r.plaintext
         rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data).tolist(), rounded_reshaped_result.tolist())
-        # result = np.round_(
-        #     result[:data.shape[0], :data.shape[1]]).astype(int)
+
+    def test_complex_arithmetic(self):
+        import copy
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = np.array([2, 3, 4, 5, 6, 7, 8, 9])
+        r2 = r.new()
 
     def test_pickle(self):
         import pickle
