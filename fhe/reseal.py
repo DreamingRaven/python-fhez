@@ -273,10 +273,10 @@ class Reseal(object):
     # reverse arithmetic operations
 
     def __radd__(self, other):
-        return self.__add__(self, other)
+        return self.__add__(other)
 
     def __rmul__(self, other):
-        return self.__mul__(self, other)
+        return self.__mul__(other)
 
     # helpers
 
@@ -728,11 +728,12 @@ class Reseal_tests(unittest.TestCase):
         self.assertEqual((data).tolist(), rounded_reshaped_result.tolist())
 
     def test_complex_arithmetic(self):
-        import copy
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        r.ciphertext = np.array([2, 3, 4, 5, 6, 7, 8, 9])
+        r.ciphertext = np.array([2, 3, 4, 5, 6, 0.5, 8, 9])
         r2 = r.new()
+        r2.ciphertext = 20 * r
+        r2.ciphertext = r + r2
 
     def test_pickle(self):
         import pickle
