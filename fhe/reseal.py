@@ -737,10 +737,16 @@ class Reseal_tests(unittest.TestCase):
     def test_complex_arithmetic(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        r.ciphertext = np.array([2, 3, 4, 5, 6, 0.5, 8, 9])
+        data = np.array([2, 3, 4, 5, 6, 0.5, 8, 9])
+        r.ciphertext = data
         r2 = r.new()
+        # print("original", r.plaintext[:data.shape[0]])
         r2.ciphertext = 20 * r
+        # print("20 * original", r2.plaintext[:data.shape[0]])
         r2.ciphertext = r + r2
+        # print("original+(20*original)", r2.plaintext[:data.shape[0]])
+        r2.ciphertext = r2 * r
+        # print("(original+(20*original))*r", r2.plaintext[:data.shape[0]])
 
     def test_pickle(self):
         import pickle
