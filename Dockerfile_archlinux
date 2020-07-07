@@ -21,7 +21,8 @@ RUN cd /seal-python/SEAL/native/src && \
     cmake . && \
     make && \
     make install && \
-    echo "/usr/local/lib" >> /etc/ld.so.conf.d/seal.conf
+    echo "/usr/local/lib" >> /etc/ld.so.conf.d/seal.conf && \
+    ldconfig
 
 # Install requirements of seal-python
 RUN cd /seal-python && \
@@ -45,3 +46,7 @@ RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # copy our files in
 COPY . /python-fhe
+
+# RUN cd / && \
+#     git clone -b master https://github.com/DreamingRaven/python-reseal && \
+#     mv python-reseal /python-fhe
