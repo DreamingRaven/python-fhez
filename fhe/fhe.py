@@ -958,7 +958,7 @@ class Fhe_tests(unittest.TestCase):
         # cleaning up result array by slicing out what was added during encode
         # print(result[:3, :3])
         result = np.round_(
-            result[:plaintext.shape[0], :plaintext.shape[1]]).astype(int)
+            result[:plaintext.shape[0], :plaintext.shape[1]])  # .astype(int)
         # check input is equal to output by rounding and casting back to int
         self.assertEqual(plaintext.tolist(), result.tolist())
 
