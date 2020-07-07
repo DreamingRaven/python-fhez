@@ -130,6 +130,10 @@ class Reseal(object):
                  relin_keys=None,
                  galois_keys=None, cache=None):
         if scheme:
+            if scheme == 1:
+                scheme = seal.scheme_type.BFV
+            elif scheme == 2:
+                scheme = seal.scheme_type.CKKS
             self._scheme = scheme
         if poly_modulus_degree:
             self._poly_modulus_degree = poly_modulus_degree
