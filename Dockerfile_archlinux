@@ -50,3 +50,6 @@ COPY . /python-fhe
 # RUN cd / && \
 #     git clone -b master https://github.com/DreamingRaven/python-reseal && \
 #     mv python-reseal /python-fhe
+
+RUN cd /python-fhe && \
+    python3 setup.py install

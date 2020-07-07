@@ -111,13 +111,13 @@ packages = find_namespace_packages(
 print("namespace packages:", packages)
 
 setup(
-    name="pyrtd",
+    name="reseal",
     version=version,
     description="Template repository.",
     long_description=readme,
     long_description_content_type="text/markdown",
     author="George Onoufriou",
-    url="https://github.com/DreamingRaven/pyrtd",
+    url="https://github.com/DreamingRaven/python-reseal",
     packages=find_namespace_packages(),
     # scripts=['pyrtd'],
     install_requires=dependencies,
