@@ -798,6 +798,7 @@ class Reseal_tests(unittest.TestCase):
     def test_validity(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
+        r.ciphertext = np.array([1, 2, 3])
         ReScheme().validate(r.__getstate__())
 
 
