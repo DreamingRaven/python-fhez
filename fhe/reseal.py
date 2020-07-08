@@ -10,6 +10,7 @@ import os
 import tempfile
 import unittest
 import numpy as np
+import marshmallow
 
 import seal
 
@@ -28,6 +29,7 @@ def _getstate_normal(self):
         f = file.read()
     os.remove(tf.name)
     f = f.hex()
+    # print(f[:32]) # print the first 32 characters of hexadecimal string
     return {"file_contents": f}
 
 
@@ -603,6 +605,24 @@ class ReCache():
         self._decryptor = decryptor
 
 
+class ReScheme(marshmallow.Schema):
+    _scheme = marshmallow.fields.Integer()
+    _poly_modulus_degree = marshmallow.fields.Integer()
+    _coefficient_modulus = marshmallow.fields.List(
+        marshmallow.fields.Integer())
+    _scale = marshmallow.fields.Float()
+    _parameters = marshmallow.fields.Dict(keys=marshmallow.fields.Str(),
+                                          values=marshmallow.fields.Str())
+    _public_key = marshmallow.fields.Dict(keys=marshmallow.fields.Str(),
+                                          values=marshmallow.fields.Str())
+    _private_key = marshmallow.fields.Dict(keys=marshmallow.fields.Str(),
+                                           values=marshmallow.fields.Str())
+    _relin_keys = marshmallow.fields.Dict(keys=marshmallow.fields.Str(),
+                                          values=marshmallow.fields.Str())
+    _ciphertext = marshmallow.fields.Dict(keys=marshmallow.fields.Str(),
+                                          values=marshmallow.fields.Str())
+
+
 class Reseal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
 
@@ -774,6 +794,12 @@ class Reseal_tests(unittest.TestCase):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
         self.assertIsInstance(r.cache, ReCache)
+
+    def test_validity(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = np.array([1, 2, 3])
+        ReScheme().validate(r.__getstate__())
 
 
 if __name__ == "__main__":
