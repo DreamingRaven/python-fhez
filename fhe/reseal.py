@@ -42,9 +42,10 @@ def _getstate_normal(self):
 def _setstate_normal(self, d):
     """Regenerate object state from serialised object."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
+    contents = bytes.fromhex(d["file_contents"])
     with open(tf.name, "wb") as f:
         # back to bytes to write to file
-        f.write(bytes.fromhex(d["file_contents"]))
+        f.write(contents)
     if d.get("context"):
         self.load(d["context"], tf.name)
     else:
@@ -186,46 +187,52 @@ class Reseal(object):
         """Rebuild all constituent objects from serialised state."""
         # ensuring scheme type is decoded first and must always exist
         self._scheme = seal.scheme_type(state["_scheme"])
-        # self._scheme = state["_scheme"]
-        for key in state:
-            if key == "_scheme":
-                pass  # skip already unpacked first
-            elif key == "_parameters":
-                parameters = seal.EncryptionParameters(self._scheme)
-                parameters.__setstate__(state[key])
-                self._parameters = parameters
-            elif key == "_ciphertext":
-                ciphertext = seal.Ciphertext()
-                state[key].update({"context": self.context})
-                ciphertext.__setstate__(state[key])
-                self._ciphertext = ciphertext
-            elif key == "_public_key":
-                public_key = seal.PublicKey()
-                state[key].update({"context": self.context})
-                public_key.__setstate__(state[key])
-                self._public_key = public_key
-            elif key == "_private_key":
-                private_key = seal.SecretKey()
-                state[key].update({"context": self.context})
-                private_key.__setstate__(state[key])
-                self._private_key = private_key
-            elif key == "_switch_keys":
-                switch_keys = seal.KSwitchKeys()
-                state[key].update({"context": self.context})
-                switch_keys.__setstate__(state[key])
-                self._switch_keys = switch_keys
-            elif key == "_relin_keys":
-                relin_keys = seal.RelinKeys()
-                state[key].update({"context": self.context})
-                relin_keys.__setstate__(state[key])
-                self._relin_keys = relin_keys
-            elif key == "_galois_keys":
-                galois_keys = seal.GaloisKeys()
-                state[key].update({"context": self.context})
-                galois_keys.__setstate__(state[key])
-                self._galois_keys = galois_keys
-            else:
-                self.__dict__[key] = state[key]
+        # the order of the dictionary is very important, we will ensure it is
+        # as expected or else we may end up trying to initialise the ciphertext
+        # before the context which will fail.
+        if state.get("_coefficient_modulus"):
+            self._coefficient_modulus = state["_coefficient_modulus"]
+        if state.get("_poly_modulus_degree"):
+            self._poly_modulus_degree = state["_poly_modulus_degree"]
+        if state.get("_scale"):
+            self._scale = state["_scale"]
+        if state.get("_parameters"):
+            parameters = seal.EncryptionParameters(self._scheme)
+            parameters.__setstate__(state["_parameters"])
+            self._parameters = parameters
+        if state.get("_ciphertext"):
+            ciphertext = seal.Ciphertext()
+            state["_ciphertext"].update({"context": self.context})
+            ciphertext.__setstate__(state["_ciphertext"])
+            self._ciphertext = ciphertext
+        if state.get("_public_key"):
+            public_key = seal.PublicKey()
+            state["_public_key"].update({"context": self.context})
+            public_key.__setstate__(state["_public_key"])
+            self._public_key = public_key
+        if state.get("_private_key"):
+            private_key = seal.SecretKey()
+            state["_private_key"].update({"context": self.context})
+            private_key.__setstate__(state["_private_key"])
+            self._private_key = private_key
+        if state.get("_switch_keys"):
+            switch_keys = seal.KSwitchKeys()
+            state["_switch_keys"].update({"context": self.context})
+            switch_keys.__setstate__(state["_switch_keys"])
+            self._switch_keys = switch_keys
+        if state.get("_relin_keys"):
+            relin_keys = seal.RelinKeys()
+            state["_relin_keys"].update({"context": self.context})
+            relin_keys.__setstate__(state["_relin_keys"])
+            self._relin_keys = relin_keys
+        if state.get("_galois_keys"):
+            galois_keys = seal.GaloisKeys()
+            state["_galois_keys"].update({"context": self.context})
+            galois_keys.__setstate__(state["_galois_keys"])
+            self._galois_keys = galois_keys
+        # anything that does not match this sequence will of course
+        # fall out the bottom again never to be seen again, so make sure
+        # this is up to date.
 
     def __str__(self):
         return str(self.__dict__)
@@ -726,7 +733,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = r + r2
         r.ciphertext = r + r2
         result = r.plaintext
-        print("c+c: 2 *", data, "=", np.round(result[:data.shape[0]]))
+        print("c+c: 3 *", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
         self.assertEqual((data*3).tolist(), rounded_reshaped_result.tolist())
 
