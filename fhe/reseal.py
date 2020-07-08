@@ -28,6 +28,12 @@ def _getstate_normal(self):
     with open(tf.name, "rb") as file:
         f = file.read()
     os.remove(tf.name)
+    # please note this is an incredibly important step!
+    # SEAL uses hexidecimal encoding on its saved files so we decode the bytes
+    # back into hexidecimal when we read form their files, being both smaller,
+    # and more easily serialised with things like marshmallow and json
+    # please do also see _setstate_normal for the encoding stage,
+    # and also ReScheme class included in this repository or in t his file
     f = f.hex()
     # print(f[:32]) # print the first 32 characters of hexadecimal string
     return {"file_contents": f}
@@ -37,6 +43,7 @@ def _setstate_normal(self, d):
     """Regenerate object state from serialised object."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
     with open(tf.name, "wb") as f:
+        # back to bytes to write to file
         f.write(bytes.fromhex(d["file_contents"]))
     if d.get("context"):
         self.load(d["context"], tf.name)
