@@ -27,6 +27,7 @@ def _getstate_normal(self):
     with open(tf.name, "rb") as file:
         f = file.read()
     os.remove(tf.name)
+    f = f.hex()
     return {"file_contents": f}
 
 
@@ -34,7 +35,7 @@ def _setstate_normal(self, d):
     """Regenerate object state from serialised object."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
     with open(tf.name, "wb") as f:
-        f.write(d["file_contents"])
+        f.write(bytes.fromhex(d["file_contents"]))
     if d.get("context"):
         self.load(d["context"], tf.name)
     else:
