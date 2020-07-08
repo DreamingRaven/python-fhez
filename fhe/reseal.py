@@ -27,6 +27,7 @@ def _getstate_normal(self):
     with open(tf.name, "rb") as file:
         f = file.read()
     os.remove(tf.name)
+    f = f.hex()
     return {"file_contents": f}
 
 
@@ -34,7 +35,7 @@ def _setstate_normal(self, d):
     """Regenerate object state from serialised object."""
     tf = tempfile.NamedTemporaryFile(prefix="fhe_tmp_set_", delete=False)
     with open(tf.name, "wb") as f:
-        f.write(d["file_contents"])
+        f.write(bytes.fromhex(d["file_contents"]))
     if d.get("context"):
         self.load(d["context"], tf.name)
     else:
@@ -130,6 +131,10 @@ class Reseal(object):
                  relin_keys=None,
                  galois_keys=None, cache=None):
         if scheme:
+            if scheme == 1:
+                scheme = seal.scheme_type.BFV
+            elif scheme == 2:
+                scheme = seal.scheme_type.CKKS
             self._scheme = scheme
         if poly_modulus_degree:
             self._poly_modulus_degree = poly_modulus_degree
