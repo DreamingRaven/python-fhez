@@ -291,6 +291,15 @@ class Reseal(object):
             self.evaluator.rescale_to_next_inplace(encrypted_result)
         return encrypted_result
 
+    def __len__(self):
+        """Deduce the length of the encrypted vector from its poly mod deg."""
+        # depending on if BFV or CKKS we can deduce the number of slots
+        if self.scheme == seal.scheme_type.BFV:
+            return self.poly_modulus_degree
+        else:  # CKKS has half as many slots as the poly modulus degree
+            return self.poly_modulus_degree / 2
+        # TODO if this fails try using the encoder.slot_count()
+
     # reverse arithmetic operations
 
     def __radd__(self, other):
