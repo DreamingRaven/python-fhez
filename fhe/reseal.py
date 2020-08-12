@@ -541,6 +541,9 @@ class Reseal(object):
     def ciphertext(self, data):
         if isinstance(data, seal.Ciphertext):
             self._ciphertext = data
+        elif isinstance(data, Reseal):
+            # compatibility so old setter "r.ciphertext = r + 2" still works
+            self.ciphertext = data.ciphertext
         else:
             plaintext = self._to_plaintext(data)
             ciphertext = seal.Ciphertext()
