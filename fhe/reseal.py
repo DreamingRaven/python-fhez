@@ -234,6 +234,20 @@ class Reseal(object):
         # fall out the bottom again never to be seen again, so make sure
         # this is up to date.
 
+    def duplicate(self):
+        """Use state dict to instanciate a new ReSeal without ciphertext."""
+        # extract desired keys from out internal dictionary
+        d = self.__dict__
+        d = {k: d[k] for k, v in d.iteritems() if k not in ("_ciphertext",
+                                                            "_cache")}
+        print("NEW RESEAL DICT: {},\nORIGINAL RESEAL DICT: {}".format(
+            d,
+            self.__dict__))
+        # now override reseal object dict with new keys
+        new_reseal = Reseal()
+        for key in d:
+            new_reseal.__dict__[key] = d[key]
+
     def __str__(self):
         return str(self.__dict__)
 
