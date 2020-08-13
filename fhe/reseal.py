@@ -238,15 +238,13 @@ class Reseal(object):
         """Use state dict to instanciate a new ReSeal without ciphertext."""
         # extract desired keys from out internal dictionary
         d = self.__dict__
-        d = {k: d[k] for k, v in d.iteritems() if k not in ("_ciphertext",
-                                                            "_cache")}
-        print("NEW RESEAL DICT: {},\nORIGINAL RESEAL DICT: {}".format(
-            d,
-            self.__dict__))
-        # now override reseal object dict with new keys
+        d = {k: d[k] for k, v in d.items() if k not in ("_ciphertext",
+                                                        "_cache")}
+        # now override new reseal object dict with the keys it should share
         new_reseal = Reseal()
         for key in d:
             new_reseal.__dict__[key] = d[key]
+        return new_reseal
 
     def __str__(self):
         return str(self.__dict__)
@@ -276,7 +274,11 @@ class Reseal(object):
             self.evaluator.add_plain(ciphertext, plaintext,
                                      encrypted_result)
             # no need to drop modulus chain addition is fairly small
-        return encrypted_result
+        # now we take this encrypted result and return it as a new reseal obj
+        # so that it can be used as input to __add__ and __mult__ again
+        new_reseal_object = self.duplicate()
+        new_reseal_object.ciphertext = encrypted_result
+        return new_reseal_object
 
     def __mul__(self, other):
         if isinstance(other, (Reseal, seal.Ciphertext)):
@@ -303,7 +305,11 @@ class Reseal(object):
                                           plaintext, encrypted_result)
             # dropping one level of modulus chain to stabalise ciphertext
             self.evaluator.rescale_to_next_inplace(encrypted_result)
-        return encrypted_result
+        # now we take this encrypted result and return it as a new reseal obj
+        # so that it can be used as input to __add__ and __mult__ again
+        new_reseal_object = self.duplicate()
+        new_reseal_object.ciphertext = encrypted_result
+        return new_reseal_object
 
     def __len__(self):
         """Deduce the length of the encrypted vector from its poly mod deg."""
@@ -743,7 +749,7 @@ class Reseal_tests(unittest.TestCase):
         data = np.array([1, 2, 3])
         r.ciphertext = data
         r.ciphertext = r + 2
-        r.ciphertext = r + 4
+        r = r + 4  # test return object style
         result = r.plaintext
         print("c+p: 6 +", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
@@ -757,7 +763,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = data
         r2 = copy.deepcopy(r)
         r.ciphertext = r + r2
-        r.ciphertext = r + r2
+        r = r + r2  # test return object style
         result = r.plaintext
         print("c+c: 3 *", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
@@ -769,7 +775,7 @@ class Reseal_tests(unittest.TestCase):
         data = np.array([1, 2, 3])
         r.ciphertext = data
         r.ciphertext = r * 2
-        r.ciphertext = r * 4
+        r = r * 4  # test return object style
         result = r.plaintext
         print("c*p: 8 *", data, "=", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
@@ -783,7 +789,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = data
         r2 = copy.deepcopy(r)
         r.ciphertext = r * r2
-        r.ciphertext = r * r2
+        r = r * r2  # test return object style
         result = r.plaintext
         print("c*c:", data, " ^ 3 =", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
@@ -809,9 +815,12 @@ class Reseal_tests(unittest.TestCase):
         r2.ciphertext = 20 * r
         # print("20 * original", r2.plaintext[:data.shape[0]])
         r2.ciphertext = r + r2
-        # print("original+(20*original)", r2.plaintext[:data.shape[0]])
-        r2.ciphertext = r2 * r
-        # print("(original+(20*original))*r", r2.plaintext[:data.shape[0]])
+        r2 = r2 * r  # test return object style
+        expected = ((data * 20) + data) * data
+        result = r2.plaintext
+        rounded_reshaped_result = np.round(result[:data.shape[0]])
+        self.assertEqual(expected.tolist(),
+                         rounded_reshaped_result.tolist())
 
     def test_pickle(self):
         import pickle
