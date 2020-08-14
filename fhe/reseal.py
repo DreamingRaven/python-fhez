@@ -378,6 +378,9 @@ class Reseal(object):
             # rather than one being a reference, and the other being a new obj
             self.evaluator.mod_switch_to(a, a.parms_id(), ciphertext)
             self.evaluator.mod_switch_to(b, a.parms_id(), plaintext)
+            ciphertext.scale()
+            ciphertext.scale(pow(2.0, 40))
+            plaintext.scale()
             return (ciphertext, plaintext)
         elif isinstance(b, seal.Ciphertext) and isinstance(a, seal.Plaintext):
             # same as above by swapping a and b around so code is reused
