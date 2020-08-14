@@ -313,11 +313,13 @@ class Reseal(object):
 
     def __len__(self):
         """Deduce the length of the encrypted vector from its poly mod deg."""
+        # TODO ensure rigorous type casting if needed to enforce all return int
         # depending on if BFV or CKKS we can deduce the number of slots
         if self.scheme == seal.scheme_type.BFV:
             return self.poly_modulus_degree
         else:  # CKKS has half as many slots as the poly modulus degree
-            return self.poly_modulus_degree / 2
+            # here we use the special syntax // to prevent it returning a float
+            return self.poly_modulus_degree // 2
         # TODO if this fails try using the encoder.slot_count()
 
     # reverse arithmetic operations
@@ -672,6 +674,15 @@ class ReScheme(marshmallow.Schema):
 class Reseal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
 
+    # def setUp(self):
+    #     import time
+    #     self.startTime = time.time()
+    #
+    # def tearDown(self):
+    #     import time  # dont want time to be imported unless testing as unused
+    #     t = time.time() - self.startTime
+    #     print('%s: %.3f' % (self.id(), t))
+
     def defaults_ckks(self):
         return {
             "scheme": seal.scheme_type.CKKS,
@@ -849,6 +860,12 @@ class Reseal_tests(unittest.TestCase):
         r = self.gen_reseal(defaults)
         r.ciphertext = np.array([1, 2, 3])
         ReScheme().validate(r.__getstate__())
+
+    def test_len(self):
+        defaults = self.defaults_ckks()
+        r = self.gen_reseal(defaults)
+        r.ciphertext = np.array([1, 2, 3])
+        self.assertIsInstance(len(r), int)
 
 
 if __name__ == "__main__":
