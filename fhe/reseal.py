@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-06-05T23:16:32+01:00
+# @Last modified time: 2020-09-01T14:02:11+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -368,8 +368,8 @@ class Reseal(object):
             # a bigger noise budget
             a_new.scale()
             b_new.scale()
-            a_new.scale(pow(2.0, 40))
-            b_new.scale(pow(2.0, 40))
+            a_new.scale(self.scale)
+            b_new.scale(self.scale)
             return (a_new, b_new)
         elif isinstance(a, seal.Ciphertext) and isinstance(b, seal.Plaintext):
             # swap modulus chain of plaintext to be that of ciphertext
@@ -379,7 +379,7 @@ class Reseal(object):
             self.evaluator.mod_switch_to(a, a.parms_id(), ciphertext)
             self.evaluator.mod_switch_to(b, a.parms_id(), plaintext)
             ciphertext.scale()
-            ciphertext.scale(pow(2.0, 40))
+            ciphertext.scale(self.scale)
             plaintext.scale()
             return (ciphertext, plaintext)
         elif isinstance(b, seal.Ciphertext) and isinstance(a, seal.Plaintext):
@@ -677,14 +677,14 @@ class ReScheme(marshmallow.Schema):
 class Reseal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
 
-    # def setUp(self):
-    #     import time
-    #     self.startTime = time.time()
-    #
-    # def tearDown(self):
-    #     import time  # dont want time to be imported unless testing as unused
-    #     t = time.time() - self.startTime
-    #     print('%s: %.3f' % (self.id(), t))
+    def setUp(self):
+        import time
+        self.startTime = time.time()
+
+    def tearDown(self):
+        import time  # dont want time to be imported unless testing as unused
+        t = time.time() - self.startTime
+        print('%s: %.3f' % (self.id(), t))
 
     def defaults_ckks(self):
         return {
