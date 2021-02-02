@@ -3,14 +3,16 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-09-01T14:02:11+01:00
+# @Last modified time: 2021-02-02T15:00:24+00:00
 # @License: please see LICENSE file in project root
 
 import os
+import sys
 import tempfile
 import unittest
 import numpy as np
 import marshmallow
+import logging as logger
 
 import seal
 
@@ -33,7 +35,7 @@ def _getstate_normal(self):
     # back into hexidecimal when we read form their files, being both smaller,
     # and more easily serialised with things like marshmallow and json
     # please do also see _setstate_normal for the encoding stage,
-    # and also ReScheme class included in this repository or in t his file
+    # and also ReScheme class included in this repository or in this file
     f = f.hex()
     # print(f[:32]) # print the first 32 characters of hexadecimal string
     return {"file_contents": f}
@@ -310,6 +312,10 @@ class Reseal(object):
         new_reseal_object = self.duplicate()
         new_reseal_object.ciphertext = encrypted_result
         return new_reseal_object
+
+    def __truediv__(self, other):
+        """You cannot divide something fully homomorphically encrypted"""
+        raise ArithmeticError().with_traceback(sys.exc_info()[2])
 
     def __len__(self):
         """Deduce the length of the encrypted vector from its poly mod deg."""
@@ -869,6 +875,50 @@ class Reseal_tests(unittest.TestCase):
         r = self.gen_reseal(defaults)
         r.ciphertext = np.array([1, 2, 3])
         self.assertIsInstance(len(r), int)
+
+
+class ReNp(np.ndarray):
+    """Numpy subclassing for ReSeal and fancy matrix operations."""
+    # https://numpy.org/doc/stable/user/basics.subclassing.html
+
+    def __new__(cls, *args, **kwargs):
+        logger.debug('In __new__ with class %s' % cls)
+        return super(ReNp, cls).__new__(cls, *args, **kwargs)
+
+    def __init__(self, *args, **kwargs):
+        # in practice you probably will not need or want an __init__
+        # method for your subclass
+        logger.debug('In __init__ with class %s' % self.__class__)
+
+    def __array_finalize__(self, obj):
+        logger.debug('In array_finalize:')
+        logger.debug('   self type is {}'.format(type(self)))
+        logger.debug('   obj type is {}'.format(type(obj)))
+
+
+class ReNp_tests(unittest.TestCase):
+    """Testing reseal numpy subclassing."""
+
+    def setUp(self):
+        import time
+        self.startTime = time.time()
+
+    def tearDown(self):
+        import time  # dont want time to be imported unless testing as unused
+        t = time.time() - self.startTime
+        print('%s: %.3f' % (self.id(), t))
+
+    def test_object_creation(self):
+        ReNp((10,))
+
+    def test_view_casting(self):
+        arr = np.zeros((3,))
+        enp = arr.view(ReNp)
+        self.assertIsInstance(enp, ReNp)
+
+    def test_new_from_template(self):
+        enp = ReNp((10,))
+        enp[1:]
 
 
 if __name__ == "__main__":
