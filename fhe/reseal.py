@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-02T15:00:24+00:00
+# @Last modified time: 2021-02-04T10:36:26+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -919,6 +919,47 @@ class ReNp_tests(unittest.TestCase):
     def test_new_from_template(self):
         enp = ReNp((10,))
         enp[1:]
+
+
+class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
+    def __init__(self, plaintext: np.ndarray, **reseal_args):
+        # setting current shape, final dimension will change once encrypted
+        self._shape_origin = plaintext.shape
+        reseal = Reseal(**reseal_args)
+        # flat 1D list of encrypted vectors that will be interpeted in original
+        # dimensons later
+        self._data = []
+
+    def __repr__(self):
+        return "object: {}".format(self.__class__.__name__)
+
+    def __array__(self):
+        return np.zeros(100)
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        pass
+
+
+class ReArray_tests(unittest.TestCase):
+    """Testing ReSeal custom numpy container"""
+
+    def setUp(self):
+        import time
+        self.startTime = time.time()
+
+    def tearDown(self):
+        import time  # dont want time to be imported unless testing as unused
+        t = time.time() - self.startTime
+        print('%s: %.3f' % (self.id(), t))
+
+    @property
+    def data(self):
+        return np.zeros((64, 32, 32, 3))
+
+    def test_object_creation(self):
+        re = ReArray(plaintext=self.data)
+        print(re)
+        self.assertIsInstance(re, ReArray)
 
 
 if __name__ == "__main__":
