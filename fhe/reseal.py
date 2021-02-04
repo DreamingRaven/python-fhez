@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-04T10:36:26+00:00
+# @Last modified time: 2021-02-04T23:49:32+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -923,12 +923,23 @@ class ReNp_tests(unittest.TestCase):
 
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def __init__(self, plaintext: np.ndarray, **reseal_args):
-        # setting current shape, final dimension will change once encrypted
-        self._shape_origin = plaintext.shape
-        reseal = Reseal(**reseal_args)
         # flat 1D list of encrypted vectors that will be interpeted in original
         # dimensons later
         self._data = []
+        # the initial seed object to instantiate all others from
+        reseal = Reseal(**reseal_args)
+        # saving original shape so we can return to this later when decrypted
+        self._shape_o = plaintext.shape
+        # saving number of elements to calculate dimension changes
+        self._size_o = plaintext.size
+        # create a view so we dont modify original data
+        view = plaintext.view()
+        # reshape array by setting.shape so it errors if maths is incorrect
+        view.shape = (int(self._size_o / self._shape_o[-1]), self._shape_o[-1])
+        # now we can convert each sample in this 2D ndarray into cyphertext
+        for sample in view:
+            #
+            print(sample)
 
     def __repr__(self):
         return "object: {}".format(self.__class__.__name__)
@@ -954,7 +965,9 @@ class ReArray_tests(unittest.TestCase):
 
     @property
     def data(self):
-        return np.zeros((64, 32, 32, 3))
+        array = np.arange(64*32*32*3)
+        array.shape = (64, 32, 32, 3)
+        return array
 
     def test_object_creation(self):
         re = ReArray(plaintext=self.data)
