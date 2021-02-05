@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-04T23:49:32+00:00
+# @Last modified time: 2021-02-05T21:09:13+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -236,6 +236,9 @@ class Reseal(object):
         # fall out the bottom again never to be seen again, so make sure
         # this is up to date.
 
+    def __repr__(self):
+        return "{}({})".format(self.__class__.__name__, self.__dict__)
+
     def duplicate(self):
         """Use state dict to instanciate a new ReSeal without ciphertext."""
         # extract desired keys from out internal dictionary
@@ -249,7 +252,10 @@ class Reseal(object):
         return new_reseal
 
     def __str__(self):
-        return str(self.__dict__)
+        d = self.__dict__
+        d = {k: d[k] for k, v in d.items() if k not in ("_ciphertext",
+                                                        "_cache")}
+        return "{}({})".format(self.__class__.__name__, d)
 
     # arithmetic operations
 
@@ -423,22 +429,53 @@ class Reseal(object):
             return self.cache
 
     # # # basic primitive building blocks (scheme, poly-mod, coeff)
+    # {
+    #     "scheme": seal.scheme_type.CKKS,
+    #     "poly_mod_deg": 8192,
+    #     "coeff_mod": [60, 40, 40, 60],
+    #     "scale": pow(2.0, 40),
+    #     "cache": True,
+    # }
 
     @property
     def scheme(self):
-        return self._scheme
+        try:
+            return self._scheme
+        except AttributeError:
+            me = self.__class__.__name__
+            raise ValueError(
+                "You fkn idiot you forgot to give {}({}=SOMETHING)".format(
+                    me, "scheme"))
 
     @property
     def poly_modulus_degree(self):
-        return self._poly_modulus_degree
+        try:
+            return self._poly_modulus_degree
+        except AttributeError:
+            me = self.__class__.__name__
+            raise ValueError(
+                "You fkn idiot you forgot to give {}({}=SOMETHING)".format(
+                    me, "poly_modulus_degree"))
 
     @property
     def coefficient_modulus(self):
-        return self._coefficient_modulus
+        try:
+            return self._coefficient_modulus
+        except AttributeError:
+            me = self.__class__.__name__
+            raise ValueError(
+                "You fkn idiot you forgot to give {}({}=SOMETHING)".format(
+                    me, "coefficient_modulus"))
 
     @property
     def scale(self):
-        return self._scale
+        try:
+            return self._scale
+        except AttributeError:
+            me = self.__class__.__name__
+            raise ValueError(
+                "You fkn idiot you forgot to give {}({}=SOMETHING)".format(
+                    me, "scale"))
 
     # # # Encryptor orchestrators and helpers (parameters, context, keygen)
     @property
@@ -928,6 +965,9 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         self._data = []
         # the initial seed object to instantiate all others from
         reseal = Reseal(**reseal_args)
+        print(reseal)
+        # calling encryptor to make sure it exists and thus private key etc
+        reseal.encryptor
         # saving original shape so we can return to this later when decrypted
         self._shape_o = plaintext.shape
         # saving number of elements to calculate dimension changes
@@ -938,8 +978,14 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         view.shape = (int(self._size_o / self._shape_o[-1]), self._shape_o[-1])
         # now we can convert each sample in this 2D ndarray into cyphertext
         for sample in view:
-            #
-            print(sample)
+            # duplicate reseal object to ensure they all share same private
+            # public, relin etc keys, and the same parameters so they can be
+            # used in tandom with only one key, using multiple is impossible
+            sample_reseal = reseal.duplicate()
+            # encrypt data
+            sample_reseal.ciphertext = sample
+            # store a list of these duplicates with different encrypted vectors
+            self._data.append(sample_reseal)
 
     def __repr__(self):
         return "object: {}".format(self.__class__.__name__)
