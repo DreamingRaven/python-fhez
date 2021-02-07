@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-05T21:36:45+00:00
+# @Last modified time: 2021-02-07T18:25:35+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -979,7 +979,6 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         self._data = []
         # the initial seed object to instantiate all others from
         reseal = Reseal(**reseal_args)
-        print(reseal)
         # calling encryptor to make sure it exists and thus private key etc
         reseal.encryptor
         # saving original shape so we can return to this later when decrypted
@@ -989,7 +988,10 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         # create a view so we dont modify original data
         view = plaintext.view()
         # reshape array by setting.shape so it errors if maths is incorrect
-        view.shape = (int(self._size_o / self._shape_o[-1]), self._shape_o[-1])
+        # we treat first dim as special, as it indicates the number of samples
+        # view.shape = (int(self._size_o / self._shape_o[-1]),
+        #               self._shape_o[-1])
+        view.shape = (self._shape_o[0], int(self._size_o / self._shape_o[0]))
         # now we can convert each sample in this 2D ndarray into cyphertext
         for sample in view:
             # duplicate reseal object to ensure they all share same private
@@ -1000,6 +1002,8 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             sample_reseal.ciphertext = sample
             # store a list of these duplicates with different encrypted vectors
             self._data.append(sample_reseal)
+
+        print(self._data)
 
     def __repr__(self):
         return "object: {}".format(self.__class__.__name__)
@@ -1017,6 +1021,13 @@ class ReArray_tests(unittest.TestCase):
     def setUp(self):
         import time
         self.startTime = time.time()
+        self.reseal_args = {
+            "scheme": seal.scheme_type.CKKS,
+            "poly_modulus_degree": 8192,
+            "coefficient_modulus": [60, 40, 40, 60],
+            "scale": pow(2.0, 40),
+            "cache": True,
+        }
 
     def tearDown(self):
         import time  # dont want time to be imported unless testing as unused
@@ -1030,7 +1041,7 @@ class ReArray_tests(unittest.TestCase):
         return array
 
     def test_object_creation(self):
-        re = ReArray(plaintext=self.data)
+        re = ReArray(plaintext=self.data, **self.reseal_args)
         print(re)
         self.assertIsInstance(re, ReArray)
 
