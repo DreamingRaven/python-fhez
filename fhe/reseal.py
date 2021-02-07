@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-05T21:09:13+00:00
+# @Last modified time: 2021-02-05T21:36:45+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -439,6 +439,13 @@ class Reseal(object):
 
     @property
     def scheme(self):
+        """Scheme represents the encryption-scheme to use.
+
+        to specify CKKS (you probably want this one):
+            Reseal(scheme=2) OR Reseal(scheme=seal.scheme_type.CKKS)
+        to specify BFV:
+            Reseal(scheme=1) OR Reseal(scheme=seal.scheme_type.BFV)
+        """
         try:
             return self._scheme
         except AttributeError:
@@ -449,6 +456,7 @@ class Reseal(object):
 
     @property
     def poly_modulus_degree(self):
+        """number dictating the size of cyphertext and compuational depth."""
         try:
             return self._poly_modulus_degree
         except AttributeError:
@@ -459,6 +467,12 @@ class Reseal(object):
 
     @property
     def coefficient_modulus(self):
+        """list of bit precisions of calculations.
+
+        e.g if 8192 is the poly_modulus_degree the maximum number of bits
+        in total in the coefficient modulus chain are 218.
+        if coefficient modulus is = [60, 40, 40, 60] thats 200 bits
+        """
         try:
             return self._coefficient_modulus
         except AttributeError:
