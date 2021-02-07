@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-07T18:25:35+00:00
+# @Last modified time: 2021-02-07T18:32:22+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -1002,8 +1002,6 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             sample_reseal.ciphertext = sample
             # store a list of these duplicates with different encrypted vectors
             self._data.append(sample_reseal)
-
-        print(self._data)
 
     def __repr__(self):
         return "object: {}".format(self.__class__.__name__)
