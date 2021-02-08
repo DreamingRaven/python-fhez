@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T13:09:40+00:00
+# @Last modified time: 2021-02-08T15:40:35+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -1040,7 +1040,22 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         return data
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-        pass
+        if method == "__call__":
+            # called for most arithemtic operations
+            pass
+        elif method == "reduce":
+            pass
+        elif method == "reduceat":
+            pass
+        elif method == "accumulate":
+            pass
+        elif method == "outer":
+            pass
+        elif method == "inner":
+            pass
+        print("called method: {}, ufunc: {}, inputs: {}, kwargs: {}".format(
+            method, ufunc, inputs, kwargs))
+        return NotImplemented
 
 
 class ReArray_tests(unittest.TestCase):
@@ -1119,6 +1134,54 @@ class ReArray_tests(unittest.TestCase):
         out = np.array(re)
         self.assertIsInstance(out, np.ndarray)
         self.assertEqual(out.shape, self.data.shape)
+
+    def test_multiply_broadcast(self):
+        """Multiply cyphertext by scalar value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re * 2
+        out = np.array(re)
+
+    def test_multiply_array(self):
+        """Multiply cyphertext by (3) numpy array."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re * np.array([2, 3, 4])
+        out = np.array(re)
+
+    def test_add_broadcast(self):
+        """Add cyphertext by scalar value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re + 2
+        out = np.array(re)
+
+    def test_add_array(self):
+        """Add cyphertext by (3) numpy array value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re + np.array([2, 3, 4])
+        out = np.array(re)
+
+    def test_subtract_broadcast(self):
+        """Subtract cyphertext by scalar value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re - 2
+        out = np.array(re)
+
+    def test_subtract_array(self):
+        """Subtract cyphertext by (3) numpy array value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re - np.array([2, 3, 4])
+        out = np.array(re)
+
+    def test_divide_broadcast(self):
+        """Divide cyphertext by scalar value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re / 2
+        out = np.array(re)
+
+    def test_divide_array(self):
+        """Divide cyphertext by (3) numpy array value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re = re / np.array([2, 3, 4])
+        out = np.array(re)
 
 
 if __name__ == "__main__":
