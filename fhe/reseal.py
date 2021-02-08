@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T00:37:18+00:00
+# @Last modified time: 2021-02-08T11:49:38+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -974,41 +974,71 @@ class ReNp_tests(unittest.TestCase):
 
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def __init__(self, plaintext: np.ndarray, **reseal_args):
-        # flat 1D list of encrypted vectors that will be interpeted in original
-        # dimensons later
-        self._data = []
-        # the initial seed object to instantiate all others from
-        reseal = Reseal(**reseal_args)
-        # calling encryptor to make sure it exists and thus private key etc
-        reseal.encryptor
-        # saving original shape so we can return to this later when decrypted
-        self._shape_o = plaintext.shape
-        # saving number of elements to calculate dimension changes
-        self._size_o = plaintext.size
-        # create a view so we dont modify original data
-        view = plaintext.view()
-        # reshape array by setting.shape so it errors if maths is incorrect
-        # we treat first dim as special, as it indicates the number of samples
-        # view.shape = (int(self._size_o / self._shape_o[-1]),
-        #               self._shape_o[-1])
-        view.shape = (self._shape_o[0], int(self._size_o / self._shape_o[0]))
-        # checking if user has defined a cypher too small to fit this data
-        if view.shape[1] > len(reseal):
-            raise OverflowError("Data too big or encryption too small to fit:",
-                                "data {} -> {} > {} reseal.len".format(
-                                    self._shape_o[1:],
-                                    view.shape[1],
-                                    len(reseal)))
-        # now we can convert each sample in this 2D ndarray into cyphertext
-        for sample in view:
-            # duplicate reseal object to ensure they all share same private
-            # public, relin etc keys, and the same parameters so they can be
-            # used in tandom with only one key, using multiple is impossible
-            sample_reseal = reseal.duplicate()
-            # encrypt data
-            sample_reseal.ciphertext = sample
-            # store a list of these duplicates with different encrypted vectors
-            self._data.append(sample_reseal)
+        self.seed = reseal_args
+        self.data = plaintext
+
+    @property
+    def seedling(self):
+        return self.seed.duplicate()
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, seed):
+        """Create a Reseal object seed to allow sharing of encryption keys."""
+        if isinstance(seed, Reseal):
+            self._seed = Reseal
+        else:
+            self._seed = Reseal(**seed)
+        # call encryptor to test if it exists or to generate it
+        self.seed.encryptor
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        if isinstance(data, np.ndarray):
+            self._data = []
+            view = data.view()
+            # capture original data form so we can return to it later
+            # and use it to interpret multidimensional operations
+            self.origin = {
+                "shape": data.shape,
+                "size": data.size,
+            }
+            # reshape data to (batchsize, examplesize)
+            view.shape = (self.origin["shape"][0],
+                          int(self.origin["size"] / self.origin["shape"][0]))
+            # checking if cyphertext is too small to fit data into
+            if view.shape[1] > len(self.seed):
+                raise OverflowError(
+                    "Data too big or encryption too small to fit:",
+                    "data {} -> {} > {} reseal.len".format(
+                        self.origin["shape"][1:],
+                        view.shape[1],
+                        len(self.seed)))
+            # iterate through, encrypt (using same seed), and append to list
+            # for later use
+            for sample in view:
+                seedling = self.seedling
+                seedling.ciphertext = sample
+                self.data.append(seedling)
+        else:
+            raise TypeError("data.setter got an {} instead of {} | {}".format(
+                type(data), np.ndarray, Reseal
+            ))
+
+    @property
+    def origin(self):
+        return self._origin
+
+    @origin.setter
+    def origin(self, origin: dict):
+        self._origin = origin
 
     def __repr__(self):
         return "object: {}".format(self.__class__.__name__)
