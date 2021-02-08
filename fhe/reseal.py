@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T00:18:03+00:00
+# @Last modified time: 2021-02-08T00:37:18+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -1013,6 +1013,11 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def __repr__(self):
         return "object: {}".format(self.__class__.__name__)
 
+    def __str__(self):
+        d = self.__dict__
+        d = {k: d[k] for k, v in d.items() if k not in []}
+        return "{}({})".format(self.__class__.__name__, d)
+
     def __array__(self):
         return np.zeros(100)
 
@@ -1048,7 +1053,6 @@ class ReArray_tests(unittest.TestCase):
     def test_object_creation(self):
         """Checking that the object creation is completed properly."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        print(re)
         self.assertIsInstance(re, ReArray)
 
     def test_slot_overflow(self):
@@ -1057,6 +1061,14 @@ class ReArray_tests(unittest.TestCase):
         data.shape = (64, 320, 320, 3)  # making it waay to big
         with self.assertRaises(OverflowError):
             ReArray(plaintext=data, **self.reseal_args)
+
+    def test_str(self):
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        self.assertIsInstance(re.__str__(), str)
+
+    def test_repr(self):
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        self.assertIsInstance(re.__repr__(), str)
 
 
 if __name__ == "__main__":
