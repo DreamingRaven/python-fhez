@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-07T18:32:22+00:00
+# @Last modified time: 2021-02-08T00:18:03+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -992,6 +992,13 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         # view.shape = (int(self._size_o / self._shape_o[-1]),
         #               self._shape_o[-1])
         view.shape = (self._shape_o[0], int(self._size_o / self._shape_o[0]))
+        # checking if user has defined a cypher too small to fit this data
+        if view.shape[1] > len(reseal):
+            raise OverflowError("Data too big or encryption too small to fit:",
+                                "data {} -> {} > {} reseal.len".format(
+                                    self._shape_o[1:],
+                                    view.shape[1],
+                                    len(reseal)))
         # now we can convert each sample in this 2D ndarray into cyphertext
         for sample in view:
             # duplicate reseal object to ensure they all share same private
@@ -1039,9 +1046,17 @@ class ReArray_tests(unittest.TestCase):
         return array
 
     def test_object_creation(self):
+        """Checking that the object creation is completed properly."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         print(re)
         self.assertIsInstance(re, ReArray)
+
+    def test_slot_overflow(self):
+        """Testing that correctly errors when the data overflows encryption."""
+        data = np.arange(64*320*320*3)
+        data.shape = (64, 320, 320, 3)  # making it waay to big
+        with self.assertRaises(OverflowError):
+            ReArray(plaintext=data, **self.reseal_args)
 
 
 if __name__ == "__main__":
