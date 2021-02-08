@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T11:49:38+00:00
+# @Last modified time: 2021-02-08T12:54:46+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -973,9 +973,22 @@ class ReNp_tests(unittest.TestCase):
 
 
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
+    """1D Reseal array as multidimensional numpy array.
+
+    This class implements a custom numpy container to allow ReSeal to be used
+    in conjunction with numpy for its more complex arithmetic, so we dont
+    re-invent the wheel. This class assumes the first dimension is the batch
+    size I.e given array.shape=(64,32,32,3) this will be 64 examples in this
+    batch, each example of shape (32,32,3) this example is what is encrypted,
+    the batch size is not. If you do not care for batch size simply set it to
+    1, I.e (1,32,32,3). Examples are flattened becoming
+    (batchsize, examplesize) where the arithmetic operations are applied to
+    each array distinctly by flattening the filter for example.
+    """
+
     def __init__(self, plaintext: np.ndarray, **reseal_args):
         self.seed = reseal_args
-        self.data = plaintext
+        self.cyphertext = plaintext
 
     @property
     def seedling(self):
@@ -996,13 +1009,13 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         self.seed.encryptor
 
     @property
-    def data(self):
-        return self._data
+    def cyphertext(self):
+        return self._cyphertext
 
-    @data.setter
-    def data(self, data):
+    @cyphertext.setter
+    def cyphertext(self, data):
         if isinstance(data, np.ndarray):
-            self._data = []
+            self._cyphertext = []
             view = data.view()
             # capture original data form so we can return to it later
             # and use it to interpret multidimensional operations
@@ -1026,7 +1039,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             for sample in view:
                 seedling = self.seedling
                 seedling.ciphertext = sample
-                self.data.append(seedling)
+                self.cyphertext.append(seedling)
         else:
             raise TypeError("data.setter got an {} instead of {} | {}".format(
                 type(data), np.ndarray, Reseal
@@ -1049,7 +1062,16 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         return "{}({})".format(self.__class__.__name__, d)
 
     def __array__(self):
-        return np.zeros(100)
+        accumulator = []
+        for example in self.cyphertext:
+            accumulator.append(
+                # cutting off padding/ excess
+                example.plaintext[
+                    :self.origin["size"]//self.origin["shape"][0]
+                ])
+        data = np.array(accumulator)
+        data.shape = self.origin["shape"]
+        return data
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         pass
@@ -1099,6 +1121,31 @@ class ReArray_tests(unittest.TestCase):
     def test_repr(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
         self.assertIsInstance(re.__repr__(), str)
+
+    def test_decrypt(self):
+        """Ensure data is intact when decrypted."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        out = re.__array__()
+        self.assertIsInstance(out, np.ndarray)
+        self.assertEqual(out.shape, self.data.shape)
+
+    def test_numpify(self):
+        """Ensure data is intact when decrypted."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        out = np.array(re)
+        self.assertIsInstance(out, np.ndarray)
+        self.assertEqual(out.shape, self.data.shape)
+
+    def test_pickle(self):
+        """Ensure that pickling is still possible at this higher dimension."""
+        import pickle
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        dump = pickle.dumps(re)
+        re = pickle.loads(dump)
+        self.assertIsInstance(re, ReArray)
+        out = np.array(re)
+        self.assertIsInstance(out, np.ndarray)
+        self.assertEqual(out.shape, self.data.shape)
 
 
 if __name__ == "__main__":
