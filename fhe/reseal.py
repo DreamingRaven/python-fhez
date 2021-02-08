@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T16:47:21+00:00
+# @Last modified time: 2021-02-08T23:53:39+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -1181,6 +1181,13 @@ class ReArray_tests(unittest.TestCase):
         re = np.array([2, 3, 4]) * re
         out = np.array(re)
 
+    def test_multiply_ndarray(self):
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        filter = np.arange(3*3*3)
+        filter.shape = (3, 3, 3)
+        re = re * filter
+        out = np.array(re)
+
     # addition
 
     def test_add_re(self):
@@ -1211,6 +1218,13 @@ class ReArray_tests(unittest.TestCase):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = np.array([2, 3, 4]) + re
+        out = np.array(re)
+
+    def test_add_ndarray(self):
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        filter = np.arange(3*3*3)
+        filter.shape = (3, 3, 3)
+        re = re + filter
         out = np.array(re)
 
     # subtraction
