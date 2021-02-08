@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T13:02:46+00:00
+# @Last modified time: 2021-02-08T13:09:40+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -953,8 +953,8 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     """
 
     def __init__(self, plaintext: np.ndarray, **reseal_args):
-        self.seed = reseal_args
-        self.cyphertext = plaintext
+        self.seed = reseal_args  # automatic seed generation for encryption
+        self.cyphertext = plaintext  # automatic encryption
 
     @property
     def seedling(self):
@@ -1007,8 +1007,8 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
                 seedling.ciphertext = sample
                 self.cyphertext.append(seedling)
         else:
-            raise TypeError("data.setter got an {} instead of {} | {}".format(
-                type(data), np.ndarray, Reseal
+            raise TypeError("data.setter got an {} instead of {}".format(
+                type(data), np.ndarray
             ))
 
     @property
@@ -1073,12 +1073,19 @@ class ReArray_tests(unittest.TestCase):
         re = ReArray(plaintext=self.data, **self.reseal_args)
         self.assertIsInstance(re, ReArray)
 
-    def test_slot_overflow(self):
+    def test_error_slot_overflow(self):
         """Testing that correctly errors when the data overflows encryption."""
         data = np.arange(64*320*320*3)
         data.shape = (64, 320, 320, 3)  # making it waay to big
         with self.assertRaises(OverflowError):
             ReArray(plaintext=data, **self.reseal_args)
+
+    def test__error_data_type(self):
+        """Testing that correctly errors when the data overflows encryption."""
+        data = np.arange(64*32*32*3)
+        data.shape = (64, 32, 32, 3)
+        with self.assertRaises(TypeError):
+            ReArray(plaintext=data.tolist(), **self.reseal_args)
 
     def test_str(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
