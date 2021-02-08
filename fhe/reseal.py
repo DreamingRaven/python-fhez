@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T12:54:46+00:00
+# @Last modified time: 2021-02-08T13:02:46+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -928,50 +928,6 @@ class Reseal_tests(unittest.TestCase):
         self.assertIsInstance(len(r), int)
 
 
-class ReNp(np.ndarray):
-    """Numpy subclassing for ReSeal and fancy matrix operations."""
-    # https://numpy.org/doc/stable/user/basics.subclassing.html
-
-    def __new__(cls, *args, **kwargs):
-        logger.debug('In __new__ with class %s' % cls)
-        return super(ReNp, cls).__new__(cls, *args, **kwargs)
-
-    def __init__(self, *args, **kwargs):
-        # in practice you probably will not need or want an __init__
-        # method for your subclass
-        logger.debug('In __init__ with class %s' % self.__class__)
-
-    def __array_finalize__(self, obj):
-        logger.debug('In array_finalize:')
-        logger.debug('   self type is {}'.format(type(self)))
-        logger.debug('   obj type is {}'.format(type(obj)))
-
-
-class ReNp_tests(unittest.TestCase):
-    """Testing reseal numpy subclassing."""
-
-    def setUp(self):
-        import time
-        self.startTime = time.time()
-
-    def tearDown(self):
-        import time  # dont want time to be imported unless testing as unused
-        t = time.time() - self.startTime
-        print('%s: %.3f' % (self.id(), t))
-
-    def test_object_creation(self):
-        ReNp((10,))
-
-    def test_view_casting(self):
-        arr = np.zeros((3,))
-        enp = arr.view(ReNp)
-        self.assertIsInstance(enp, ReNp)
-
-    def test_new_from_template(self):
-        enp = ReNp((10,))
-        enp[1:]
-
-
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     """1D Reseal array as multidimensional numpy array.
 
@@ -984,6 +940,16 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     1, I.e (1,32,32,3). Examples are flattened becoming
     (batchsize, examplesize) where the arithmetic operations are applied to
     each array distinctly by flattening the filter for example.
+
+    You may be asking why handle batches ourselves and not leave it externally.
+    The answer is always because they must all share the same exact parameters,
+    thus there is a need to handle a "seed". If they dont all share parameters
+    then they become inoperable together. It is still possible to handle this
+    manually by creating a Reseal object seed outside of this class and pass
+    this in each time but this can be quite clunky. This also allows us to
+    optimise somewhat during serialisation as we can hanlde the duplicate data
+    ourselves and not worry the user with the intricacies of serialising this
+    encryption.
     """
 
     def __init__(self, plaintext: np.ndarray, **reseal_args):
