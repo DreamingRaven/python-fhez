@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-08T23:53:39+00:00
+# @Last modified time: 2021-02-09T00:10:03+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -1042,7 +1042,16 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         if method == "__call__":
             # called for most arithemtic operations
-            pass
+            if ufunc == "add":
+                pass
+            elif ufunc == "subtract":
+                pass
+            elif ufunc == "multiply":
+                pass
+            else:
+                # everything else should bottom out as we do not implement
+                # e.g floor_divide, true_divide, etc
+                pass
         elif method == "reduce":
             pass
         elif method == "reduceat":
@@ -1058,14 +1067,16 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         return NotImplemented
 
     def multiply(self, other):
-        pass
+        for sample in self.data:
+            pass
 
     def divide(self, other):
         raise ArithmeticError(
             "Cannot divide by or on FHE cyphertext. Consider approximating.")
 
     def add(self, other):
-        pass
+        for sample in self.data:
+            pass
 
     def subtract(self, other):
         raise ArithmeticError(
@@ -1264,31 +1275,36 @@ class ReArray_tests(unittest.TestCase):
     def test_true_divide_re(self):
         """True divide cyphertext by cyphertext."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re / re
+        with self.assertRaises(TypeError):
+            re = re / re
         out = np.array(re)
 
     def test_true_divide_broadcast(self):
         """Divide cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re / 2
+        with self.assertRaises(TypeError):
+            re = re / 2
         out = np.array(re)
 
     def test_true_divide_array(self):
         """Divide cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re / np.array([2, 3, 4])
+        with self.assertRaises(TypeError):
+            re = re / np.array([2, 3, 4])
         out = np.array(re)
 
     def test_true_divide_broadcast_reverse(self):
         """Divide cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = 2 / re
+        with self.assertRaises(TypeError):
+            re = 2 / re
         out = np.array(re)
 
     def test_true_divide_array_reverse(self):
         """Divide cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = np.array([2, 3, 4]) / re
+        with self.assertRaises(TypeError):
+            re = np.array([2, 3, 4]) / re
         out = np.array(re)
 
     # floor division
@@ -1296,31 +1312,36 @@ class ReArray_tests(unittest.TestCase):
     def test_floor_divide_re(self):
         """Floor divide cyphertext by cyphertext."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re // re
+        with self.assertRaises(TypeError):
+            re = re // re
         out = np.array(re)
 
     def test_floor_divide_broadcast(self):
         """Divide cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re // 2
+        with self.assertRaises(TypeError):
+            re = re // 2
         out = np.array(re)
 
     def test_floor_divide_array(self):
         """Divide cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re // np.array([2, 3, 4])
+        with self.assertRaises(TypeError):
+            re = re // np.array([2, 3, 4])
         out = np.array(re)
 
     def test_floor_divide_broadcast_reverse(self):
         """Divide cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = 2 // re
+        with self.assertRaises(TypeError):
+            re = 2 // re
         out = np.array(re)
 
     def test_floor_divide_array_reverse(self):
         """Divide cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = np.array([2, 3, 4]) // re
+        with self.assertRaises(TypeError):
+            re = np.array([2, 3, 4]) // re
         out = np.array(re)
 
 
