@@ -1,5 +1,8 @@
 Usage
 #####
 
-.. autoclass:: fhe.fhe.Fhe
+.. autoclass:: fhe.reseal.Reseal
+  :members:
+
+.. autoclass:: fhe.reseal.ReArray
   :members:
