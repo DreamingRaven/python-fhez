@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-09T00:10:03+00:00
+# @Last modified time: 2021-02-10T12:56:14+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -96,14 +96,19 @@ class Reseal(object):
     Table showing noise budget increase as poly modulus degree increases,
     allowing more computations.
 
-    +----------------------------------------------------+
-    | poly_modulus_degree | max coeff_modulus bit-length |
     +---------------------+------------------------------+
+    | poly_modulus_degree | max coeff_modulus bit-length |
+    +=====================+==============================+
     | 1024                | 27                           |
+    +---------------------+------------------------------+
     | 2048                | 54                           |
+    +---------------------+------------------------------+
     | 4096                | 109                          |
+    +---------------------+------------------------------+
     | 8192                | 218                          |
+    +---------------------+------------------------------+
     | 16384               | 438                          |
+    +---------------------+------------------------------+
     | 32768               | 881                          |
     +---------------------+------------------------------+
 

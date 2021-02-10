@@ -14,4 +14,5 @@ pyrtd
   license
   fhe
   install
-  usage
+  reseal
+  rearray
