@@ -9,8 +9,8 @@ The core ReSeal library consists primarily of two components, the cache (ReCache
 .. autoclass:: fhe.reseal.ReSeal
   :members:
 
-.. autoclass:: fhe.reseal.ReCache
+.. autoclass:: fhe.recache.ReCache
   :members:
 
-.. autoclass:: fhe.reseal.ReScheme
+.. autoclass:: fhe.rescheme.ReScheme
   :members:

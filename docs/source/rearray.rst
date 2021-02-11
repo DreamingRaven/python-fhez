@@ -1,5 +1,5 @@
 ReArray
 #######
 
-.. autoclass:: fhe.reseal.ReArray
+.. autoclass:: fhe.rearray.ReArray
   :members:
