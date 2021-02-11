@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-10T12:56:14+00:00
+# @Last modified time: 2021-02-11T11:13:15+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -79,7 +79,7 @@ seal.GaloisKeys.__getstate__ = _getstate_normal
 seal.GaloisKeys.__setstate__ = _setstate_normal
 
 
-class Reseal(object):
+class ReSeal(object):
     """Re-binder/ handler for serialisation of MS-Seal objects.
 
     This is also a Fully Homomorphic Encryption (FHE) utility library.
@@ -123,7 +123,9 @@ class Reseal(object):
 
     :param scheme: What type of encryption scheme to use (BFV or CKKS).
     :type scheme: seal.scheme_type
+    :param poly_modulus_degree: polynomials degree / effective length
     :type poly_modulus_degree: int
+    :param coefficient_modulus: list of int byte sizes switch down mod chain
     :type coefficient_modulus: list
     :param scale: Computational scale/ fixed point precision.
     :type scale: float
@@ -135,18 +137,27 @@ class Reseal(object):
     :type public_key: seal.PublicKey
     :param private_key: The key used for decrypting ciphertext to plaintext.
     :type private_key: seal.PrivateKey
+    :param switch_keys:
     :type switch_keys: seal.KSwitchKeys
+    :param relin_keys:
     :type relin_keys: seal.RelinKeys
+    :param galois_keys:
     :type galois_keys: seal.GaloisKeys
     :example: Reseal(scheme=seal.scheme_type.CKKS)
     """
 
-    def __init__(self, scheme=None, poly_modulus_degree=None,
-                 coefficient_modulus=None, scale=None, parameters=None,
-                 ciphertext=None,
-                 public_key=None, private_key=None, switch_keys=None,
-                 relin_keys=None,
-                 galois_keys=None, cache=None):
+    def __init__(self, scheme: seal.scheme_type = None,
+                 poly_modulus_degree: int = None,
+                 coefficient_modulus: list = None,
+                 scale: int = None,
+                 parameters: seal.EncryptionParameters = None,
+                 ciphertext: seal.Ciphertext = None,
+                 public_key: seal.PublicKey = None,
+                 private_key: seal.SecretKey = None,
+                 switch_keys: seal.KSwitchKeys = None,
+                 relin_keys: seal.RelinKeys = None,
+                 galois_keys: seal.GaloisKeys = None,
+                 cache: bool = None):
         if scheme:
             if scheme == 1:
                 scheme = seal.scheme_type.BFV
@@ -427,6 +438,7 @@ class Reseal(object):
 
     @property
     def cache(self):
+        """ReCache object to store intermediaries so they arent regenerated."""
         if self.__dict__.get("_cache"):
             return self._cache
         else:
@@ -461,7 +473,7 @@ class Reseal(object):
 
     @property
     def poly_modulus_degree(self):
-        """number dictating the size of cyphertext and compuational depth."""
+        """Number dictating the size of cyphertext and compuational depth."""
         try:
             return self._poly_modulus_degree
         except AttributeError:
@@ -488,6 +500,11 @@ class Reseal(object):
 
     @property
     def scale(self):
+        """2^x where x=bytes scale of computations, similar to a bit precision.
+
+        :example:
+            Reseal(scale=pow(2.0, 40))
+        """
         try:
             return self._scale
         except AttributeError:
@@ -499,6 +516,7 @@ class Reseal(object):
     # # # Encryptor orchestrators and helpers (parameters, context, keygen)
     @property
     def parameters(self):
+        """seal.EncryptionParameters object."""
         if self.__dict__.get("_parameters"):
             return self._parameters
         else:
@@ -520,6 +538,7 @@ class Reseal(object):
 
     @property
     def context(self):
+        """Specific context object for this particular encryption. (cached)"""
         if self.cache.context:
             return self.cache.context
         context = seal.SEALContext.Create(self.parameters)
@@ -528,11 +547,13 @@ class Reseal(object):
 
     @property
     def key_generator(self):
+        """Using context create key factory."""
         return seal.KeyGenerator(self.context)
 
     # # # Keys (public, private, relin)
     @property
     def public_key(self):
+        """Public key of encryption."""
         if self.__dict__.get("_public_key"):
             return self._public_key
         else:
@@ -551,6 +572,7 @@ class Reseal(object):
 
     @property
     def private_key(self):
+        """Private key of encryption."""
         if self.__dict__.get("_private_key"):
             return self._private_key
         else:
@@ -569,6 +591,7 @@ class Reseal(object):
 
     @property
     def relin_keys(self):
+        """Relinearisation key to relinearize cyphertext after computation."""
         if self.__dict__.get("_relin_keys"):
             return self._relin_keys
         else:
@@ -588,6 +611,7 @@ class Reseal(object):
     # # # workers (encryptor, decryptor, encoder, evaluator)
     @property
     def encoder(self):
+        """Encoder to turn vector of complex to polynomial plntxt. (cached)"""
         # BFV does not use an encoder so will always be CKKS variant
         if self.cache.encoder:
             return self.cache.encoder
@@ -597,6 +621,7 @@ class Reseal(object):
 
     @property
     def encryptor(self):
+        """Encryptor of polynomial plntxt. (cached)"""
         if self.cache.encryptor:
             return self.cache.encryptor
         encryptor = seal.Encryptor(self.context, self.public_key)
@@ -605,6 +630,7 @@ class Reseal(object):
 
     @property
     def evaluator(self):
+        """Computation evaluator of cyphertext. (cached)"""
         if self.cache.evaluator:
             return self.cache.evaluator
         evaluator = seal.Evaluator(self.context)
@@ -613,6 +639,7 @@ class Reseal(object):
 
     @property
     def decryptor(self):
+        """Decryptor of cyphertext. (cached)"""
         if self.cache.decryptor:
             return self.cache.decryptor
         decryptor = seal.Decryptor(self.context, self.private_key)
@@ -622,6 +649,7 @@ class Reseal(object):
     # # # ciphertext
     @property
     def ciphertext(self):
+        """seal.Ciphertext cyphertext object storing encrypted message/data."""
         return self._ciphertext
 
     @ciphertext.setter
@@ -640,6 +668,7 @@ class Reseal(object):
     # # # plaintext
     @property
     def plaintext(self):
+        """Polynomial plaintext encoded from complex values."""
         seal_plaintext = seal.Plaintext()
         self.decryptor.decrypt(self._ciphertext, seal_plaintext)
         vector_plaintext = seal.DoubleVector()
@@ -647,8 +676,20 @@ class Reseal(object):
         return np.array(vector_plaintext)
 
 
+Reseal = ReSeal
+
+
 class ReCache():
-    """Core caching object for Reseal."""
+    """Core caching object for ReSeal.
+
+    This cache can be enabled (default) to improve/ minimise the need to
+    regenerate the transient properties of ReSeal. That is to say ReSeal
+    only keeps/ stores the minimum required attributes like the keys,
+    the cyphertext and the parameters, as everything else is derived from those
+    at the point of need. Thus this class caches the generated intermediaries
+    so they can be re-used rather than commiting compute power every time they
+    are called. E.G seal.Encryptor and seal.Decryptor are examples of cached
+    objects."""
 
     def __init__(self, enable=None):
         """Object caching.
@@ -719,6 +760,13 @@ class ReCache():
 
 
 class ReScheme(marshmallow.Schema):
+    """Marshmallow serialisation schema.
+
+    This schema works with ReSeal to help in transmission of serialised ReSeal
+    objects. This also helps to verify the contents are structured as expected
+    on the recieving end. However since byte strings are encoded as strings
+    there is little further testing that can be done on them.
+    """
     _scheme = marshmallow.fields.Integer()
     _poly_modulus_degree = marshmallow.fields.Integer()
     _coefficient_modulus = marshmallow.fields.List(
