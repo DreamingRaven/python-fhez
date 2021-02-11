@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T11:43:29+00:00
+# @Last modified time: 2021-02-11T11:53:30+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -15,6 +15,7 @@ import logging as logger
 
 import seal
 
+# backward compatibility
 from fhe.recache import ReCache
 from fhe.rescheme import ReScheme
 

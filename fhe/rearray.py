@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T11:50:11+00:00
+# @Last modified time: 2021-02-11T14:52:41+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -30,7 +30,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     then they become inoperable together. It is still possible to handle this
     manually by creating a ReSeal object seed outside of this class and pass
     this in each time but this can be quite clunky. This also allows us to
-    optimise somewhat during serialisation as we can hanlde the duplicate data
+    optimise somewhat during serialisation as we can handle the duplicate data
     ourselves and not worry the user with the intricacies of serialising this
     encryption.
     """
@@ -41,10 +41,12 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
 
     @property
     def seedling(self):
+        """An independent clone/ sibling of the seed"""
         return self.seed.duplicate()
 
     @property
     def seed(self):
+        """Seed ReSeal object to base all encryption parameters from."""
         return self._seed
 
     @seed.setter
@@ -427,6 +429,13 @@ class ReArray_tests(unittest.TestCase):
         with self.assertRaises(TypeError):
             re = np.array([2, 3, 4]) // re
         out = np.array(re)
+
+    # array operations
+
+    def test_slice(self):
+        """Divide cyphertext by (3) numpy array value broadcast."""
+        re = ReArray(plaintext=self.data, **self.reseal_args)
+        re[0, 0]
 
 
 if __name__ == "__main__":
