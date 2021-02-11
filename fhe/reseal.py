@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T11:13:15+00:00
+# @Last modified time: 2021-02-11T11:17:14+00:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -143,7 +143,7 @@ class ReSeal(object):
     :type relin_keys: seal.RelinKeys
     :param galois_keys:
     :type galois_keys: seal.GaloisKeys
-    :example: Reseal(scheme=seal.scheme_type.CKKS)
+    :example: ReSeal(scheme=seal.scheme_type.CKKS)
     """
 
     def __init__(self, scheme: seal.scheme_type = None,
@@ -262,7 +262,7 @@ class ReSeal(object):
         d = {k: d[k] for k, v in d.items() if k not in ("_ciphertext",
                                                         "_cache")}
         # now override new reseal object dict with the keys it should share
-        new_reseal = Reseal()
+        new_reseal = ReSeal()
         for key in d:
             new_reseal.__dict__[key] = d[key]
         return new_reseal
@@ -276,10 +276,10 @@ class ReSeal(object):
     # arithmetic operations
 
     def __add__(self, other):
-        if isinstance(other, (Reseal, seal.Ciphertext)):
+        if isinstance(other, (ReSeal, seal.Ciphertext)):
             # if adding ciphertext + ciphertext
             encrypted_result = seal.Ciphertext()
-            if isinstance(other, Reseal):
+            if isinstance(other, ReSeal):
                 other = other.ciphertext
             ciphertext, other = self._homogenise_parameters(
                 self.ciphertext, other)
@@ -305,10 +305,10 @@ class ReSeal(object):
         return new_reseal_object
 
     def __mul__(self, other):
-        if isinstance(other, (Reseal, seal.Ciphertext)):
+        if isinstance(other, (ReSeal, seal.Ciphertext)):
             # if multiplying ciphertext * ciphertext
             encrypted_result = seal.Ciphertext()
-            if isinstance(other, Reseal):
+            if isinstance(other, ReSeal):
                 other = other.ciphertext
             ciphertext, other = self._homogenise_parameters(
                 self.ciphertext, other)
@@ -361,7 +361,7 @@ class ReSeal(object):
     # helpers
 
     def new(self):
-        r = Reseal()
+        r = ReSeal()
         # r.__dict__ == self.__dict__
         d = {
             k: v for (k, v) in self.__dict__.items() if "_ciphertext" not in k}
@@ -459,9 +459,9 @@ class ReSeal(object):
         """Scheme represents the encryption-scheme to use.
 
         to specify CKKS (you probably want this one):
-            Reseal(scheme=2) OR Reseal(scheme=seal.scheme_type.CKKS)
+            ReSeal(scheme=2) OR ReSeal(scheme=seal.scheme_type.CKKS)
         to specify BFV:
-            Reseal(scheme=1) OR Reseal(scheme=seal.scheme_type.BFV)
+            ReSeal(scheme=1) OR ReSeal(scheme=seal.scheme_type.BFV)
         """
         try:
             return self._scheme
@@ -503,7 +503,7 @@ class ReSeal(object):
         """2^x where x=bytes scale of computations, similar to a bit precision.
 
         :example:
-            Reseal(scale=pow(2.0, 40))
+            ReSeal(scale=pow(2.0, 40))
         """
         try:
             return self._scale
@@ -656,7 +656,7 @@ class ReSeal(object):
     def ciphertext(self, data):
         if isinstance(data, seal.Ciphertext):
             self._ciphertext = data
-        elif isinstance(data, Reseal):
+        elif isinstance(data, ReSeal):
             # compatibility so old setter "r.ciphertext = r + 2" still works
             self.ciphertext = data.ciphertext
         else:
@@ -676,6 +676,7 @@ class ReSeal(object):
         return np.array(vector_plaintext)
 
 
+# Alias Reseal to ReSeal
 Reseal = ReSeal
 
 
@@ -694,7 +695,7 @@ class ReCache():
     def __init__(self, enable=None):
         """Object caching.
 
-        If enabled will cache all Reseal objects not already stored,
+        If enabled will cache all ReSeal objects not already stored,
         to avoid having to regenrate them."""
         self.enabled = enable if enable is not None else True
 
@@ -784,7 +785,7 @@ class ReScheme(marshmallow.Schema):
                                           values=marshmallow.fields.Str())
 
 
-class Reseal_tests(unittest.TestCase):
+class ReSeal_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the encryption class"""
 
     def setUp(self):
@@ -812,7 +813,7 @@ class Reseal_tests(unittest.TestCase):
 
     def gen_reseal(self, defaults):
         if defaults["scheme"] == seal.scheme_type.CKKS:
-            r = Reseal(scheme=defaults["scheme"],
+            r = ReSeal(scheme=defaults["scheme"],
                        poly_modulus_degree=defaults["poly_mod_deg"],
                        coefficient_modulus=defaults["coeff_mod"],
                        scale=defaults["scale"])
@@ -823,13 +824,13 @@ class Reseal_tests(unittest.TestCase):
     def test_init(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
-        self.assertIsInstance(r, Reseal)
+        self.assertIsInstance(r, ReSeal)
 
     def test_serialize_deserialize(self):
         defaults = self.defaults_ckks()
         r = self.gen_reseal(defaults)
         d = r.__getstate__()
-        r2 = Reseal()
+        r2 = ReSeal()
         r2.__setstate__(d)
 
     def test_param_property(self):
@@ -953,7 +954,7 @@ class Reseal_tests(unittest.TestCase):
         r.ciphertext = np.array([1, 2, 3])
         dump = pickle.dumps(r)
         rp = pickle.loads(dump)
-        self.assertIsInstance(rp, Reseal)
+        self.assertIsInstance(rp, ReSeal)
 
     def test_deepcopy(self):
         import copy
@@ -961,7 +962,7 @@ class Reseal_tests(unittest.TestCase):
         r = self.gen_reseal(defaults)
         r.ciphertext = np.array([1, 2, 3])
         rp = copy.deepcopy(r)
-        self.assertIsInstance(rp, Reseal)
+        self.assertIsInstance(rp, ReSeal)
 
     def test_cache(self):
         defaults = self.defaults_ckks()
@@ -982,7 +983,7 @@ class Reseal_tests(unittest.TestCase):
 
 
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
-    """1D Reseal array as multidimensional numpy array.
+    """1D ReSeal array as multidimensional numpy array.
 
     This class implements a custom numpy container to allow ReSeal to be used
     in conjunction with numpy for its more complex arithmetic, so we dont
@@ -998,7 +999,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     The answer is always because they must all share the same exact parameters,
     thus there is a need to handle a "seed". If they dont all share parameters
     then they become inoperable together. It is still possible to handle this
-    manually by creating a Reseal object seed outside of this class and pass
+    manually by creating a ReSeal object seed outside of this class and pass
     this in each time but this can be quite clunky. This also allows us to
     optimise somewhat during serialisation as we can hanlde the duplicate data
     ourselves and not worry the user with the intricacies of serialising this
@@ -1019,11 +1020,11 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
 
     @seed.setter
     def seed(self, seed):
-        """Create a Reseal object seed to allow sharing of encryption keys."""
-        if isinstance(seed, Reseal):
-            self._seed = Reseal
+        """Create a ReSeal object seed to allow sharing of encryption keys."""
+        if isinstance(seed, ReSeal):
+            self._seed = ReSeal
         else:
-            self._seed = Reseal(**seed)
+            self._seed = ReSeal(**seed)
         # call encryptor to test if it exists or to generate it
         self.seed.encryptor
 
