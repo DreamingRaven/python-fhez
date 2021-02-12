@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T14:52:41+00:00
+# @Last modified time: 2021-02-11T19:17:02+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -34,6 +34,8 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     ourselves and not worry the user with the intricacies of serialising this
     encryption.
     """
+    # numpy remap class attribute NOT instance attribute!!!
+    remap = {}
 
     def __init__(self, plaintext: np.ndarray, **reseal_args):
         self.seed = reseal_args  # automatic seed generation for encryption
@@ -125,18 +127,25 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         return data
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        """numpy element wise universal functions."""
+        # if inputs are wrong way around flip and call again
+        if not isinstance(inputs[0], ReArray):
+            return self.__array_ufunc__(ufunc, method, *inputs[::-1], **kwargs)
         if method == "__call__":
             # called for most arithemtic operations
-            if ufunc == "add":
-                pass
-            elif ufunc == "subtract":
-                pass
-            elif ufunc == "multiply":
-                pass
-            else:
-                # everything else should bottom out as we do not implement
-                # e.g floor_divide, true_divide, etc
-                pass
+
+            # using ReArray objects remap class attribute to dispatch properly
+            out = inputs[0].remap[ufunc](self, inputs[1])
+            return out
+            # if ufunc == np.add:
+            #     return self.add(inputs[1])
+            # elif ufunc == np.subtract:
+            #     return self.subtract(inputs[1])
+            # elif ufunc == np.multiply:
+            #     return self.multiply(inputs[1])
+            # else:
+            # everything else should bottom out as we do not implement
+            # e.g floor_divide, true_divide, etc
         elif method == "reduce":
             pass
         elif method == "reduceat":
@@ -151,21 +160,32 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             method, ufunc, inputs, kwargs))
         return NotImplemented
 
-    def multiply(self, other):
-        for sample in self.data:
-            pass
+    def implements(remap, np_func):
+        def decorator(func):
+            # adding mapping to class' attribute "remap"
+            remap[np_func] = func
+            return func
+        return decorator
 
+    @implements(remap, np.multiply)
+    def multiply(self, other):
+        for sample in self.cyphertext:
+            return NotImplemented
+
+    @implements(remap, np.true_divide)
     def divide(self, other):
         raise ArithmeticError(
             "Cannot divide by or on FHE cyphertext. Consider approximating.")
 
+    @implements(remap, np.add)
     def add(self, other):
-        for sample in self.data:
-            pass
+        for sample in self.cyphertext:
+            return NotImplemented
 
+    @implements(remap, np.subtract)
     def subtract(self, other):
-        raise ArithmeticError(
-            "Cannot subtract by or on FHE cyphertext. Try adding a negative.")
+        for sample in self.cyphertext:
+            return NotImplemented
 
 
 class ReArray_tests(unittest.TestCase):
