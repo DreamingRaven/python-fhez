@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T19:17:02+00:00
+# @Last modified time: 2021-02-12T13:17:35+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -106,12 +106,22 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def origin(self, origin: dict):
         self._origin = origin
 
+    @property
+    def shape(self):
+        return self.origin["shape"]
+
+    @property
+    def size(self):
+        return self.origin["size"]
+
     def __repr__(self):
-        return "object: {}".format(self.__class__.__name__)
+        d = self.__dict__
+        d = {k: d[k] for k, v in d.items() if k not in ["_cyphertext"]}
+        return "{}({})".format(self.__class__.__name__, d)
 
     def __str__(self):
         d = self.__dict__
-        d = {k: d[k] for k, v in d.items() if k not in []}
+        d = {k: d[k] for k, v in d.items() if k not in ["_cyphertext"]}
         return "{}({})".format(self.__class__.__name__, d)
 
     def __array__(self):
@@ -128,61 +138,48 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         """numpy element wise universal functions."""
+        if len(inputs) > 2:
+            raise ValueError("More inputs than expected 2 in ufunc")
         # if inputs are wrong way around flip and call again
-        if not isinstance(inputs[0], ReArray):
+        elif not isinstance(inputs[0], ReArray):
             return self.__array_ufunc__(ufunc, method, *inputs[::-1], **kwargs)
-        if method == "__call__":
-            # called for most arithemtic operations
-
-            # using ReArray objects remap class attribute to dispatch properly
-            out = inputs[0].remap[ufunc](self, inputs[1])
-            return out
-            # if ufunc == np.add:
-            #     return self.add(inputs[1])
-            # elif ufunc == np.subtract:
-            #     return self.subtract(inputs[1])
-            # elif ufunc == np.multiply:
-            #     return self.multiply(inputs[1])
-            # else:
-            # everything else should bottom out as we do not implement
-            # e.g floor_divide, true_divide, etc
-        elif method == "reduce":
+        # using ReArray objects remap class attribute to dispatch properly
+        try:
+            # assuming inputs[0] == self then look up function remap
+            return inputs[0].remap[method][ufunc](self, inputs[1])
+        except KeyError:
             pass
-        elif method == "reduceat":
-            pass
-        elif method == "accumulate":
-            pass
-        elif method == "outer":
-            pass
-        elif method == "inner":
-            pass
-        print("called method: {}, ufunc: {}, inputs: {}, kwargs: {}".format(
-            method, ufunc, inputs, kwargs))
+        # everything else should bottom out as we do not implement
+        # e.g floor_divide, true_divide, etc
         return NotImplemented
 
-    def implements(remap, np_func):
+    def implements(remap, np_func, method):
+        # ensuring subdicts exist
+        if remap.get(method) is None:
+            remap[method] = {}
+
         def decorator(func):
             # adding mapping to class' attribute "remap"
-            remap[np_func] = func
+            remap[method][np_func] = func
             return func
         return decorator
 
-    @implements(remap, np.multiply)
+    @implements(remap, np.multiply, "__call__")
     def multiply(self, other):
         for sample in self.cyphertext:
             return NotImplemented
 
-    @implements(remap, np.true_divide)
+    @implements(remap, np.true_divide, "__call__")
     def divide(self, other):
         raise ArithmeticError(
             "Cannot divide by or on FHE cyphertext. Consider approximating.")
 
-    @implements(remap, np.add)
+    @implements(remap, np.add, "__call__")
     def add(self, other):
         for sample in self.cyphertext:
             return NotImplemented
 
-    @implements(remap, np.subtract)
+    @implements(remap, np.subtract, "__call__")
     def subtract(self, other):
         for sample in self.cyphertext:
             return NotImplemented
