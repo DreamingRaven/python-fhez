@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-16T16:13:54+00:00
+# @Last modified time: 2021-02-16T16:29:07+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -370,17 +370,17 @@ class ReArray_tests(unittest.TestCase):
     def test_add_re(self):
         """Add cyphertext to cyphertext."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re + re
-        self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(self.data + self.data).tolist())
+        other = re
+        func = np.add
+        re = func(re, other)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_add_broadcast(self):
         """Add cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re + 2
         self.assertIsInstance(re, ReArray)
+        # seems like a bug in numpy
         # out = np.around(np.array(re))
         # self.assertEqual(out.tolist(),
         #                  np.around(self.data + 2).tolist())
