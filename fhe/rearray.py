@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-16T14:29:20+00:00
+# @Last modified time: 2021-02-16T16:01:36+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -316,29 +316,46 @@ class ReArray_tests(unittest.TestCase):
         """Multiply cyphertext by cyphertext."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re * re
-        out = np.array(re)
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(self.data * self.data).tolist())
 
     def test_multiply_broadcast(self):
         """Multiply cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re * 2
-        out = np.array(re)
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(self.data * 2).tolist())
 
     def test_multiply_array(self):
         """Multiply cyphertext by (3) numpy array."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re * np.array([2, 3, 4])
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(self.data * np.array([2, 3, 4])).tolist())
 
     def test_multiply_broadcast_reverse(self):
         """Multiply cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = 2 * re
-        out = np.array(re)
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(2 * self.data).tolist())
 
     def test_multiply_array_reverse(self):
         """Multiply cyphertext by (3) numpy array."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = np.array([2, 3, 4]) * re
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(np.array([2, 3, 4]) * self.data).tolist())
 
     def test_multiply_ndarray(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
@@ -353,29 +370,46 @@ class ReArray_tests(unittest.TestCase):
         """Add cyphertext to cyphertext."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re + re
-        out = np.array(re)
+        self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(self.data + self.data).tolist())
 
     def test_add_broadcast(self):
         """Add cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re + 2
-        out = np.array(re)
+        self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(self.data + 2).tolist())
 
     def test_add_array(self):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re + np.array([2, 3, 4])
+        self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(self.data + np.array([2, 3, 4])).tolist())
 
     def test_add_broadcast_reverse(self):
         """Add cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = 2 + re
-        out = np.array(re)
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(2 + self.data).tolist())
 
     def test_add_array_reverse(self):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = np.array([2, 3, 4]) + re
+        # self.assertIsInstance(re, ReArray)
+        # out = np.around(np.array(re))
+        # self.assertEqual(out.tolist(),
+        #                  np.around(np.array([2, 3, 4]) + self.data).tolist())
 
     def test_add_ndarray(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
