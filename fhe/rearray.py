@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-16T16:01:36+00:00
+# @Last modified time: 2021-02-16T16:13:54+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -252,7 +252,13 @@ class ReArray_tests(unittest.TestCase):
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
-    @ property
+    def arithmetic_evaluator(self, re, other, func):
+        self.assertIsInstance(re, ReArray)
+        out = np.around(np.array(re))
+        self.assertEqual(out.tolist(),
+                         np.around(func(self.data, other)).tolist())
+
+    @property
     def data(self):
         array = np.arange(64*32*32*3)
         array.shape = (64, 32, 32, 3)
@@ -315,47 +321,42 @@ class ReArray_tests(unittest.TestCase):
     def test_multiply_re(self):
         """Multiply cyphertext by cyphertext."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re * re
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(self.data * self.data).tolist())
+        other = re
+        func = np.multiply
+        re = func(re, other)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_multiply_broadcast(self):
         """Multiply cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re * 2
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(self.data * 2).tolist())
+        other = 2
+        func = np.multiply
+        re = func(re, other)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_multiply_array(self):
         """Multiply cyphertext by (3) numpy array."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re * np.array([2, 3, 4])
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(self.data * np.array([2, 3, 4])).tolist())
+        other = np.array([2, 3, 4])
+        func = np.multiply
+        re = func(re, other)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_multiply_broadcast_reverse(self):
         """Multiply cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = 2 * re
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(2 * self.data).tolist())
+        other = 2
+        func = np.multiply
+        re = func(other, re)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_multiply_array_reverse(self):
         """Multiply cyphertext by (3) numpy array."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = np.array([2, 3, 4]) * re
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(np.array([2, 3, 4]) * self.data).tolist())
+        other = np.array([2, 3, 4])
+        func = np.multiply
+        re = func(other, re)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_multiply_ndarray(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
