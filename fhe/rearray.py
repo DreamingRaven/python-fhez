@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-16T13:53:41+00:00
+# @Last modified time: 2021-02-16T14:29:20+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -37,9 +37,23 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     # numpy remap class attribute NOT instance attribute!!!
     remap = {}
 
-    def __init__(self, plaintext: np.ndarray, **reseal_args):
-        self.seed = reseal_args  # automatic seed generation for encryption
-        self.cyphertext = plaintext  # automatic encryption
+    def __init__(self,
+                 plaintext: np.ndarray = None,
+                 seed: ReSeal = None,
+                 clone=None,
+                 cyphertext=None,
+                 **reseal_args):
+        if clone is None:
+            # automatic seed generation for encryption
+            self.seed = reseal_args if seed is None else seed
+            # automatic encryption
+            self.cyphertext = plaintext
+        else:
+            # bootstrap ReArray object based on other ReArray object
+            d = clone.__dict__
+            d = {k: d[k] for k, v in d.items() if k not in ["_cyphertext"]}
+            self.__dict__ = d
+            self._cyphertext = cyphertext
 
     @property
     def seedling(self):
@@ -198,7 +212,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             else:
                 t = self[i] * other[i].flatten()
             accumulator.append(t)
-        return accumulator
+        return ReArray(clone=self, cyphertext=accumulator)
 
     @ implements(remap, np.add, "__call__")
     def add(self, other):
@@ -211,7 +225,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             else:
                 t = self[i] * other[i].flatten()
             accumulator.append(t)
-        return accumulator
+        return ReArray(clone=self, cyphertext=accumulator)
         # for row_s, row_o in zip(self.cyphertext, other):
         #     print(row_s, type(row_s), row_o, type(row_o))
         #     accumulator.append(row_s + row_o)
