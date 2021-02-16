@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-15T10:29:14+00:00
+# @Last modified time: 2021-02-16T13:53:41+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -124,6 +124,15 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         d = {k: d[k] for k, v in d.items() if k not in ["_cyphertext"]}
         return "{}({})".format(self.__class__.__name__, d)
 
+    def __getitem__(self, indices):
+        """Get cyphertexts from encrypted internal 1D list."""
+        # converting all indices to tuples if not already
+        if not isinstance(indices, tuple):
+            return self.cyphertext[indices]
+        else:
+            raise IndexError("{}[{}] invalid can only slice 1D not {}D".format(
+                self.__class__.__name__, indices, len(indices)))
+
     def __array__(self):
         accumulator = []
         for example in self.cyphertext:
@@ -153,6 +162,19 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         # e.g floor_divide, true_divide, etc
         return NotImplemented
 
+    def _broadcast(self, other):
+        """Broadcast shape to our current shape."""
+        return np.broadcast_to(other, self.shape)
+        # return np.broadcast_to(other, (1,) + self.shape[1:])
+
+    def _pre_process_other(self, other):
+        try:
+            other = self._broadcast(other)
+        except ValueError:
+            raise ArithmeticError("shapes: {}, {} not broadcastable".format(
+                self.shape, other.shape))
+        return other
+
     def implements(remap, np_func, method):
         """Python decorator to remap numpy functions to our own funcs."""
         # ensuring subdicts exist
@@ -165,28 +187,35 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             return func
         return decorator
 
-    @implements(remap, np.multiply, "__call__")
+    @ implements(remap, np.multiply, "__call__")
     def multiply(self, other):
-        for sample in self.cyphertext:
-            return NotImplemented
+        """Multiplicative Hadmard Product (element-wise multiplication)."""
+        other = self._pre_process_other(other)
+        accumulator = []
+        for i in range(len(self.cyphertext)):
+            if isinstance(other[i], ReSeal):
+                t = self[i] * other[i]
+            else:
+                t = self[i] * other[i].flatten()
+            accumulator.append(t)
+        return accumulator
 
-    @implements(remap, np.true_divide, "__call__")
-    def true_divide(self, other):
-        return NotImplemented
-
-    @implements(remap, np.floor_divide, "__call__")
-    def floor_divide(self, other):
-        return NotImplemented
-
-    @implements(remap, np.add, "__call__")
+    @ implements(remap, np.add, "__call__")
     def add(self, other):
-        for sample in self.cyphertext:
-            return NotImplemented
-
-    @implements(remap, np.subtract, "__call__")
-    def subtract(self, other):
-        for sample in self.cyphertext:
-            return NotImplemented
+        """Additive Hadmard Product (element-wise addition)"""
+        other = self._pre_process_other(other)
+        accumulator = []
+        for i in range(len(self.cyphertext)):
+            if isinstance(other[i], ReSeal):
+                t = self[i] * other[i]
+            else:
+                t = self[i] * other[i].flatten()
+            accumulator.append(t)
+        return accumulator
+        # for row_s, row_o in zip(self.cyphertext, other):
+        #     print(row_s, type(row_s), row_o, type(row_o))
+        #     accumulator.append(row_s + row_o)
+        # return accumulator
 
 
 class ReArray_tests(unittest.TestCase):
@@ -209,7 +238,7 @@ class ReArray_tests(unittest.TestCase):
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
-    @property
+    @ property
     def data(self):
         array = np.arange(64*32*32*3)
         array.shape = (64, 32, 32, 3)
@@ -285,7 +314,6 @@ class ReArray_tests(unittest.TestCase):
         """Multiply cyphertext by (3) numpy array."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re * np.array([2, 3, 4])
-        out = np.array(re)
 
     def test_multiply_broadcast_reverse(self):
         """Multiply cyphertext by scalar value broadcast."""
@@ -297,14 +325,13 @@ class ReArray_tests(unittest.TestCase):
         """Multiply cyphertext by (3) numpy array."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = np.array([2, 3, 4]) * re
-        out = np.array(re)
 
     def test_multiply_ndarray(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
         filter = np.arange(3*3*3)
         filter.shape = (3, 3, 3)
-        re = re * filter
-        out = np.array(re)
+        with self.assertRaises(ArithmeticError):
+            re = re * filter
 
     # addition
 
@@ -324,7 +351,6 @@ class ReArray_tests(unittest.TestCase):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = re + np.array([2, 3, 4])
-        out = np.array(re)
 
     def test_add_broadcast_reverse(self):
         """Add cyphertext by scalar value broadcast."""
@@ -336,14 +362,13 @@ class ReArray_tests(unittest.TestCase):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
         re = np.array([2, 3, 4]) + re
-        out = np.array(re)
 
     def test_add_ndarray(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
         filter = np.arange(3*3*3)
         filter.shape = (3, 3, 3)
-        re = re + filter
-        out = np.array(re)
+        with self.assertRaises(ArithmeticError):
+            re = re + filter
 
     # subtraction
 
@@ -440,13 +465,6 @@ class ReArray_tests(unittest.TestCase):
         re = ReArray(plaintext=self.data, **self.reseal_args)
         with self.assertRaises(TypeError):
             re = np.array([2, 3, 4]) // re
-
-    # array operations
-
-    # def test_slice(self):
-    #     """Divide cyphertext by (3) numpy array value broadcast."""
-    #     re = ReArray(plaintext=self.data, **self.reseal_args)
-    #     re[0, 0]
 
 
 if __name__ == "__main__":
