@@ -13,7 +13,8 @@ sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses
 
 # sudo docker run --gpus all -it archer/fhe /python-fhe/fhe/fhe.py
 # sudo docker run --gpus all -it archer/fhe /python-fhe/fhe/evector.py
-sudo docker run --gpus all --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/reseal.py
-sudo docker run --gpus all --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/rearray.py
-sudo docker run --gpus all -it archer/fhe make -C /python-fhe/docs html
+sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/reseal.py
+sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/rearray.py
+sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/nn/cnn.py
+sudo docker run -it archer/fhe make -C /python-fhe/docs html
 # sudo docker run --gpus all -it archer/fhe bash
