@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-17T11:04:25+00:00
+# @Last modified time: 2021-02-17T12:05:59+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -335,7 +335,7 @@ class ReArray_tests(unittest.TestCase):
         other = re
         func = np.multiply
         re = func(re, other)
-        self.arithmetic_evaluator(re, other, func)
+        self.arithmetic_evaluator(re, np.array(other), func)
 
     def test_multiply_broadcast(self):
         """Multiply cyphertext by scalar value broadcast."""
@@ -384,7 +384,7 @@ class ReArray_tests(unittest.TestCase):
         other = re
         func = np.add
         re = func(re, other)
-        self.arithmetic_evaluator(re, other, func)
+        self.arithmetic_evaluator(re, np.array(other), func)
 
     def test_add_broadcast(self):
         """Add cyphertext by scalar value broadcast."""
