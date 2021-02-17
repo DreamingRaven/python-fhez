@@ -3,13 +3,15 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-17T12:16:38+00:00
+# @Last modified time: 2021-02-17T14:10:24+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
 import numpy as np
 import unittest
 import copy
+
+import seal
 from fhe.reseal import Reseal
 from fhe.rearray import ReArray
 
@@ -329,22 +331,34 @@ class Cross_Correlation():
             try:
                 return (len(lst),) + self.probe_shape(lst[0])
             # once we bottom out and get some non-list type abort and pull up
-            except TypeError:
+            except AttributeError:
                 return (len(lst),)
-        elif isinstance(lst, np.ndarray):
-            # automatically handle numpy if it happens to be embedded
-            return lst.shape
         else:
-            pass
+            return lst.shape
 
 
 class cnn_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the cnn class"""
 
+    @property
+    def data(self):
+        array = np.arange(64*32*32*3)
+        array.shape = (64, 32, 32, 3)
+        return array
+
+    @property
+    def reseal_args(self):
+        return {
+            "scheme": seal.scheme_type.CKKS,
+            "poly_modulus_degree": 8192,
+            "coefficient_modulus": [60, 40, 40, 60],
+            "scale": pow(2.0, 40),
+            "cache": True,
+        }
+
     def setUp(self):
         import time
 
-        self.data = np.zeros((64, 32, 32, 3), dtype=float)
         self.weights = (1, 3, 3, 3)  # if tuple allows cnn to initialise itself
         self.stride = [1, 1, 1, 1]  # stride list per-dimension
         self.bias = 0  # assume no bias at first
@@ -371,6 +385,13 @@ class cnn_tests(unittest.TestCase):
         cnn.forward(x=self.data.tolist())
         cnn.backward(gradient=1)
         cnn.update()
+
+    def test_rearray(self):
+        cnn = Layer_CNN(weights=self.weights,
+                        bias=self.bias,
+                        stride=self.stride)
+        print(len(self.data))
+        cnn.forward(x=ReArray(self.data, **self.reseal_args))
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-17T12:05:59+00:00
+# @Last modified time: 2021-02-17T13:59:18+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -146,6 +146,10 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         else:
             raise IndexError("{}[{}] invalid can only slice 1D not {}D".format(
                 self.__class__.__name__, indices, len(indices)))
+
+    def __len__(self):
+        """Matching numpys len function"""
+        return self.shape[0]
 
     def __array__(self):
         accumulator = []
