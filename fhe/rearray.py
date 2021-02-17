@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-16T16:29:07+00:00
+# @Last modified time: 2021-02-17T11:04:25+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -221,9 +221,9 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         accumulator = []
         for i in range(len(self.cyphertext)):
             if isinstance(other[i], ReSeal):
-                t = self[i] * other[i]
+                t = self[i] + other[i]
             else:
-                t = self[i] * other[i].flatten()
+                t = self[i] + other[i].flatten()
             accumulator.append(t)
         return ReArray(clone=self, cyphertext=accumulator)
         # for row_s, row_o in zip(self.cyphertext, other):
@@ -252,11 +252,22 @@ class ReArray_tests(unittest.TestCase):
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
-    def arithmetic_evaluator(self, re, other, func):
+    def arithmetic_evaluator(self, re, other, func, experiment=False):
         self.assertIsInstance(re, ReArray)
-        out = np.around(np.array(re))
+        out = np.around(np.array(re), 1).astype(int)
+        comparitor = np.around(func(self.data, other)).astype(int)
+        if experiment:
+            print("out:{}, comparitor:{}".format(out.shape, comparitor.shape))
+            print("origin", self.data)
+            print("out:", out)
+            print("comparitor:", comparitor)
         self.assertEqual(out.tolist(),
-                         np.around(func(self.data, other)).tolist())
+                         comparitor.tolist())
+
+    def test_numpy_bug(self):
+        a = np.around(np.add(self.data, self.data)).tolist()
+        b = np.around(np.add(self.data, self.data)).tolist()
+        self.assertEqual(a, b)
 
     @property
     def data(self):
@@ -378,39 +389,34 @@ class ReArray_tests(unittest.TestCase):
     def test_add_broadcast(self):
         """Add cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re + 2
-        self.assertIsInstance(re, ReArray)
-        # seems like a bug in numpy
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(self.data + 2).tolist())
+        other = 2
+        func = np.add
+        re = func(re, other)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_add_array(self):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = re + np.array([2, 3, 4])
-        self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(self.data + np.array([2, 3, 4])).tolist())
+        other = np.array([2, 3, 4])
+        func = np.add
+        re = func(re, other)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_add_broadcast_reverse(self):
         """Add cyphertext by scalar value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = 2 + re
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(2 + self.data).tolist())
+        other = 2
+        func = np.add
+        re = func(other, re)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_add_array_reverse(self):
         """Add cyphertext by (3) numpy array value broadcast."""
         re = ReArray(plaintext=self.data, **self.reseal_args)
-        re = np.array([2, 3, 4]) + re
-        # self.assertIsInstance(re, ReArray)
-        # out = np.around(np.array(re))
-        # self.assertEqual(out.tolist(),
-        #                  np.around(np.array([2, 3, 4]) + self.data).tolist())
+        other = np.array([2, 3, 4])
+        func = np.add
+        re = func(other, re)
+        self.arithmetic_evaluator(re, other, func)
 
     def test_add_ndarray(self):
         re = ReArray(plaintext=self.data, **self.reseal_args)
