@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-17T14:10:24+00:00
+# @Last modified time: 2021-02-17T15:47:54+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -188,6 +188,7 @@ class Cross_Correlation():
         for window in self.windows:
             # starts full fat with everything
             x_slice = x if isinstance(x, np.ndarray) is False else x.tolist()
+            exit()
             for slice_dim in window:
                 # peel off each dimension keeping only the slice
                 print("slice dim total", slice_dim)
@@ -331,7 +332,7 @@ class Cross_Correlation():
             try:
                 return (len(lst),) + self.probe_shape(lst[0])
             # once we bottom out and get some non-list type abort and pull up
-            except AttributeError:
+            except (AttributeError, IndexError):
                 return (len(lst),)
         else:
             return lst.shape
