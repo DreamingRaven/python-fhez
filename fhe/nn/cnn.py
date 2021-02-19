@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-19T14:51:42+00:00
+# @Last modified time: 2021-02-19T17:02:11+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -42,16 +42,14 @@ class Layer_CNN():
         """Take lst of batches of x, return activated output lst of layer."""
         # batch shape example (batch, time/space, 1/space, features/depth)
         cross_correlated = self.cc.forward(x)
-        activated = list(map(self.activation_function.forward,
-                             cross_correlated))
+        logger.debug("calculating activation")
         activated = []
         for i in range(len(cross_correlated)):
-            print("calculating activation:", len(cross_correlated))
+            logger.debug("calculating activation: {}".format(
+                len(cross_correlated)))
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
-
-            # logger.info("cross correlated: {}".format(cross_correlated.shape))
-            # activated = self.activation_function.forward(cross_correlated)
+        logger.debug("returning CNN activation")
         return activated
 
     def backward(self, gradient):
@@ -198,13 +196,14 @@ class Cross_Correlation():
         logger.info("Windows processing = {}".format(len(self.windows)))
         # store each cross correlation
         cc = []
-        # apply windows to each dimension of a multi-dim list to get our data
-        for window in self.windows:
+        # apply each window and do it by index so can state progress
+        for i in range(len(self.windows)):
+            logger.debug("convolving:{}/{}".format(i, len(self.windows)))
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape[1:])
             # now we have a sparse vectore that can be used to convolve
-            cc_primer[window] = self.weights
+            cc_primer[self.windows[i]] = self.weights
             t = cc_primer * x
             t = t + (self.bias/t.size)  # commuting addition before sum
             cc.append(t)
@@ -398,16 +397,21 @@ class cnn_tests(unittest.TestCase):
                         bias=self.bias,
                         stride=self.stride)
         activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        plaintext_activations = np.array(list(map(np.array, activations)))
-        plaintext_activations = np.around(plaintext_activations, 2)
-        compared_activations = np.around(self.test_numpy_matrix(), 2)
-        self.assertListEqual(plaintext_activations.tolist(),
-                             compared_activations.tolist())
+        accumulator = []
+        for i in range(len(activations)):
+            logger.debug("decrypting: {}".format(len(activations)))
+            t = np.array(activations.pop(0))
+            accumulator.append(t)
+        plaintext_activations = np.around(np.array(accumulator), 2)
+        compared_activations = np.around(cnn.forward(x=self.data), 2)
+        self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
+                             compared_activations.flatten()[:200].tolist())
+        self.assertListEqual
 
 
 if __name__ == "__main__":
     logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.INFO,
+        level=logger.DEBUG,
         format="%(asctime)s %(levelname)s:%(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S")
     # run all the unit-tests
