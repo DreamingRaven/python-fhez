@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-19T17:02:11+00:00
+# @Last modified time: 2021-02-19T17:31:16+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -380,15 +380,7 @@ class cnn_tests(unittest.TestCase):
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride)
-        return cnn.forward(x=self.data)
-        # cnn.backward(gradient=1)
-        # cnn.update()
-
-    def test_list_matrix(self):
-        cnn = Layer_CNN(weights=self.weights,
-                        bias=self.bias,
-                        stride=self.stride)
-        cnn.forward(x=self.data.tolist())
+        cnn.forward(x=self.data)
         # cnn.backward(gradient=1)
         # cnn.update()
 
