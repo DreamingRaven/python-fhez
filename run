@@ -3,18 +3,14 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-05-22T10:08:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2020-05-22T12:42:34+01:00
+# @Last modified time: 2021-02-19T12:10:38+00:00
 # @License: please see LICENSE file in project root
 
-# set -e
-# sudo docker build -t archer/fhe -f Dockerfile . # this uses huelse docker
 sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses our docker
 # sudo docker build -t archer/fhe -f Dockerfile_archlinux --no-cache .
 
-# sudo docker run --gpus all -it archer/fhe /python-fhe/fhe/fhe.py
-# sudo docker run --gpus all -it archer/fhe /python-fhe/fhe/evector.py
 sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/reseal.py
 sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/rearray.py
-sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/nn/cnn.py
-sudo docker run -it archer/fhe make -C /python-fhe/docs html
+sudo docker run --cpus=2 --memory 22G -it archer/fhe /python-fhe/fhe/nn/cnn.py
+#sudo docker run -it archer/fhe make -C /python-fhe/docs html
 # sudo docker run --gpus all -it archer/fhe bash

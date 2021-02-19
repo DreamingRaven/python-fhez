@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-17T15:47:54+00:00
+# @Last modified time: 2021-02-19T13:23:05+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -38,12 +38,20 @@ class Layer_CNN():
     def activation_function(self, activation_function):
         self._activation_function = activation_function
 
-    def forward(self, x):
-        """Take batch of x and return activated output of this layer."""
+    def forward(self, x: (np.array, ReArray)):
+        """Take lst of batches of x, return activated output lst of layer."""
         # batch shape example (batch, time/space, 1/space, features/depth)
         cross_correlated = self.cc.forward(x)
-        logger.info("cross correlated: {}".format(cross_correlated.shape))
-        activated = self.activation_function.forward(cross_correlated)
+        activated = list(map(self.activation_function.forward,
+                             cross_correlated))
+        activated = []
+        for i in range(len(cross_correlated)):
+            print("calculating activation:", len(cross_correlated))
+            t = self.activation_function.forward(cross_correlated.pop(0))
+            activated.append(t)
+
+            # logger.info("cross correlated: {}".format(cross_correlated.shape))
+            # activated = self.activation_function.forward(cross_correlated)
         return activated
 
     def backward(self, gradient):
@@ -77,14 +85,18 @@ class Sigmoid_Approximation():
 
     @x_plain.setter
     def x_plain(self, x):
-        # if isinstance(x, Reseal):
-        #     self._cache["x"] = x.plaintext
-        # else:
-        self._cache["x"] = x
+        if isinstance(x, Reseal):
+            self._cache["x"] = x.plaintext
+        elif isinstance(x, ReArray):
+            self._cache["x"] = np.array(x)
+        else:
+            self._cache["x"] = x
 
     def forward(self, x):
         self.x_plain = x
-        return 0.5 + (0.197 * x) + ((-0.004 * x) * (x * x))
+        # sigmoid approximation in specific order to minimise depth
+        # dividing 0.5 by size of x to prevent explosion when not summed
+        return (0.5/x.size) + (0.197 * x) + ((-0.004 * x) * (x * x))
 
     def backward(self, gradient):
         # calculate local gradient but using normal sigmoid derivative
@@ -179,42 +191,24 @@ class Cross_Correlation():
         # if no cross correlation windows have been specified create them
         # and cache them for later re-use as uneccessary to re-compute
         if self.windows is None:
-            self.windows = self.windex(data=x,
-                                       filter=self.weights,
-                                       stride=self.stride)
+            self.windows = self.windex(data=x.shape[1:],
+                                       filter=self.weights.shape[1:],
+                                       stride=self.stride[1:])
+            self.windows = list(map(self.windex_to_slice, self.windows))
+        logger.info("Windows processing = {}".format(len(self.windows)))
         # store each cross correlation
         cc = []
         # apply windows to each dimension of a multi-dim list to get our data
         for window in self.windows:
-            # starts full fat with everything
-            x_slice = x if isinstance(x, np.ndarray) is False else x.tolist()
-            exit()
-            for slice_dim in window:
-                # peel off each dimension keeping only the slice
-                print("slice dim total", slice_dim)
-                print("first dim", slice_dim[0])
-                print("last dim", slice_dim[-1])
-                x_slice = x_slice[slice_dim[0]:slice_dim[-1]]
-                print(x_slice)
-            logger.info(self.probe_shape(x_slice))
-
-        sum = None
-        for t in range(len(x)):
-            # logger.debug("CNN row original: {}".format(x[t].plaintext))
-            logger.debug("CNN row original: {}".format(x[t].shape))
-            logger.debug("CNN row weights: {}".format(self.weights[0][t][0].shape))
-            convolution = x[t] * self.weights[0][t][0]
-            # logger.debug("CNN row convolution: {}".format(
-            #     convolution.plaintext))
-            logger.debug("CNN row convolution: {}".format(
-                convolution.shape))
-            if sum is None:
-                sum = convolution
-            else:
-                sum = sum + convolution
-        logger.debug("CNN sum: {}, bias: {}".format(sum.shape, self.bias))
-        biased = sum + self.bias
-        return biased  # return the now biased convolution ready for activation
+            # create a primer for application of window without having to
+            # modify x but instead the filter itself
+            cc_primer = np.zeros(x.shape[1:])
+            # now we have a sparse vectore that can be used to convolve
+            cc_primer[window] = self.weights
+            t = cc_primer * x
+            t = t + (self.bias/t.size)  # commuting addition before sum
+            cc.append(t)
+        return cc  # return the now biased convolution ready for activation
 
     def backward(self, gradient):
         # calculate local gradient
@@ -277,8 +271,10 @@ class Cross_Correlation():
               standard data, E.G Fully Homomorphically Encrypted lists.
         """
         # get shapes of structural lists
-        d_shape = self.probe_shape(data)
-        f_shape = self.probe_shape(filter)
+        d_shape = data if isinstance(data, tuple) else self.probe_shape(
+            data)
+        f_shape = filter if isinstance(filter, tuple) else self.probe_shape(
+            filter)
         logger.debug(
             "data.shape: {}, filter.shape: {}, stride: {}, dimension: {}".format(
                 d_shape, f_shape, stride, dimension))
@@ -337,23 +333,33 @@ class Cross_Correlation():
         else:
             return lst.shape
 
+    def windex_to_slice(self, window):
+        """Convert x sides of window expression into slices to slice np."""
+        slicedex = ()
+        for dimension in window:
+            t = (slice(dimension[0], dimension[-1]+1),)
+            slicedex += t
+        return slicedex
+
 
 class cnn_tests(unittest.TestCase):
     """Unit test class aggregating all tests for the cnn class"""
 
     @property
     def data(self):
-        array = np.arange(64*32*32*3)
-        array.shape = (64, 32, 32, 3)
+        array = np.arange(1*32*32*3)
+        array.shape = (1, 32, 32, 3)
         return array
 
     @property
     def reseal_args(self):
         return {
             "scheme": seal.scheme_type.CKKS,
-            "poly_modulus_degree": 8192,
-            "coefficient_modulus": [60, 40, 40, 60],
-            "scale": pow(2.0, 40),
+            "poly_modulus_degree": 8192*2,  # 438
+            # "coefficient_modulus": [60, 40, 40, 60],
+            "coefficient_modulus":
+                [45, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 45],
+            "scale": pow(2.0, 30),
             "cache": True,
         }
 
@@ -361,7 +367,7 @@ class cnn_tests(unittest.TestCase):
         import time
 
         self.weights = (1, 3, 3, 3)  # if tuple allows cnn to initialise itself
-        self.stride = [1, 1, 1, 1]  # stride list per-dimension
+        self.stride = [1, 2, 2, 2]  # stride list per-dimension
         self.bias = 0  # assume no bias at first
 
         self.startTime = time.time()
@@ -376,16 +382,16 @@ class cnn_tests(unittest.TestCase):
                         bias=self.bias,
                         stride=self.stride)
         cnn.forward(x=self.data)
-        cnn.backward(gradient=1)
-        cnn.update()
+        # cnn.backward(gradient=1)
+        # cnn.update()
 
     def test_list_matrix(self):
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride)
         cnn.forward(x=self.data.tolist())
-        cnn.backward(gradient=1)
-        cnn.update()
+        # cnn.backward(gradient=1)
+        # cnn.update()
 
     def test_rearray(self):
         cnn = Layer_CNN(weights=self.weights,

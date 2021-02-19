@@ -12,6 +12,7 @@ RUN pacman -Syyuu \
     python-sphinx-argparse \
     python-sphinx_rtd_theme \
     python-configargparse \
+    python-tqdm \
     --noconfirm
 
 RUN git clone -b 3.4.5-rlatest https://github.com/DreamingRaven/seal-python
