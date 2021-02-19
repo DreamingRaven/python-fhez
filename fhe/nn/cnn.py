@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-19T13:23:05+00:00
+# @Last modified time: 2021-02-19T14:51:42+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -381,7 +381,7 @@ class cnn_tests(unittest.TestCase):
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride)
-        cnn.forward(x=self.data)
+        return cnn.forward(x=self.data)
         # cnn.backward(gradient=1)
         # cnn.update()
 
@@ -397,8 +397,12 @@ class cnn_tests(unittest.TestCase):
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride)
-        print(len(self.data))
-        cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        plaintext_activations = np.array(list(map(np.array, activations)))
+        plaintext_activations = np.around(plaintext_activations, 2)
+        compared_activations = np.around(self.test_numpy_matrix(), 2)
+        self.assertListEqual(plaintext_activations.tolist(),
+                             compared_activations.tolist())
 
 
 if __name__ == "__main__":
