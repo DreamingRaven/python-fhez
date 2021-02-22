@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-19T17:31:16+00:00
+# @Last modified time: 2021-02-22T12:43:42+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -12,8 +12,9 @@ import unittest
 import copy
 
 import seal
-from fhe.reseal import Reseal
+from fhe.reseal import ReSeal
 from fhe.rearray import ReArray
+from fhe.nn.af.sigmoid import Sigmoid_Approximation
 
 
 class Layer_CNN():
@@ -45,8 +46,9 @@ class Layer_CNN():
         logger.debug("calculating activation")
         activated = []
         for i in range(len(cross_correlated)):
-            logger.debug("calculating activation: {}".format(
-                len(cross_correlated)))
+            if(i % 10 == 0) or (i == len(cross_correlated) - 1):
+                logger.debug("calculating activation: {}".format(
+                    len(cross_correlated)))
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
         logger.debug("returning CNN activation")
@@ -69,48 +71,6 @@ class Layer_CNN():
 
     def update(self):
         self.cc.update()
-
-
-class Sigmoid_Approximation():
-
-    def __init__(self):
-        self._cache = {}
-
-    @property
-    def x_plain(self):
-        """Plaintext x for backward pass"""
-        return self._cache["x"]
-
-    @x_plain.setter
-    def x_plain(self, x):
-        if isinstance(x, Reseal):
-            self._cache["x"] = x.plaintext
-        elif isinstance(x, ReArray):
-            self._cache["x"] = np.array(x)
-        else:
-            self._cache["x"] = x
-
-    def forward(self, x):
-        self.x_plain = x
-        # sigmoid approximation in specific order to minimise depth
-        # dividing 0.5 by size of x to prevent explosion when not summed
-        return (0.5/x.size) + (0.197 * x) + ((-0.004 * x) * (x * x))
-
-    def backward(self, gradient):
-        # calculate local gradient but using normal sigmoid derivative
-        # as this is approximate and is faster this way
-        # \frac{d\sigma}{dx} = (1-\sigma(x))\sigma(x)
-        x = self.x_plain  # get our cached input to calculate gradient
-        local_gradient = (1 - self.sigmoid(x)) * self.sigmoid(x) * gradient
-        return local_gradient
-
-    def update(self):
-        # new_parameter = old_parameter - learning_rate * gradient_of_parameter
-        raise NotImplementedError(
-            "Sigmoid approximation has no parameters to update")
-
-    def sigmoid(self, x):
-        return (1/(1+np.exp(-x)))
 
 
 class Cross_Correlation():
@@ -198,7 +158,8 @@ class Cross_Correlation():
         cc = []
         # apply each window and do it by index so can state progress
         for i in range(len(self.windows)):
-            logger.debug("convolving:{}/{}".format(i, len(self.windows)))
+            if(i % 10 == 0) or (i == len(self.windows) - 1):
+                logger.debug("convolving:{}/{}".format(i, len(self.windows)))
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape[1:])
@@ -274,9 +235,9 @@ class Cross_Correlation():
             data)
         f_shape = filter if isinstance(filter, tuple) else self.probe_shape(
             filter)
-        logger.debug(
-            "data.shape: {}, filter.shape: {}, stride: {}, dimension: {}".format(
-                d_shape, f_shape, stride, dimension))
+        # logger.debug(
+        #     "data.shape: {}, filter.shape: {}, stride: {}, dimension: {}".format(
+        #         d_shape, f_shape, stride, dimension))
         # if we are not at the end/ last dimension
         if len(stride) > dimension:
             # creating a list matching dimension len so we can slice
@@ -299,8 +260,8 @@ class Cross_Correlation():
                     # pass partial to recurse and build it up further
                     subwindow = self.windex(data, filter, stride, dimension+1,
                                             current_partial_window)
-                    logger.debug("subwindow {}: {}".format(dimension,
-                                                           subwindow))
+                    # logger.debug("subwindow {}: {}".format(dimension,
+                    #                                        subwindow))
                     # since we want to create a flat list we want to extend if
                     # the list is still building the partial window or append
                     # if concatenating the partial windows to a single list
@@ -366,7 +327,7 @@ class cnn_tests(unittest.TestCase):
         import time
 
         self.weights = (1, 3, 3, 3)  # if tuple allows cnn to initialise itself
-        self.stride = [1, 2, 2, 2]  # stride list per-dimension
+        self.stride = [1, 3, 3, 3]  # stride list per-dimension
         self.bias = 0  # assume no bias at first
 
         self.startTime = time.time()
@@ -391,7 +352,8 @@ class cnn_tests(unittest.TestCase):
         activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
         accumulator = []
         for i in range(len(activations)):
-            logger.debug("decrypting: {}".format(len(activations)))
+            if(i % 10 == 0) or (i == len(activations) - 1):
+                logger.debug("decrypting: {}".format(len(activations)))
             t = np.array(activations.pop(0))
             accumulator.append(t)
         plaintext_activations = np.around(np.array(accumulator), 2)
