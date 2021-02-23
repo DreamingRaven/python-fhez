@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-17T11:04:25+00:00
+# @Last modified time: 2021-02-23T12:16:16+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -147,7 +147,11 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             raise IndexError("{}[{}] invalid can only slice 1D not {}D".format(
                 self.__class__.__name__, indices, len(indices)))
 
-    def __array__(self):
+    def __len__(self):
+        """Matching numpys len function"""
+        return self.shape[0]
+
+    def __array__(self, dtype=None):
         accumulator = []
         for example in self.cyphertext:
             accumulator.append(
@@ -157,7 +161,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
                 ])
         data = np.array(accumulator)
         data.shape = self.origin["shape"]
-        return data
+        return data.astype(dtype) if dtype is not None else data
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         """numpy element wise universal functions."""
@@ -335,7 +339,7 @@ class ReArray_tests(unittest.TestCase):
         other = re
         func = np.multiply
         re = func(re, other)
-        self.arithmetic_evaluator(re, other, func)
+        self.arithmetic_evaluator(re, np.array(other), func)
 
     def test_multiply_broadcast(self):
         """Multiply cyphertext by scalar value broadcast."""
@@ -384,7 +388,7 @@ class ReArray_tests(unittest.TestCase):
         other = re
         func = np.add
         re = func(re, other)
-        self.arithmetic_evaluator(re, other, func)
+        self.arithmetic_evaluator(re, np.array(other), func)
 
     def test_add_broadcast(self):
         """Add cyphertext by scalar value broadcast."""

@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+
+# @Author: GeorgeRaven <archer>
+# @Date:   2020-09-16T11:33:51+01:00
+# @Last modified by:   archer
+# @Last modified time: 2021-02-23T13:06:23+00:00
+# @License: please see LICENSE file in project root
+
+import logging as logger
+import numpy as np
+import unittest
+import copy
+
+import seal
+from fhe.reseal import ReSeal
+from fhe.rearray import ReArray
+from fhe.nn.af.sigmoid import Sigmoid_Approximation
+
+
+class Layer_ANN():
+
+    def __init__(self, weights, bias, activation=None):
+        self.weights = weights
+        self.bias = bias
+        if activation:
+            self.activation_function = activation
+
+    @property
+    def weights(self):
+        return self._weights
+
+    @weights.setter
+    def weights(self, weights):
+        # initialise weights from tuple dimensions
+        # TODO: properly implement xavier weight initialisation over np.rand
+        if isinstance(weights, tuple):
+            # https://www.coursera.org/specializations/deep-learning
+            # https://towardsdatascience.com/weight-initialization-techniques-in-neural-networks-26c649eb3b78
+            self._weights = np.random.rand(*weights)
+        else:
+            self._weights = weights
+
+    @property
+    def bias(self):
+        if self.__dict__.get("_bias") is not None:
+            return self._bias
+        else:
+            self.bias = 0
+            return self.bias
+
+    @bias.setter
+    def bias(self, bias):
+        self._bias = bias
+
+    @property
+    def activation_function(self):
+        if self.__dict__.get("_activation_function") is not None:
+            return self._activation_function
+        else:
+            self.activation_function = Sigmoid_Approximation()
+            return self.activation_function
+
+    @activation_function.setter
+    def activation_function(self, activation_function):
+        self._activation_function = activation_function
+
+    def forward(self, x: (np.array, ReArray)):
+        """Take numpy array of objects or ReArray object to calculate y_hat."""
+        # check that first dim matches so they can loop together
+        if len(x) != len(self.weights):
+            raise ValueError("Mismatched shapes {}, {}".format(
+                len(x),
+                self.weights[0]))
+
+        sum = None
+        for i in range(len(x)):
+            t = x[i] * self.weights[i]
+            if sum is None:
+                sum = t
+            else:
+                sum = sum + t
+        return self.activation_function.forward(sum)
+
+    def backward(self, gradient):
+        """Calculate the local gradient of this CNN.
+
+        Given the gradient that precedes us,
+        what is the local gradient after us.
+        """
+        # if gradient not given like if its the start of the chain then 1
+        gradient = gradient if gradient is not None else 1
+        # calculate gradient of activation function
+        activation_gradient = self.activation_function.backward(gradient)
+        # calculate gradient with respect to cross correlation
+        local_gradient = self.cc.backward(activation_gradient)
+        # return local gradient
+        return local_gradient
+
+    def update(self):
+        self.cc.update()
+
+
+class ann_tests(unittest.TestCase):
+    """Unit test class aggregating all tests for the cnn class"""
+
+    @property
+    def data(self):
+        array = np.arange(1*32*32*3)
+        array.shape = (1, 32, 32, 3)
+        return array
+
+    @property
+    def reseal_args(self):
+        return {
+            "scheme": seal.scheme_type.CKKS,
+            "poly_modulus_degree": 8192*2,  # 438
+            # "coefficient_modulus": [60, 40, 40, 60],
+            "coefficient_modulus":
+                [45, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 45],
+            "scale": pow(2.0, 30),
+            "cache": True,
+        }
+
+    def setUp(self):
+        import time
+
+        self.weights = (1, 3, 3, 3)  # if tuple allows cnn to initialise itself
+        self.stride = [1, 3, 3, 3]  # stride list per-dimension
+        self.bias = 0  # assume no bias at first
+
+        self.startTime = time.time()
+
+    def tearDown(self):
+        import time  # dont want time to be imported unless testing as unused
+        t = time.time() - self.startTime
+        print('%s: %.3f' % (self.id(), t))
+
+    def test_numpy_matrix(self):
+        ann = Layer_ANN(weights=self.weights,
+                        bias=self.bias)
+        ann.forward(x=self.data)
+
+    def test_rearray(self):
+        ann = Layer_ANN(weights=self.weights,
+                        bias=self.bias)
+        activations = ann.forward(x=ReArray(self.data, **self.reseal_args))
+        accumulator = []
+        for i in range(len(activations)):
+            if(i % 10 == 0) or (i == len(activations) - 1):
+                logger.debug("decrypting: {}".format(len(activations)))
+            t = np.array(activations.pop(0))
+            accumulator.append(t)
+        plaintext_activations = np.around(np.array(accumulator), 2)
+        compared_activations = np.around(ann.forward(x=self.data), 2)
+        self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
+                             compared_activations.flatten()[:200].tolist())
+        self.assertListEqual
+
+
+if __name__ == "__main__":
+    logger.basicConfig(  # filename="{}.log".format(__file__),
+        level=logger.DEBUG,
+        format="%(asctime)s %(levelname)s:%(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S")
+    # run all the unit-tests
+    print("now testing:", __file__, "...")
+    unittest.main()

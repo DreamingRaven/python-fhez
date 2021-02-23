@@ -1,7 +1,18 @@
 FROM archlinux:latest
 
-# Install dependencies and retrieve seal-python files
+# resetting all gnupg keys
+RUN rm -rf /etc/pacman.d/gnupg && \
+    pacman-key --init && \
+    pacman-key --populate archlinux
+
+# resync all packages and check keyring
 RUN pacman -Syyuu \
+    archlinux-keyring \
+    base-devel \
+    --noconfirm
+
+# Install dependencies and retrieve seal-python files
+RUN pacman -S \
     base-devel \
     cmake \
     clang \
@@ -12,6 +23,7 @@ RUN pacman -Syyuu \
     python-sphinx-argparse \
     python-sphinx_rtd_theme \
     python-configargparse \
+    python-tqdm \
     --noconfirm
 
 RUN git clone -b 3.4.5-rlatest https://github.com/DreamingRaven/seal-python
