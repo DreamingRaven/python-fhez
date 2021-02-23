@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-22T12:43:42+00:00
+# @Last modified time: 2021-02-23T13:58:21+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -159,7 +159,7 @@ class Cross_Correlation():
         # apply each window and do it by index so can state progress
         for i in range(len(self.windows)):
             if(i % 10 == 0) or (i == len(self.windows) - 1):
-                logger.debug("convolving:{}/{}".format(i, len(self.windows)))
+                logger.debug("convolving:{}/{}".format(i, len(self.windows)-1))
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape[1:])
@@ -307,8 +307,8 @@ class cnn_tests(unittest.TestCase):
 
     @property
     def data(self):
-        array = np.arange(1*32*32*3)
-        array.shape = (1, 32, 32, 3)
+        array = np.random.rand(1, 32, 32, 3)
+        array = np.random.rand(1, 15, 15, 3)
         return array
 
     @property
@@ -360,7 +360,20 @@ class cnn_tests(unittest.TestCase):
         compared_activations = np.around(cnn.forward(x=self.data), 2)
         self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
                              compared_activations.flatten()[:200].tolist())
-        self.assertListEqual
+
+    def test_rearray_cnn_ann(self):
+        cnn = Layer_CNN(weights=self.weights,
+                        bias=self.bias,
+                        stride=self.stride)
+        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        np_acti = cnn.forward(x=self.data)
+
+        from fhe.nn.layer.ann import Layer_ANN
+
+        dense = Layer_ANN(weights=(len(activations),), bias=0)
+        y = np.sum(np.array(dense.forward(np_acti)))
+        y_hat = np.sum(np.array(dense.forward(activations)))
+        self.assertEqual(y, y_hat)
 
 
 if __name__ == "__main__":
