@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-24T15:49:46+00:00
+# @Last modified time: 2021-02-24T16:13:22+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -38,3 +38,11 @@ class Activation():
     @gradient.setter
     def gradient(self, gradient):
         self.cache["gradient"] = gradient
+
+    def to_plaintext(self, x):
+        if isinstance(x, ReArray):
+            return np.array(x)
+        elif isinstance(x, ReSeal):
+            return np.array(x.plaintext)
+        else:
+            return np.array(x)
