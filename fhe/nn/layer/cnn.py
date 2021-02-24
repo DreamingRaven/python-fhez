@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-23T13:58:21+00:00
+# @Last modified time: 2021-02-24T14:52:59+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -307,7 +307,6 @@ class cnn_tests(unittest.TestCase):
 
     @property
     def data(self):
-        array = np.random.rand(1, 32, 32, 3)
         array = np.random.rand(1, 15, 15, 3)
         return array
 
@@ -371,9 +370,25 @@ class cnn_tests(unittest.TestCase):
         from fhe.nn.layer.ann import Layer_ANN
 
         dense = Layer_ANN(weights=(len(activations),), bias=0)
-        y = np.sum(np.array(dense.forward(np_acti)))
-        y_hat = np.sum(np.array(dense.forward(activations)))
-        self.assertEqual(y, y_hat)
+        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
+        y_hat_re = np.sum(np.array(dense.forward(activations)))
+        self.assertEqual(y_hat_np, y_hat_re)
+
+    def test_rearray_backprop(self):
+        cnn = Layer_CNN(weights=self.weights,
+                        bias=self.bias,
+                        stride=self.stride)
+        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        np_acti = cnn.forward(x=self.data)
+
+        from fhe.nn.layer.ann import Layer_ANN
+
+        dense = Layer_ANN(weights=(len(activations),), bias=0)
+        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
+        y_hat_re = np.sum(np.array(dense.forward(activations)))
+        gradient = cnn.backward(dense.backward(1))
+        print("Gradient:", gradient)
+        self.assertEqual(y_hat_np, y_hat_re)
 
 
 if __name__ == "__main__":
