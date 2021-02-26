@@ -3,18 +3,15 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T12:57:52+00:00
+# @Last modified time: 2021-02-26T13:19:57+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
 import numpy as np
 import unittest
-import copy
 
 import seal
-from fhe.reseal import ReSeal
 from fhe.rearray import ReArray
-from fhe.nn.activation.sigmoid import Sigmoid_Approximation
 from fhe.nn.layer.layer import Layer
 
 

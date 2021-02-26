@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T09:53:06+00:00
+# @Last modified time: 2021-02-26T13:19:49+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -12,36 +12,21 @@ import unittest
 import copy
 
 import seal
-from fhe.reseal import ReSeal
 from fhe.rearray import ReArray
-from fhe.nn.activation.sigmoid import Sigmoid_Approximation
+from fhe.nn.layer.layer import Layer
 
 
-class Layer_CNN():
+class Layer_CNN(Layer):
 
-    def __init__(self, weights, bias, stride):
-        self.cc = Cross_Correlation()
-        self.cc.weights = weights
-        self.cc.bias = bias
-        self.cc.stride = stride
-        logger.info("weights shape: {}".format(self.cc.weights.shape))
-        logger.info("bias: {}".format(self.cc.bias))
-
-    @property
-    def activation_function(self):
-        if self.__dict__.get("_activation_function") is not None:
-            return self._activation_function
-        else:
-            self.activation_function = Sigmoid_Approximation()
-            return self.activation_function
-
-    @activation_function.setter
-    def activation_function(self, activation_function):
-        self._activation_function = activation_function
-
+    @Layer.fwd
     def forward(self, x: (np.array, ReArray)):
         """Take lst of batches of x, return activated output lst of layer."""
-        # batch shape example (batch, time/space, 1/space, features/depth)
+        # if no cross correlation object exists yet, create it as inherit Layer
+        if self.__dict__.get("cc") is None:
+            self.cc = Cross_Correlation()
+            self.cc.weights = self.weights
+            self.cc.bias = self.bias
+            self.cc.stride = self.stride
         cross_correlated = self.cc.forward(x)
         logger.debug("calculating activation")
         activated = []
@@ -54,6 +39,7 @@ class Layer_CNN():
         logger.debug("returning CNN activation")
         return activated
 
+    @Layer.bwd
     def backward(self, gradient):
         """Calculate the local gradient of this CNN.
 
