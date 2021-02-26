@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T09:53:13+00:00
+# @Last modified time: 2021-02-26T12:53:29+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -77,3 +77,17 @@ class Layer():
     @activation_function.setter
     def activation_function(self, activation_function):
         self._activation_function = activation_function
+
+    def fwd(func):
+        """Forward decorator, unpacking + stashing x to use in backward."""
+
+        def inner(self, x):
+            return func(self, x)
+        return inner
+
+    def bwd(func):
+        """Backward decorator to use decrypted or decrypt stashed x."""
+
+        def inner(self, gradients):
+            return func(self, gradients)
+        return inner

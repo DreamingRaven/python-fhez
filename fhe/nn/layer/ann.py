@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T11:44:28+00:00
+# @Last modified time: 2021-02-26T12:57:52+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -20,6 +20,7 @@ from fhe.nn.layer.layer import Layer
 
 class Layer_ANN(Layer):
 
+    @Layer.fwd
     def forward(self, x: (np.array, ReArray)):
         """Take numpy array of objects or ReArray object to calculate y_hat."""
         # check that first dim matches so they can loop together
@@ -38,6 +39,7 @@ class Layer_ANN(Layer):
                 sum = sum + t
         return self.activation_function.forward(sum)
 
+    @Layer.bwd
     def backward(self, gradient):
         """Calculate the local gradient of this CNN.
 
@@ -50,7 +52,10 @@ class Layer_ANN(Layer):
         activation_gradient = self.activation_function.backward(gradient)
         # save gradients of parameters with respect to output
         self.bias_gradient = 1 * activation_gradient
-        self.weights_gradient = self.weights * self.x * activation_gradient
+        # self.weights_gradient = self.weights * \
+        #     np.reshape(self.x,
+        #                (self.x.shape[0], self.x.size/self.x.shape[0])) * \
+        activation_gradient
         # calculate gradient with respect to fully connected ANN
         local_gradient = 1 * self.weights
         # return local gradient
