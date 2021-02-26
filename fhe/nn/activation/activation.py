@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-24T16:13:22+00:00
+# @Last modified time: 2021-02-26T13:29:04+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -46,3 +46,17 @@ class Activation():
             return np.array(x.plaintext)
         else:
             return np.array(x)
+
+    def fwd(func):
+        """Forward decorator, unpacking + stashing x to use in backward."""
+
+        def inner(self, x):
+            return func(self, x)
+        return inner
+
+    def bwd(func):
+        """Backward decorator to use decrypted or decrypt stashed x."""
+
+        def inner(self, gradients):
+            return func(self, gradients)
+        return inner

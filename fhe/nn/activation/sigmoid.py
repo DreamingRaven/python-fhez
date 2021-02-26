@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T09:52:44+00:00
+# @Last modified time: 2021-02-26T13:30:55+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -11,6 +11,7 @@ from fhe.nn.activation.activation import Activation
 
 class Sigmoid_Approximation(Activation):
 
+    @Activation.fwd
     def forward(self, x):
         self.x.append(x)
         # sigmoid approximation in specific order to minimise depth.
@@ -18,6 +19,7 @@ class Sigmoid_Approximation(Activation):
         # when not summed yet as commuting it to later post-decryption
         return (0.5/x.size) + (0.197 * x) + ((-0.004 * x) * (x * x))
 
+    @Activation.bwd
     def backward(self, gradient):
         # calculate local gradient but using normal sigmoid derivative
         # as this is approximate and is faster this way
