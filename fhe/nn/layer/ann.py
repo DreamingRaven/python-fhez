@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T09:52:58+00:00
+# @Last modified time: 2021-02-26T11:44:28+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -28,6 +28,7 @@ class Layer_ANN(Layer):
                 len(x),
                 self.weights[0]))
 
+        self.x = x
         sum = None
         for i in range(len(x)):
             t = x[i] * self.weights[i]
@@ -47,6 +48,9 @@ class Layer_ANN(Layer):
         gradient = gradient if gradient is not None else 1
         # calculate gradient of activation function
         activation_gradient = self.activation_function.backward(gradient)
+        # save gradients of parameters with respect to output
+        self.bias_gradient = 1 * activation_gradient
+        self.weights_gradient = self.weights * self.x * activation_gradient
         # calculate gradient with respect to fully connected ANN
         local_gradient = 1 * self.weights
         # return local gradient
