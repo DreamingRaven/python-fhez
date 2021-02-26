@@ -1,12 +1,12 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-24T16:13:25+00:00
+# @Last modified time: 2021-02-26T09:52:44+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
 from fhe.reseal import ReSeal
-from fhe.nn.af.activation import Activation
+from fhe.nn.activation.activation import Activation
 
 
 class Sigmoid_Approximation(Activation):

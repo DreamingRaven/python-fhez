@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-24T16:49:26+00:00
+# @Last modified time: 2021-02-26T09:53:13+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -14,7 +14,7 @@ import copy
 import seal
 from fhe.reseal import ReSeal
 from fhe.rearray import ReArray
-from fhe.nn.af.sigmoid import Sigmoid_Approximation
+from fhe.nn.activation.sigmoid import Sigmoid_Approximation
 
 
 class Layer():
