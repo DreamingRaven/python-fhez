@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-24T16:18:17+00:00
+# @Last modified time: 2021-02-24T16:49:26+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -19,11 +19,13 @@ from fhe.nn.af.sigmoid import Sigmoid_Approximation
 
 class Layer():
 
-    def __init__(self, weights, bias, activation=None):
+    def __init__(self, weights, bias, stride=None, activation=None):
         self.weights = weights
         self.bias = bias
         if activation:
             self.activation_function = activation
+        if stride:
+            self.stride = stride
 
     @property
     def weights(self):
@@ -51,6 +53,18 @@ class Layer():
     @bias.setter
     def bias(self, bias):
         self._bias = bias
+
+    @property
+    def stride(self):
+        if self.__dict__.get("_stride") is not None:
+            return self._stride
+        else:
+            self.stride = 1
+            return self.stride
+
+    @stride.setter
+    def stride(self, stride):
+        self._stride = stride
 
     @property
     def activation_function(self):

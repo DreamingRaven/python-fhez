@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-24T16:19:53+00:00
+# @Last modified time: 2021-02-26T09:42:11+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -47,10 +47,10 @@ class Layer_ANN(Layer):
         gradient = gradient if gradient is not None else 1
         # calculate gradient of activation function
         activation_gradient = self.activation_function.backward(gradient)
-        # calculate gradient with respect to cross correlation
-        local_gradient = self.cc.backward(activation_gradient)
+        # calculate gradient with respect to fully connected ANN
+        local_gradient = 1 * self.weights
         # return local gradient
-        return local_gradient
+        return local_gradient * activation_gradient
 
     def update(self):
         self.cc.update()
