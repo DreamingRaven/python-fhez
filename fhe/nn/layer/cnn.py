@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T13:19:49+00:00
+# @Last modified time: 2021-02-27T02:02:08+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -346,19 +346,19 @@ class cnn_tests(unittest.TestCase):
         self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
                              compared_activations.flatten()[:200].tolist())
 
-    def test_rearray_cnn_ann(self):
-        cnn = Layer_CNN(weights=self.weights,
-                        bias=self.bias,
-                        stride=self.stride)
-        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        np_acti = cnn.forward(x=self.data)
-
-        from fhe.nn.layer.ann import Layer_ANN
-
-        dense = Layer_ANN(weights=(len(activations),), bias=0)
-        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
-        y_hat_re = np.sum(np.array(dense.forward(activations)))
-        self.assertEqual(y_hat_np, y_hat_re)
+    # def test_rearray_cnn_ann(self):
+    #     cnn = Layer_CNN(weights=self.weights,
+    #                     bias=self.bias,
+    #                     stride=self.stride)
+    #     activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+    #     np_acti = cnn.forward(x=self.data)
+    #
+    #     from fhe.nn.layer.ann import Layer_ANN
+    #
+    #     dense = Layer_ANN(weights=(len(activations),), bias=0)
+    #     y_hat_np = np.sum(np.array(dense.forward(np_acti)))
+    #     y_hat_re = np.sum(np.array(dense.forward(activations)))
+    #     self.assertEqual(y_hat_np, y_hat_re)
 
     def test_rearray_backprop(self):
         cnn = Layer_CNN(weights=self.weights,

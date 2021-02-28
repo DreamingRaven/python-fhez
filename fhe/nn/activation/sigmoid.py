@@ -1,11 +1,9 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T13:30:55+00:00
+# @Last modified time: 2021-02-28T00:36:57+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
-from fhe.rearray import ReArray
-from fhe.reseal import ReSeal
 from fhe.nn.activation.activation import Activation
 
 
@@ -24,25 +22,35 @@ class Sigmoid_Approximation(Activation):
         # calculate local gradient but using normal sigmoid derivative
         # as this is approximate and is faster this way
         # \frac{d\sigma}{dx} = (1-\sigma(x))\sigma(x)
-        n = len(self.x)
-        if n > 0:
-            sum_gradients = 0
-            # averaging multiple inputs
-            for _ in range(n):
-                x = self.to_plaintext(self.x.pop(0))  # calculate gradient
-                local_gradient = 0
-                # averaging across batches
-                for i in range(len(x)):
-                    t = np.sum(x[i])
-                    btch_grad = (1 - self.sigmoid(t)) \
-                        * self.sigmoid(t) * gradient
-                    local_gradient += btch_grad
-                local_gradient = local_gradient / len(x)
-                # local_gradient = (1 - self.sigmoid(x)) *
-                # self.sigmoid(x) * gradient
-                sum_gradients += local_gradient
-            self.gradient = sum_gradients/n
-        return self.gradient
+
+        # only calculate one item at a time
+        x = self.to_plaintext(self.x.pop(0))
+        df_dbatch_sum = 0
+        for batch in range(len(x)):
+            batch = np.sum(x[batch])
+            df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
+                gradient
+            df_dbatch_sum += df_dbatch
+        # average out between batches to get more stable gradient
+        df_dx = df_dbatch_sum / len(x)
+        return df_dx
+
+        # # calculate gradient for each input individually and return as a list
+        # n = len(self.x)
+        # accumulator = []
+        # for _ in range(n):
+        #     x = self.to_plaintext(self.x.pop(0))
+        #     df_dbatch_sum = 0
+        #     for batch in range(len(x)):
+        #         batch = np.sum(x[batch])
+        #         df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
+        #             gradient
+        #         df_dbatch_sum += df_dbatch
+        #     # average out between batches to get more stable gradient
+        #     df_dx = df_dbatch_sum / len(x)
+        #     accumulator.append(df_dx)
+        # self.df_dx = accumulator
+        # return accumulator
 
     def update(self):
         # new_parameter = old_parameter - learning_rate * gradient_of_parameter

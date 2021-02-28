@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T13:19:57+00:00
+# @Last modified time: 2021-02-27T02:00:53+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -34,6 +34,7 @@ class Layer_ANN(Layer):
                 sum = t
             else:
                 sum = sum + t
+        print("********LAYER_ANN_AF***********")
         return self.activation_function.forward(sum)
 
     @Layer.bwd
