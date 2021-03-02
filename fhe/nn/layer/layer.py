@@ -3,9 +3,10 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T14:15:11+00:00
+# @Last modified time: 2021-03-02T22:13:59+00:00
 # @License: please see LICENSE file in project root
 
+from tqdm import tqdm
 import numpy as np
 from fhe.nn.activation.sigmoid import Sigmoid_Approximation
 
@@ -71,16 +72,32 @@ class Layer():
     def activation_function(self, activation_function):
         self._activation_function = activation_function
 
+    @property
+    def x(self):
+        if self.__dict__.get("_x") is not None:
+            return self._x
+        else:
+            self.x = []
+            return self.x
+
+    @x.setter
+    def x(self, x):
+        self._x = x
+
     def fwd(func):
         """Forward decorator, unpacking + stashing x to use in backward."""
 
         def inner(self, x):
+            self.x.append(x)
             return func(self, x)
         return inner
 
     def bwd(func):
         """Backward decorator to use decrypted or decrypt stashed x."""
 
-        def inner(self, gradients):
-            return func(self, gradients)
+        def inner(self, gradient=1):
+            accumulator = []
+            for i in tqdm(range(len(self.x)), desc=".bwd"):
+                accumulator.append(func(self, gradient))
+            return np.array(accumulator)
         return inner

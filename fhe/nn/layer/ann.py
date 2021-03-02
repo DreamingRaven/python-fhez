@@ -3,12 +3,14 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-27T02:00:53+00:00
+# @Last modified time: 2021-03-02T22:29:27+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
 import numpy as np
 import unittest
+
+from tqdm import tqdm
 
 import seal
 from fhe.rearray import ReArray
@@ -26,15 +28,13 @@ class Layer_ANN(Layer):
                 len(x),
                 self.weights[0]))
 
-        self.x = x
         sum = None
-        for i in range(len(x)):
+        for i in tqdm(range(len(x)), desc="ANN-fwd"):
             t = x[i] * self.weights[i]
             if sum is None:
                 sum = t
             else:
                 sum = sum + t
-        print("********LAYER_ANN_AF***********")
         return self.activation_function.forward(sum)
 
     @Layer.bwd
@@ -48,12 +48,16 @@ class Layer_ANN(Layer):
         gradient = gradient if gradient is not None else 1
         # calculate gradient of activation function
         activation_gradient = self.activation_function.backward(gradient)
+        x = self.x.pop(0)
+        # summing & decrypting x as still un-summed from cache
+        x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
         # save gradients of parameters with respect to output
         self.bias_gradient = 1 * activation_gradient
+        self.weights_gradient = self.weights * x * activation_gradient
         # self.weights_gradient = self.weights * \
         #     np.reshape(self.x,
         #                (self.x.shape[0], self.x.size/self.x.shape[0])) * \
-        activation_gradient
+        # activation_gradient
         # calculate gradient with respect to fully connected ANN
         local_gradient = 1 * self.weights
         # return local gradient

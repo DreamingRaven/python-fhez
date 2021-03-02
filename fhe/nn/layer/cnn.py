@@ -3,13 +3,15 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-27T02:02:08+00:00
+# @Last modified time: 2021-03-02T16:46:31+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
 import numpy as np
 import unittest
 import copy
+
+from tqdm import tqdm
 
 import seal
 from fhe.rearray import ReArray
@@ -30,16 +32,16 @@ class Layer_CNN(Layer):
         cross_correlated = self.cc.forward(x)
         logger.debug("calculating activation")
         activated = []
-        for i in range(len(cross_correlated)):
-            if(i % 10 == 0) or (i == len(cross_correlated) - 1):
-                logger.debug("calculating activation: {}".format(
-                    len(cross_correlated)))
+        for i in tqdm(range(len(cross_correlated)), desc="CNN-fwd"):
+            # if(i % 10 == 0) or (i == len(cross_correlated) - 1):
+            #     logger.debug("calculating activation: {}".format(
+            #         len(cross_correlated)))
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
         logger.debug("returning CNN activation")
         return activated
 
-    @Layer.bwd
+    # @Layer.bwd
     def backward(self, gradient):
         """Calculate the local gradient of this CNN.
 
