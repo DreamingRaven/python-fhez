@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T22:29:27+00:00
+# @Last modified time: 2021-03-02T22:40:29+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -54,10 +54,6 @@ class Layer_ANN(Layer):
         # save gradients of parameters with respect to output
         self.bias_gradient = 1 * activation_gradient
         self.weights_gradient = self.weights * x * activation_gradient
-        # self.weights_gradient = self.weights * \
-        #     np.reshape(self.x,
-        #                (self.x.shape[0], self.x.size/self.x.shape[0])) * \
-        # activation_gradient
         # calculate gradient with respect to fully connected ANN
         local_gradient = 1 * self.weights
         # return local gradient

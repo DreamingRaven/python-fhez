@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T16:46:31+00:00
+# @Last modified time: 2021-03-02T23:39:00+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -366,14 +366,16 @@ class cnn_tests(unittest.TestCase):
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride)
-        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        np_acti = cnn.forward(x=self.data)
+        cnn_copy = copy.deepcopy(cnn)
+        re_acti = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        np_acti = cnn_copy.forward(x=self.data)
 
         from fhe.nn.layer.ann import Layer_ANN
 
-        dense = Layer_ANN(weights=(len(activations),), bias=0)
-        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
-        y_hat_re = np.sum(np.array(dense.forward(activations)))
+        dense = Layer_ANN(weights=(len(re_acti),), bias=0)
+        dense_copy = copy.deepcopy(dense)
+        y_hat_re = np.sum(np.array(dense.forward(re_acti)))
+        y_hat_np = np.sum(np.array(dense_copy.forward(np_acti)))
         gradient = cnn.backward(dense.backward(1))
         print("Gradient:", gradient)
         self.assertEqual(y_hat_np, y_hat_re)

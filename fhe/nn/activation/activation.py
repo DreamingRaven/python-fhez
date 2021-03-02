@@ -1,11 +1,13 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-26T14:31:16+00:00
+# @Last modified time: 2021-03-02T23:24:52+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
 from fhe.reseal import ReSeal
+
+from tqdm import tqdm
 
 
 class Activation():
@@ -51,23 +53,16 @@ class Activation():
         """Forward decorator, unpacking + stashing x to use in backward."""
 
         def inner(self, x):
+            self.x.append(x)
             return func(self, x)
         return inner
-
-        # def inner(self, x):
-        #     if not isinstance(x, list):
-        #         x = [x]
-        #     accumulator = []
-        #     for i in x:
-        #         t = func(self, i)
-        #         accumulator.append(func(self, i))
-        #     return accumulator
-        #
-        # return inner
 
     def bwd(func):
         """Backward decorator to use decrypted or decrypt stashed x."""
 
-        def inner(self, gradients):
-            return func(self, gradients)
+        def inner(self, gradient=1):
+            accumulator = []
+            for i in tqdm(range(len(self.x)), desc=".bwd"):
+                accumulator.append(func(self, gradient))
+            return np.array(accumulator)
         return inner

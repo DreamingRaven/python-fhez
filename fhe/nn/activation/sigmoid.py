@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-28T00:36:57+00:00
+# @Last modified time: 2021-03-02T23:30:12+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
@@ -11,7 +11,6 @@ class Sigmoid_Approximation(Activation):
 
     @Activation.fwd
     def forward(self, x):
-        self.x.append(x)
         # sigmoid approximation in specific order to minimise depth.
         # dividing 0.5 by size of x to prevent broadcast explosion
         # when not summed yet as commuting it to later post-decryption
@@ -34,23 +33,6 @@ class Sigmoid_Approximation(Activation):
         # average out between batches to get more stable gradient
         df_dx = df_dbatch_sum / len(x)
         return df_dx
-
-        # # calculate gradient for each input individually and return as a list
-        # n = len(self.x)
-        # accumulator = []
-        # for _ in range(n):
-        #     x = self.to_plaintext(self.x.pop(0))
-        #     df_dbatch_sum = 0
-        #     for batch in range(len(x)):
-        #         batch = np.sum(x[batch])
-        #         df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
-        #             gradient
-        #         df_dbatch_sum += df_dbatch
-        #     # average out between batches to get more stable gradient
-        #     df_dx = df_dbatch_sum / len(x)
-        #     accumulator.append(df_dx)
-        # self.df_dx = accumulator
-        # return accumulator
 
     def update(self):
         # new_parameter = old_parameter - learning_rate * gradient_of_parameter
