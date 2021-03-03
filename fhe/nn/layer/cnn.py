@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T14:22:33+00:00
+# @Last modified time: 2021-03-03T15:12:47+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -25,10 +25,10 @@ class Layer_CNN(Layer):
         """Take lst of batches of x, return activated output lst of layer."""
         # if no cross correlation object exists yet, create it as inherit Layer
         if self.__dict__.get("cc") is None:
-            self.cc = Cross_Correlation()
-            self.cc.weights = self.weights
-            self.cc.bias = self.bias
-            self.cc.stride = self.stride
+            self.cc = Cross_Correlation(weights=self.weights, bias=self.bias, stride=self.stride)
+            # self.cc.weights = self.weights
+            # self.cc.bias = self.bias
+            # self.cc.stride = self.stride
         cross_correlated = self.cc.forward(x)
         logger.debug("calculating activation")
         activated = []
@@ -61,71 +61,18 @@ class Layer_CNN(Layer):
         self.cc.update()
 
 
-class Cross_Correlation():
-
-    def __init__(self):
-        self._cache = {}
-
-    @property
-    def weights(self):
-        return self._weights
-
-    @weights.setter
-    def weights(self, weights):
-        # initialise weights from tuple dimensions
-        # TODO: properly implement xavier weight initialisation over np.rand
-        if isinstance(weights, tuple):
-            # https://www.coursera.org/specializations/deep-learning
-            # https://towardsdatascience.com/weight-initialization-techniques-in-neural-networks-26c649eb3b78
-            self._weights = np.random.rand(*weights)
-        else:
-            self._weights = weights
-
-    @property
-    def bias(self):
-        if self.__dict__.get("_bias") is not None:
-            return self._bias
-        else:
-            self.bias = 0
-            return self.bias
-
-    @bias.setter
-    def bias(self, bias):
-        self._bias = bias
-
-    @property
-    def stride(self):
-        if self.__dict__.get("_stride") is not None:
-            return self._stride
-        else:
-            self.stride = np.ones(len(self.weights))
-            return self.stride
-
-    @stride.setter
-    def stride(self, stride):
-        self._stride = stride
-
-    @property
-    def x_plain(self):
-        """Plaintext x for backward pass"""
-        return self._cache["x"]
-
-    @x_plain.setter
-    def x_plain(self, x):
-        # if isinstance(x, Reseal):
-        #     self._cahce["x"] = x.plaintext
-        # else:
-        self._cache["x"] = x
+class Cross_Correlation(Layer):
 
     @property
     def windows(self):
-        if self._cache.get("windows") is not None:
-            return self._cache["windows"]
+        if self.cache.get("windows") is not None:
+            return self.cache["windows"]
 
     @windows.setter
     def windows(self, windows):
-        self._cache["windows"] = windows
+        self.cache["windows"] = windows
 
+    @Layer.fwd
     def forward(self, x):
         logger.debug("CNN forward, batch: {}, range: {}".format(
             self.probe_shape(x), range(len(x))))
@@ -159,9 +106,10 @@ class Cross_Correlation():
             cc.append(t)
         return cc  # return the now biased convolution ready for activation
 
+    @Layer.bwd
     def backward(self, gradient):
         # calculate local gradient
-        x = self.x_plain  # plaintext of x for backprop
+        x = np.array(self.x.pop(0))  # plaintext of x for backprop
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
         # df/dweights is also simple as it is a chain of addition with a single
@@ -349,19 +297,19 @@ class cnn_tests(unittest.TestCase):
         self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
                              compared_activations.flatten()[:200].tolist())
 
-    # def test_rearray_cnn_ann(self):
-    #     cnn = Layer_CNN(weights=self.weights,
-    #                     bias=self.bias,
-    #                     stride=self.stride)
-    #     activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-    #     np_acti = cnn.forward(x=self.data)
-    #
-    #     from fhe.nn.layer.ann import Layer_ANN
-    #
-    #     dense = Layer_ANN(weights=(len(activations),), bias=0)
-    #     y_hat_np = np.sum(np.array(dense.forward(np_acti)))
-    #     y_hat_re = np.sum(np.array(dense.forward(activations)))
-    #     self.assertEqual(y_hat_np, y_hat_re)
+    def test_rearray_cnn_ann(self):
+        cnn = Layer_CNN(weights=self.weights,
+                        bias=self.bias,
+                        stride=self.stride)
+        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        np_acti = cnn.forward(x=self.data)
+
+        from fhe.nn.layer.ann import Layer_ANN
+
+        dense = Layer_ANN(weights=(len(activations),), bias=0)
+        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
+        y_hat_re = np.sum(np.array(dense.forward(activations)))
+        self.assertEqual(y_hat_np, y_hat_re)
 
     def test_rearray_backprop(self):
         cnn = Layer_CNN(weights=self.weights,
