@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T13:22:04+00:00
+# @Last modified time: 2021-03-03T14:22:33+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -149,15 +149,13 @@ class Cross_Correlation():
                 self.__class__.__name__, "forward"),
             ncols=80, colour="blue"
         ):
-            # if(i % 10 == 0) or (i == len(self.windows) - 1):
-            #     logger.debug("convolving:{}/{}".format(i, len(self.windows)-1))
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape[1:])
             # now we have a sparse vectore that can be used to convolve
             cc_primer[self.windows[i]] = self.weights
             t = cc_primer * x
-            t = t + (self.bias/t.size)  # commuting addition before sum
+            t = t + (self.bias/(t.size/len(t)))  # commute addition before sum
             cc.append(t)
         return cc  # return the now biased convolution ready for activation
 
