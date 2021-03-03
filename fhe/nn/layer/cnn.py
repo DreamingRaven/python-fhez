@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T11:13:52+00:00
+# @Last modified time: 2021-03-03T11:34:06+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -41,7 +41,7 @@ class Layer_CNN(Layer):
         logger.debug("returning CNN activation")
         return activated
 
-    # @Layer.bwd
+    @Layer.bwd
     def backward(self, gradient):
         """Calculate the local gradient of this CNN.
 
