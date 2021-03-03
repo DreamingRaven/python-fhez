@@ -1,0 +1,29 @@
+# @Author: GeorgeRaven <archer>
+# @Date:   2020-10-20T23:58:25+01:00
+# @Last modified by:   archer
+# @Last modified time: 2021-02-28T01:16:34+00:00
+# @License: please see LICENSE file in project root
+
+image: docker:stable
+
+services:
+  - docker:dind
+
+before_script:
+  - docker info
+
+build:
+  only:
+    - master
+    - staging
+  before_script:
+    - docker login registry.gitlab.com -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
+  script:
+    - ls -al
+    - docker build -t "$(echo ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_BRANCH} | tr "[:upper:]" "[:lower:]")" -f Dockerfile_archlinux .
+    - docker push "$(echo ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_BRANCH} | tr "[:upper:]" "[:lower:]")"
+  after_script:
+    - docker logout ${CI_REGISTRY}
+  stage: build
+  tags:
+    - docker

@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-23T13:58:21+00:00
+# @Last modified time: 2021-03-03T15:12:47+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -11,49 +11,37 @@ import numpy as np
 import unittest
 import copy
 
+from tqdm import tqdm
+
 import seal
-from fhe.reseal import ReSeal
 from fhe.rearray import ReArray
-from fhe.nn.af.sigmoid import Sigmoid_Approximation
+from fhe.nn.layer.layer import Layer
 
 
-class Layer_CNN():
+class Layer_CNN(Layer):
 
-    def __init__(self, weights, bias, stride):
-        self.cc = Cross_Correlation()
-        self.cc.weights = weights
-        self.cc.bias = bias
-        self.cc.stride = stride
-        logger.info("weights shape: {}".format(self.cc.weights.shape))
-        logger.info("bias: {}".format(self.cc.bias))
-
-    @property
-    def activation_function(self):
-        if self.__dict__.get("_activation_function") is not None:
-            return self._activation_function
-        else:
-            self.activation_function = Sigmoid_Approximation()
-            return self.activation_function
-
-    @activation_function.setter
-    def activation_function(self, activation_function):
-        self._activation_function = activation_function
-
+    @Layer.fwd
     def forward(self, x: (np.array, ReArray)):
         """Take lst of batches of x, return activated output lst of layer."""
-        # batch shape example (batch, time/space, 1/space, features/depth)
+        # if no cross correlation object exists yet, create it as inherit Layer
+        if self.__dict__.get("cc") is None:
+            self.cc = Cross_Correlation(weights=self.weights, bias=self.bias, stride=self.stride)
+            # self.cc.weights = self.weights
+            # self.cc.bias = self.bias
+            # self.cc.stride = self.stride
         cross_correlated = self.cc.forward(x)
         logger.debug("calculating activation")
         activated = []
-        for i in range(len(cross_correlated)):
-            if(i % 10 == 0) or (i == len(cross_correlated) - 1):
-                logger.debug("calculating activation: {}".format(
-                    len(cross_correlated)))
+        for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(
+            self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
         logger.debug("returning CNN activation")
         return activated
 
+    @Layer.bwd
     def backward(self, gradient):
         """Calculate the local gradient of this CNN.
 
@@ -73,71 +61,18 @@ class Layer_CNN():
         self.cc.update()
 
 
-class Cross_Correlation():
-
-    def __init__(self):
-        self._cache = {}
-
-    @property
-    def weights(self):
-        return self._weights
-
-    @weights.setter
-    def weights(self, weights):
-        # initialise weights from tuple dimensions
-        # TODO: properly implement xavier weight initialisation over np.rand
-        if isinstance(weights, tuple):
-            # https://www.coursera.org/specializations/deep-learning
-            # https://towardsdatascience.com/weight-initialization-techniques-in-neural-networks-26c649eb3b78
-            self._weights = np.random.rand(*weights)
-        else:
-            self._weights = weights
-
-    @property
-    def bias(self):
-        if self.__dict__.get("_bias") is not None:
-            return self._bias
-        else:
-            self.bias = 0
-            return self.bias
-
-    @bias.setter
-    def bias(self, bias):
-        self._bias = bias
-
-    @property
-    def stride(self):
-        if self.__dict__.get("_stride") is not None:
-            return self._stride
-        else:
-            self.stride = 1
-            return self.stride
-
-    @stride.setter
-    def stride(self, stride):
-        self._stride = stride
-
-    @property
-    def x_plain(self):
-        """Plaintext x for backward pass"""
-        return self._cache["x"]
-
-    @x_plain.setter
-    def x_plain(self, x):
-        # if isinstance(x, Reseal):
-        #     self._cahce["x"] = x.plaintext
-        # else:
-        self._cache["x"] = x
+class Cross_Correlation(Layer):
 
     @property
     def windows(self):
-        if self._cache.get("windows") is not None:
-            return self._cache["windows"]
+        if self.cache.get("windows") is not None:
+            return self.cache["windows"]
 
     @windows.setter
     def windows(self, windows):
-        self._cache["windows"] = windows
+        self.cache["windows"] = windows
 
+    @Layer.fwd
     def forward(self, x):
         logger.debug("CNN forward, batch: {}, range: {}".format(
             self.probe_shape(x), range(len(x))))
@@ -157,22 +92,24 @@ class Cross_Correlation():
         # store each cross correlation
         cc = []
         # apply each window and do it by index so can state progress
-        for i in range(len(self.windows)):
-            if(i % 10 == 0) or (i == len(self.windows) - 1):
-                logger.debug("convolving:{}/{}".format(i, len(self.windows)-1))
+        for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
+                self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape[1:])
             # now we have a sparse vectore that can be used to convolve
             cc_primer[self.windows[i]] = self.weights
             t = cc_primer * x
-            t = t + (self.bias/t.size)  # commuting addition before sum
+            t = t + (self.bias/(t.size/len(t)))  # commute addition before sum
             cc.append(t)
         return cc  # return the now biased convolution ready for activation
 
+    @Layer.bwd
     def backward(self, gradient):
         # calculate local gradient
-        x = self.x_plain  # plaintext of x for backprop
+        x = np.array(self.x.pop(0))  # plaintext of x for backprop
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
         # df/dweights is also simple as it is a chain of addition with a single
@@ -307,8 +244,7 @@ class cnn_tests(unittest.TestCase):
 
     @property
     def data(self):
-        array = np.random.rand(1, 32, 32, 3)
-        array = np.random.rand(1, 15, 15, 3)
+        array = np.random.rand(2, 15, 15, 3)
         return array
 
     @property
@@ -371,9 +307,27 @@ class cnn_tests(unittest.TestCase):
         from fhe.nn.layer.ann import Layer_ANN
 
         dense = Layer_ANN(weights=(len(activations),), bias=0)
-        y = np.sum(np.array(dense.forward(np_acti)))
-        y_hat = np.sum(np.array(dense.forward(activations)))
-        self.assertEqual(y, y_hat)
+        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
+        y_hat_re = np.sum(np.array(dense.forward(activations)))
+        self.assertEqual(y_hat_np, y_hat_re)
+
+    def test_rearray_backprop(self):
+        cnn = Layer_CNN(weights=self.weights,
+                        bias=self.bias,
+                        stride=self.stride)
+        cnn_copy = copy.deepcopy(cnn)
+        re_acti = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+        np_acti = cnn_copy.forward(x=self.data)
+
+        from fhe.nn.layer.ann import Layer_ANN
+
+        dense = Layer_ANN(weights=(len(re_acti),), bias=0)
+        dense_copy = copy.deepcopy(dense)
+        y_hat_re = np.sum(np.array(dense.forward(re_acti)))
+        y_hat_np = np.sum(np.array(dense_copy.forward(np_acti)))
+        gradient = cnn.backward(dense.backward(1))
+        print("Gradient:", gradient)
+        self.assertEqual(y_hat_np, y_hat_re)
 
 
 if __name__ == "__main__":

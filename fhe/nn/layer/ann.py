@@ -3,67 +3,23 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-23T13:06:23+00:00
+# @Last modified time: 2021-03-03T13:50:09+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
 import numpy as np
 import unittest
-import copy
+
+from tqdm import tqdm
 
 import seal
-from fhe.reseal import ReSeal
 from fhe.rearray import ReArray
-from fhe.nn.af.sigmoid import Sigmoid_Approximation
+from fhe.nn.layer.layer import Layer
 
 
-class Layer_ANN():
+class Layer_ANN(Layer):
 
-    def __init__(self, weights, bias, activation=None):
-        self.weights = weights
-        self.bias = bias
-        if activation:
-            self.activation_function = activation
-
-    @property
-    def weights(self):
-        return self._weights
-
-    @weights.setter
-    def weights(self, weights):
-        # initialise weights from tuple dimensions
-        # TODO: properly implement xavier weight initialisation over np.rand
-        if isinstance(weights, tuple):
-            # https://www.coursera.org/specializations/deep-learning
-            # https://towardsdatascience.com/weight-initialization-techniques-in-neural-networks-26c649eb3b78
-            self._weights = np.random.rand(*weights)
-        else:
-            self._weights = weights
-
-    @property
-    def bias(self):
-        if self.__dict__.get("_bias") is not None:
-            return self._bias
-        else:
-            self.bias = 0
-            return self.bias
-
-    @bias.setter
-    def bias(self, bias):
-        self._bias = bias
-
-    @property
-    def activation_function(self):
-        if self.__dict__.get("_activation_function") is not None:
-            return self._activation_function
-        else:
-            self.activation_function = Sigmoid_Approximation()
-            return self.activation_function
-
-    @activation_function.setter
-    def activation_function(self, activation_function):
-        self._activation_function = activation_function
-
+    @Layer.fwd
     def forward(self, x: (np.array, ReArray)):
         """Take numpy array of objects or ReArray object to calculate y_hat."""
         # check that first dim matches so they can loop together
@@ -73,14 +29,26 @@ class Layer_ANN():
                 self.weights[0]))
 
         sum = None
-        for i in range(len(x)):
+        for i in tqdm(range(len(x)), desc="{}.{}".format(
+            self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
             t = x[i] * self.weights[i]
             if sum is None:
                 sum = t
             else:
                 sum = sum + t
+        # sum is not a single number, it is a multidimensional array
+        # if you just add to this values will be broadcast and added to each
+        # element individually, which makes the maths wrong I.E
+        # 2 + (1+2+3) == (1+2/3) + (2+2/3) + (3+2/3) == 8 != (1+2)+(2+2)+(3+2)
+        # we must divide by the number of elements in ONE batch
+        # or else sum explodes
+        elements_in_batch = sum.size/len(sum)
+        sum += self.bias/elements_in_batch
         return self.activation_function.forward(sum)
 
+    @Layer.bwd
     def backward(self, gradient):
         """Calculate the local gradient of this CNN.
 
@@ -91,10 +59,16 @@ class Layer_ANN():
         gradient = gradient if gradient is not None else 1
         # calculate gradient of activation function
         activation_gradient = self.activation_function.backward(gradient)
-        # calculate gradient with respect to cross correlation
-        local_gradient = self.cc.backward(activation_gradient)
+        x = self.x.pop(0)
+        # summing & decrypting x as still un-summed from cache
+        x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
+        # save gradients of parameters with respect to output
+        self.bias_gradient = 1 * activation_gradient
+        self.weights_gradient = self.weights * x * activation_gradient
+        # calculate gradient with respect to fully connected ANN
+        local_gradient = 1 * self.weights
         # return local gradient
-        return local_gradient
+        return local_gradient * activation_gradient
 
     def update(self):
         self.cc.update()
