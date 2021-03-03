@@ -1,10 +1,11 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T23:30:12+00:00
+# @Last modified time: 2021-03-03T10:52:06+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
+from tqdm import tqdm
 
 
 class Sigmoid_Approximation(Activation):
@@ -25,7 +26,8 @@ class Sigmoid_Approximation(Activation):
         # only calculate one item at a time
         x = self.to_plaintext(self.x.pop(0))
         df_dbatch_sum = 0
-        for batch in range(len(x)):
+        for batch in tqdm(range(len(x)), desc="{}.backward.batch".format(
+                self.__class__.__name__)):
             batch = np.sum(x[batch])
             df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
                 gradient

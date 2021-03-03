@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T23:39:00+00:00
+# @Last modified time: 2021-03-03T11:13:52+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -32,7 +32,7 @@ class Layer_CNN(Layer):
         cross_correlated = self.cc.forward(x)
         logger.debug("calculating activation")
         activated = []
-        for i in tqdm(range(len(cross_correlated)), desc="CNN-fwd"):
+        for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(self.__class__.__name__, "forward")):
             # if(i % 10 == 0) or (i == len(cross_correlated) - 1):
             #     logger.debug("calculating activation: {}".format(
             #         len(cross_correlated)))
@@ -145,9 +145,10 @@ class Cross_Correlation():
         # store each cross correlation
         cc = []
         # apply each window and do it by index so can state progress
-        for i in range(len(self.windows)):
-            if(i % 10 == 0) or (i == len(self.windows) - 1):
-                logger.debug("convolving:{}/{}".format(i, len(self.windows)-1))
+        for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
+                self.__class__.__name__, "forward")):
+            # if(i % 10 == 0) or (i == len(self.windows) - 1):
+            #     logger.debug("convolving:{}/{}".format(i, len(self.windows)-1))
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape[1:])
@@ -295,7 +296,7 @@ class cnn_tests(unittest.TestCase):
 
     @property
     def data(self):
-        array = np.random.rand(1, 15, 15, 3)
+        array = np.random.rand(2, 15, 15, 3)
         return array
 
     @property

@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T22:13:59+00:00
+# @Last modified time: 2021-03-03T10:57:32+00:00
 # @License: please see LICENSE file in project root
 
 from tqdm import tqdm
@@ -97,7 +97,8 @@ class Layer():
 
         def inner(self, gradient=1):
             accumulator = []
-            for i in tqdm(range(len(self.x)), desc=".bwd"):
+            for i in tqdm(range(len(self.x)), desc="{}.{}".format(
+                    self.__class__.__name__, func.__name__)):
                 accumulator.append(func(self, gradient))
             return np.array(accumulator)
         return inner

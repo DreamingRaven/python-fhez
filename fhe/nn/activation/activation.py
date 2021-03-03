@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T23:24:52+00:00
+# @Last modified time: 2021-03-03T10:56:18+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -62,7 +62,8 @@ class Activation():
 
         def inner(self, gradient=1):
             accumulator = []
-            for i in tqdm(range(len(self.x)), desc=".bwd"):
+            for i in tqdm(range(len(self.x)), desc="{}.{}".format(
+                    self.__class__.__name__, func.__name__)):
                 accumulator.append(func(self, gradient))
             return np.array(accumulator)
         return inner
