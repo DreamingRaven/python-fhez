@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T10:52:06+00:00
+# @Last modified time: 2021-03-03T13:51:09+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
@@ -13,9 +13,17 @@ class Sigmoid_Approximation(Activation):
     @Activation.fwd
     def forward(self, x):
         # sigmoid approximation in specific order to minimise depth.
+
+        # x is not a single number, it is a multidimensional array
+        # if you just add to this values will be broadcast and added to each
+        # element individually, which makes the maths wrong I.E
+        # 2 + (1+2+3) == (1+2/3) + (2+2/3) + (3+2/3) == 8 != (1+2)+(2+2)+(3+2)
+        # we must divide by the number of elements in ONE batch
+        # or else sum explodes
+
         # dividing 0.5 by size of x to prevent broadcast explosion
         # when not summed yet as commuting it to later post-decryption
-        return (0.5/x.size) + (0.197 * x) + ((-0.004 * x) * (x * x))
+        return (0.5/(x.size/len(x))) + (0.197 * x) + ((-0.004 * x) * (x * x))
 
     @Activation.bwd
     def backward(self, gradient):
@@ -27,7 +35,9 @@ class Sigmoid_Approximation(Activation):
         x = self.to_plaintext(self.x.pop(0))
         df_dbatch_sum = 0
         for batch in tqdm(range(len(x)), desc="{}.backward.batch".format(
-                self.__class__.__name__)):
+                self.__class__.__name__),
+                position=1, leave=False, ncols=80, colour="green"
+        ):
             batch = np.sum(x[batch])
             df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
                 gradient

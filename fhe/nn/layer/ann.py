@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-02T22:40:29+00:00
+# @Last modified time: 2021-03-03T13:50:09+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -29,12 +29,23 @@ class Layer_ANN(Layer):
                 self.weights[0]))
 
         sum = None
-        for i in tqdm(range(len(x)), desc="ANN-fwd"):
+        for i in tqdm(range(len(x)), desc="{}.{}".format(
+            self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
             t = x[i] * self.weights[i]
             if sum is None:
                 sum = t
             else:
                 sum = sum + t
+        # sum is not a single number, it is a multidimensional array
+        # if you just add to this values will be broadcast and added to each
+        # element individually, which makes the maths wrong I.E
+        # 2 + (1+2+3) == (1+2/3) + (2+2/3) + (3+2/3) == 8 != (1+2)+(2+2)+(3+2)
+        # we must divide by the number of elements in ONE batch
+        # or else sum explodes
+        elements_in_batch = sum.size/len(sum)
+        sum += self.bias/elements_in_batch
         return self.activation_function.forward(sum)
 
     @Layer.bwd

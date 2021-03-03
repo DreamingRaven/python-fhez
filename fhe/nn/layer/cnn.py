@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T11:34:06+00:00
+# @Last modified time: 2021-03-03T13:22:04+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -32,10 +32,10 @@ class Layer_CNN(Layer):
         cross_correlated = self.cc.forward(x)
         logger.debug("calculating activation")
         activated = []
-        for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(self.__class__.__name__, "forward")):
-            # if(i % 10 == 0) or (i == len(cross_correlated) - 1):
-            #     logger.debug("calculating activation: {}".format(
-            #         len(cross_correlated)))
+        for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(
+            self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
         logger.debug("returning CNN activation")
@@ -146,7 +146,9 @@ class Cross_Correlation():
         cc = []
         # apply each window and do it by index so can state progress
         for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
-                self.__class__.__name__, "forward")):
+                self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
             # if(i % 10 == 0) or (i == len(self.windows) - 1):
             #     logger.debug("convolving:{}/{}".format(i, len(self.windows)-1))
             # create a primer for application of window without having to

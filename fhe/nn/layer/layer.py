@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T10:57:32+00:00
+# @Last modified time: 2021-03-03T13:19:36+00:00
 # @License: please see LICENSE file in project root
 
 from tqdm import tqdm
@@ -73,16 +73,25 @@ class Layer():
         self._activation_function = activation_function
 
     @property
+    def cache(self):
+        if self.__dict__.get("_cache") is None:
+            self._cache = {}
+        return self._cache
+
+    @cache.setter
+    def cache(self, cache):
+        self._cache = cache
+
+    @property
     def x(self):
-        if self.__dict__.get("_x") is not None:
-            return self._x
-        else:
-            self.x = []
-            return self.x
+        """Plaintext x for backward pass"""
+        if self.cache.get("x") is None:
+            self.cache["x"] = []
+        return self.cache["x"]
 
     @x.setter
     def x(self, x):
-        self._x = x
+        self.cache["x"] = x
 
     def fwd(func):
         """Forward decorator, unpacking + stashing x to use in backward."""
@@ -98,7 +107,9 @@ class Layer():
         def inner(self, gradient=1):
             accumulator = []
             for i in tqdm(range(len(self.x)), desc="{}.{}".format(
-                    self.__class__.__name__, func.__name__)):
+                    self.__class__.__name__, func.__name__),
+                    position=0, leave=False, ncols=80, colour="blue"
+            ):
                 accumulator.append(func(self, gradient))
             return np.array(accumulator)
         return inner
