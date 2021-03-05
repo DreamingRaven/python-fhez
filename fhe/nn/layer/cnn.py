@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T15:12:47+00:00
+# @Last modified time: 2021-03-05T15:03:57+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -30,7 +30,6 @@ class Layer_CNN(Layer):
             # self.cc.bias = self.bias
             # self.cc.stride = self.stride
         cross_correlated = self.cc.forward(x)
-        logger.debug("calculating activation")
         activated = []
         for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(
             self.__class__.__name__, "forward"),
@@ -38,7 +37,6 @@ class Layer_CNN(Layer):
         ):
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
-        logger.debug("returning CNN activation")
         return activated
 
     @Layer.bwd
@@ -74,8 +72,6 @@ class Cross_Correlation(Layer):
 
     @Layer.fwd
     def forward(self, x):
-        logger.debug("CNN forward, batch: {}, range: {}".format(
-            self.probe_shape(x), range(len(x))))
         # stride over x using our convolutional filter
         # lets say x = (64, 32, 32, 3) or x_1D = (3, 100, 1, 8)
         # also could be x = (64, 32, 32, crypt), x = (3, 100, 1, crypt)
@@ -88,7 +84,6 @@ class Cross_Correlation(Layer):
                                        filter=self.weights.shape[1:],
                                        stride=self.stride[1:])
             self.windows = list(map(self.windex_to_slice, self.windows))
-        logger.info("Windows processing = {}".format(len(self.windows)))
         # store each cross correlation
         cc = []
         # apply each window and do it by index so can state progress
@@ -108,10 +103,16 @@ class Cross_Correlation(Layer):
 
     @Layer.bwd
     def backward(self, gradient):
-        # calculate local gradient
-        x = np.array(self.x.pop(0))  # plaintext of x for backprop
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
+        # calculate local gradient
+        x = np.array(self.x.pop(0))  # plaintext of x for backprop
+
+        for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
+                self.__class__.__name__, "backward"),
+            ncols=80, colour="blue"
+        ):
+            print(x[0][self.windows[i]].shape)
         # df/dweights is also simple as it is a chain of addition with a single
         # multiplication against the input so the derivative is just gradient
         # multiplied by input
@@ -213,22 +214,6 @@ class Cross_Correlation(Layer):
         else:
             # this is the end of the sequence, can do no more so return
             return partial
-
-    def probe_shape(self, lst: list):
-        """Get the shape of a list, assuming each sublist is the same length.
-
-        This function is recursive, sending the sublists down and terminating
-        once a type error is thrown by the final point being a non-list
-        """
-        if isinstance(lst, list):
-            # try appending current length with recurse of sublist
-            try:
-                return (len(lst),) + self.probe_shape(lst[0])
-            # once we bottom out and get some non-list type abort and pull up
-            except (AttributeError, IndexError):
-                return (len(lst),)
-        else:
-            return lst.shape
 
     def windex_to_slice(self, window):
         """Convert x sides of window expression into slices to slice np."""

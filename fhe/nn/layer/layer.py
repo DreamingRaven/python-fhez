@@ -3,12 +3,13 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T13:19:36+00:00
+# @Last modified time: 2021-03-05T14:35:36+00:00
 # @License: please see LICENSE file in project root
 
 from tqdm import tqdm
 import numpy as np
 from fhe.nn.activation.sigmoid import Sigmoid_Approximation
+import logging as logger
 
 
 class Layer():
@@ -93,12 +94,47 @@ class Layer():
     def x(self, x):
         self.cache["x"] = x
 
+    @property
+    def gradient(self):
+        if self.cache.get("gradient") is None:
+            self.cache["gradient"] = {}
+        return self.cache["gradient"]
+
+    @gradient.setter
+    def gradient(self, gradient):
+        self.cache["gradient"] = gradient
+
+    def probe_shape(self, lst: list):
+        """Get the shape of a list, assuming each sublist is the same length.
+
+        This function is recursive, sending the sublists down and terminating
+        once a type error is thrown by the final point being a non-list
+        """
+        if isinstance(lst, list):
+            # try appending current length with recurse of sublist
+            try:
+                return (len(lst),) + self.probe_shape(lst[0])
+            # once we bottom out and get some non-list type abort and pull up
+            except (AttributeError, IndexError):
+                return (len(lst),)
+        else:
+            return lst.shape
+
     def fwd(func):
         """Forward decorator, unpacking + stashing x to use in backward."""
 
         def inner(self, x):
             self.x.append(x)
-            return func(self, x)
+            logger.debug("{}.{} x.shape={}".format(
+                self.__class__.__name__,
+                func.__name__,
+                self.probe_shape(x)))
+            temp = func(self, x)
+            logger.debug("{}.{} return.shape={}".format(
+                self.__class__.__name__,
+                func.__name__,
+                self.probe_shape(temp)))
+            return temp
         return inner
 
     def bwd(func):
