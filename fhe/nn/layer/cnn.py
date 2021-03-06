@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-06T01:55:41+00:00
+# @Last modified time: 2021-03-06T13:14:20+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -118,7 +118,9 @@ class Cross_Correlation(Layer):
                 self.__class__.__name__, "backward-window"),
             ncols=80, colour="blue"
         ):
-            batch_window = np.array(list(map(lambda a: a[self.windows[i]], x)))
+            print(gradient[i].shape)
+            batch_window = np.array(
+                list(map(lambda a: a[self.windows[i]]*gradient[i], x)))
             print(batch_window.shape)
             if per_batch_sum is not None:
                 per_batch_sum += batch_window

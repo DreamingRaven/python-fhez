@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-05T15:43:11+00:00
+# @Last modified time: 2021-03-06T13:10:34+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -87,11 +87,30 @@ class Activation():
         """Backward decorator to use decrypted or decrypt stashed x."""
 
         def inner(self, gradient=1):
+            if isinstance(gradient, int):
+                gradient = np.array([gradient])
+            logger.debug("{}.{} gradient.shape={}".format(
+                self.__class__.__name__,
+                func.__name__,
+                gradient.shape))
             accumulator = []
             for i in tqdm(range(len(self.x)), desc="{}.{}".format(
                     self.__class__.__name__, func.__name__),
                     position=0, leave=False, ncols=80, colour="blue"
             ):
-                accumulator.append(func(self, gradient))
-            return np.array(accumulator)
+                # broadcast shape of gradient to match number of batches by
+                # adding tuple of num batches to gradient tuple of shape
+                gradient_broadcast = np.broadcast_to(
+                    gradient,
+                    # add the two tuples of batch size + gradient shape
+                    (len(self.x[0]),) + gradient.shape)
+                # start decrypting and popping x to reduce consume cache/ size
+                x = self.to_plaintext(self.x.pop(0))
+                accumulator.append(func(self, gradient_broadcast, x))
+            df_dx = np.array(accumulator)
+            logger.debug("{}.{} gradient.shape={}".format(
+                self.__class__.__name__,
+                func.__name__,
+                df_dx.shape))
+            return df_dx
         return inner
