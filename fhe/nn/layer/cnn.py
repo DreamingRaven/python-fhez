@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-05T16:17:12+00:00
+# @Last modified time: 2021-03-06T01:55:41+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -115,7 +115,7 @@ class Cross_Correlation(Layer):
         # the window expression explicitly ignores this so use a lambda
         # to apply the windows in each batch seperateley
         for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
-                self.__class__.__name__, "backward"),
+                self.__class__.__name__, "backward-window"),
             ncols=80, colour="blue"
         ):
             batch_window = np.array(list(map(lambda a: a[self.windows[i]], x)))
@@ -124,7 +124,23 @@ class Cross_Correlation(Layer):
                 per_batch_sum += batch_window
             else:
                 per_batch_sum = batch_window
-            # print(x[0][self.windows[i]].shape)
+
+        weight_total = None
+        # now loop through the length of the now summed windows, which is
+        # effectiveley the batch size so we can sum them up too but also
+        # allow us to calculate the average of these
+        for i in tqdm(range(len(per_batch_sum)), desc="{}.{}".format(
+            self.__class__.__name__, "backward-weight-avg"),
+                ncols=80, colour="blue"):
+            if weight_total is None:
+                weight_total = per_batch_sum[i]
+            else:
+                weight_total += per_batch_sum[i]
+        # final calculation of average
+        weight_avg = weight_total / len(per_batch_sum)
+        print(weight_avg, weight_avg.shape)
+
+        # print(x[0][self.windows[i]].shape)
         # df/dweights is also simple as it is a chain of addition with a single
         # multiplication against the input so the derivative is just gradient
         # multiplied by input
