@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-05T15:03:57+00:00
+# @Last modified time: 2021-03-05T16:17:12+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -25,10 +25,9 @@ class Layer_CNN(Layer):
         """Take lst of batches of x, return activated output lst of layer."""
         # if no cross correlation object exists yet, create it as inherit Layer
         if self.__dict__.get("cc") is None:
-            self.cc = Cross_Correlation(weights=self.weights, bias=self.bias, stride=self.stride)
-            # self.cc.weights = self.weights
-            # self.cc.bias = self.bias
-            # self.cc.stride = self.stride
+            self.cc = Cross_Correlation(weights=self.weights,
+                                        bias=self.bias,
+                                        stride=self.stride)
         cross_correlated = self.cc.forward(x)
         activated = []
         for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(
@@ -107,16 +106,29 @@ class Cross_Correlation(Layer):
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
         # calculate local gradient
         x = np.array(self.x.pop(0))  # plaintext of x for backprop
-
+        per_batch_sum = None
+        # for each window find what it corresponds to in x so we see what
+        # specifically the weights were multiplied by in each batch
+        # sum all of what the weights were multiplied by together per batch
+        # then average out the batches to get a stable gradient
+        # the only trick here is that batches are the first dimension and
+        # the window expression explicitly ignores this so use a lambda
+        # to apply the windows in each batch seperateley
         for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
                 self.__class__.__name__, "backward"),
             ncols=80, colour="blue"
         ):
-            print(x[0][self.windows[i]].shape)
+            batch_window = np.array(list(map(lambda a: a[self.windows[i]], x)))
+            print(batch_window.shape)
+            if per_batch_sum is not None:
+                per_batch_sum += batch_window
+            else:
+                per_batch_sum = batch_window
+            # print(x[0][self.windows[i]].shape)
         # df/dweights is also simple as it is a chain of addition with a single
         # multiplication against the input so the derivative is just gradient
         # multiplied by input
-        self.weights_gradients = x * gradient
+        self.weights_gradients = per_batch_sum * gradient
         local_gradient = 0  # dont care as end of computational chain
         return local_gradient
 
@@ -317,7 +329,7 @@ class cnn_tests(unittest.TestCase):
 
 if __name__ == "__main__":
     logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.DEBUG,
+        level=logger.INFO,
         format="%(asctime)s %(levelname)s:%(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S")
     # run all the unit-tests
