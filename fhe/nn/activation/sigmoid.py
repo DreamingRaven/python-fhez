@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-06T13:06:09+00:00
+# @Last modified time: 2021-03-08T17:08:08+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
@@ -37,12 +37,15 @@ class Sigmoid_Approximation(Activation):
                 position=1, leave=False, ncols=80, colour="green"
         ):
             batch = np.sum(x[i])
+            # print("batch", batch.shape)
             df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
                 gradient[i]
+            # print("gradient", gradient[i].shape)
+            # print("df_dbatch", df_dbatch.shape)
             df_dbatch_sum += df_dbatch
         # average out between batches to get more stable gradient
         df_dx = df_dbatch_sum / len(x)
-        print(df_dx.shape)
+        # print("df_dx", df_dx.shape)
         return df_dx
 
     def update(self):

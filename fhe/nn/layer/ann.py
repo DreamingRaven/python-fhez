@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T13:50:09+00:00
+# @Last modified time: 2021-03-08T14:01:56+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -55,8 +55,6 @@ class Layer_ANN(Layer):
         Given the gradient that precedes us,
         what is the local gradient after us.
         """
-        # if gradient not given like if its the start of the chain then 1
-        gradient = gradient if gradient is not None else 1
         # calculate gradient of activation function
         activation_gradient = self.activation_function.backward(gradient)
         x = self.x.pop(0)
@@ -67,8 +65,8 @@ class Layer_ANN(Layer):
         self.weights_gradient = self.weights * x * activation_gradient
         # calculate gradient with respect to fully connected ANN
         local_gradient = 1 * self.weights
-        # return local gradient
-        return local_gradient * activation_gradient
+        df_dx = local_gradient * activation_gradient
+        return df_dx
 
     def update(self):
         self.cc.update()
