@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-08T17:34:17+00:00
+# @Last modified time: 2021-03-09T09:51:37+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -39,7 +39,7 @@ class Layer_CNN(Layer):
         return activated
 
     @Layer.bwd
-    def backward(self, gradient):
+    def backward(self, gradient, x):
         """Calculate the local gradient of this CNN.
 
         Given the gradient that precedes us,
@@ -101,11 +101,9 @@ class Cross_Correlation(Layer):
         return cc  # return the now biased convolution ready for activation
 
     @Layer.bwd
-    def backward(self, gradient):
+    def backward(self, gradient, x):
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
-        # calculate local gradient
-        x = np.array(self.x.pop(0))  # plaintext of x for backprop
         per_batch_sum = None
         # for each window find what it corresponds to in x so we see what
         # specifically the weights were multiplied by in each batch
@@ -200,9 +198,6 @@ class Cross_Correlation(Layer):
             data)
         f_shape = filter if isinstance(filter, tuple) else self.probe_shape(
             filter)
-        # logger.debug(
-        #     "data.shape: {}, filter.shape: {}, stride: {}, dimension: {}".format(
-        #         d_shape, f_shape, stride, dimension))
         # if we are not at the end/ last dimension
         if len(stride) > dimension:
             # creating a list matching dimension len so we can slice
@@ -213,7 +208,8 @@ class Cross_Correlation(Layer):
             windows = []
             # iterate through first index/ head of window
             for window_head in window_heads:
-                # copy partial window up till now to branch it to mutliple windows
+                # copy partial window up till now to branch it to mutliple
+                # windows
                 current_partial_window = copy.deepcopy(partial)
                 # create index range of window in this dimension
                 window = list(range(window_head, window_head +
@@ -329,17 +325,17 @@ class cnn_tests(unittest.TestCase):
                         stride=self.stride)
         cnn_copy = copy.deepcopy(cnn)
         re_acti = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        # np_acti = cnn_copy.forward(x=self.data)
+        np_acti = cnn_copy.forward(x=self.data)
 
         from fhe.nn.layer.ann import Layer_ANN
 
         dense = Layer_ANN(weights=(len(re_acti),), bias=0)
-        # dense_copy = copy.deepcopy(dense)
+        dense_copy = copy.deepcopy(dense)
         y_hat_re = np.sum(np.array(dense.forward(re_acti)))
-        # y_hat_np = np.sum(np.array(dense_copy.forward(np_acti)))
+        y_hat_np = np.sum(np.array(dense_copy.forward(np_acti)))
         gradient = cnn.backward(dense.backward(1))
         print("Gradient:", gradient)
-        # self.assertEqual(y_hat_np, y_hat_re)
+        self.assertEqual(y_hat_np, y_hat_re)
 
 
 if __name__ == "__main__":

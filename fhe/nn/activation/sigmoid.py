@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-08T17:08:08+00:00
+# @Last modified time: 2021-03-08T18:14:25+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
@@ -32,6 +32,7 @@ class Sigmoid_Approximation(Activation):
         # \frac{d\sigma}{dx} = (1-\sigma(x))\sigma(x)
 
         df_dbatch_sum = 0
+        print(gradient.shape)
         for i in tqdm(range(len(x)), desc="{}.backward.batch".format(
                 self.__class__.__name__),
                 position=1, leave=False, ncols=80, colour="green"
