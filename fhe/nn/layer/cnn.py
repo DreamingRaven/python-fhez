@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-09T09:51:37+00:00
+# @Last modified time: 2021-03-09T14:12:44+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -340,7 +340,7 @@ class cnn_tests(unittest.TestCase):
 
 if __name__ == "__main__":
     logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.DEBUG,
+        level=logger.INFO,
         format="%(asctime)s %(levelname)s:%(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S")
     # run all the unit-tests

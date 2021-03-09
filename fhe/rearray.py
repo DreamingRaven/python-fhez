@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-23T12:16:16+00:00
+# @Last modified time: 2021-03-09T14:31:52+00:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
@@ -53,7 +53,10 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             d = clone.__dict__
             d = {k: d[k] for k, v in d.items() if k not in ["_cyphertext"]}
             self.__dict__ = d
-            self._cyphertext = cyphertext
+            if cyphertext is not None:
+                self._cyphertext = cyphertext
+            else:
+                self.cyphertext = plaintext
 
     @property
     def seedling(self):
