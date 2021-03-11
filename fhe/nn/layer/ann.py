@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T14:33:05+00:00
+# @Last modified time: 2021-03-11T21:14:53+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -62,6 +62,7 @@ class Layer_ANN(Layer):
         # calculate gradient of activation function
         # summing & decrypting x as still un-summed from cache
         x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
+        print("ann_x", x.shape)
         # save gradients of parameters with respect to output
         self.bias_gradient = 1 * ag
         self.weights_gradient = self.weights * x * ag
