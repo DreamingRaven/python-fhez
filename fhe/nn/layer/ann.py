@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T21:14:53+00:00
+# @Last modified time: 2021-03-11T22:03:06+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -55,11 +55,11 @@ class Layer_ANN(Layer):
         Given the gradient that precedes us,
         what is the local gradient after us.
         """
-        # GRADIENT FROM OUT ACTIVATION FUNCTION
-        print("gradient:", gradient.shape)
-        ag = self.activation_function.backward(gradient)
+        # activation gradient already calculated for us
+        ag = gradient
         print("ag_gradient:", ag.shape)
-        # calculate gradient of activation function
+        # TODO continue here, get each individual batch of x before summing
+        # use each individual batch to calculate batch specific gradients
         # summing & decrypting x as still un-summed from cache
         x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
         print("ann_x", x.shape)

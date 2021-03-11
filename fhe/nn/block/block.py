@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-03-08T21:09:26+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T21:42:46+00:00
+# @Last modified time: 2021-03-11T21:55:58+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -147,6 +147,13 @@ class Block():
                     func.__name__),
                     gradient,
                     "has no cached x/ input yet, please run a forward pass")
+            try:
+                # we want to call activation function before going any further
+                # this ensures that the gradient is properly handled or if
+                # we have to process it here first
+                gradient = self.activation_function.backward(gradient)
+            except AttributeError:
+                pass
 
             # if the start of gradient chain I.E is some numeric
             if isinstance(gradient, (int, float)):
