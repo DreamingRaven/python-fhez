@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-09T22:35:17+00:00
+# @Last modified time: 2021-03-11T14:33:05+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -55,16 +55,19 @@ class Layer_ANN(Layer):
         Given the gradient that precedes us,
         what is the local gradient after us.
         """
+        # GRADIENT FROM OUT ACTIVATION FUNCTION
+        print("gradient:", gradient.shape)
+        ag = self.activation_function.backward(gradient)
+        print("ag_gradient:", ag.shape)
         # calculate gradient of activation function
-        activation_gradient = self.activation_function.backward(gradient)
         # summing & decrypting x as still un-summed from cache
         x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
         # save gradients of parameters with respect to output
-        self.bias_gradient = 1 * activation_gradient
-        self.weights_gradient = self.weights * x * activation_gradient
+        self.bias_gradient = 1 * ag
+        self.weights_gradient = self.weights * x * ag
         # calculate gradient with respect to fully connected ANN
         local_gradient = 1 * self.weights
-        df_dx = local_gradient * activation_gradient
+        df_dx = local_gradient * ag
         return df_dx
 
     def update(self):
@@ -124,9 +127,11 @@ class ann_tests(unittest.TestCase):
                         bias=self.bias)
         np_ann = copy.deepcopy(ann)
 
+        # FORWARD PASS TEST
         activations = ann.forward(x)
         np_activations = np_ann.forward(np.array(x))
         # check that output is equal in shape to any single input ndarray
+        # also check that ReArray and numpy produce the same results
         self.assertEqual(activations.shape, x_dummy.shape)
         self.assertEqual(np_activations.shape, x_dummy.shape)
         self.assertListEqual(
@@ -134,10 +139,9 @@ class ann_tests(unittest.TestCase):
             np.around(np.array(np_activations), decimals=2).flatten().tolist(),
         )
 
+        # BACKWARD PASS TEST
         gradient = ann.backward()
         np_gradient = np_ann.backward()
-        print("re_gradient:", gradient, gradient.shape)
-        print("np_gradient:", np_gradient, np_gradient.shape)
         # we desire the resultant gradient to be of shape
         # (num_inputs, num_batches) pass back num_batches gradients per input
         desired_shape = (num_inputs,) + (len(x_dummy),)

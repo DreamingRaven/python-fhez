@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-08T21:26:30+00:00
+# @Last modified time: 2021-03-11T12:55:56+00:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -20,6 +20,16 @@ class Layer(Block):
             self.activation_function = activation
         if stride:
             self.stride = stride
+
+    @property
+    def is_activation(self):
+        """Are we an Activation function."""
+        return False
+
+    @property
+    def is_layer(self):
+        """Are we a Layer."""
+        return True
 
     @property
     def weights(self):
