@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-03-08T21:09:26+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T21:55:58+00:00
+# @Last modified time: 2021-03-12T14:21:14+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -144,9 +144,9 @@ class Block():
             if len(self.x) == 0:
                 raise ValueError("{}.{}(gradient={}) {}".format(
                     self.__class__.__name__,
-                    func.__name__),
+                    func.__name__,
                     gradient,
-                    "has no cached x/ input yet, please run a forward pass")
+                    "has no cached x/ input yet, please run a forward pass"))
             try:
                 # we want to call activation function before going any further
                 # this ensures that the gradient is properly handled or if
