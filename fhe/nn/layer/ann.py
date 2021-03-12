@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T22:03:06+00:00
+# @Last modified time: 2021-03-12T11:13:14+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -57,18 +57,26 @@ class Layer_ANN(Layer):
         """
         # activation gradient already calculated for us
         ag = gradient
+        # iterate over inputs and batches to get per-input-per-batch sums
+        x = np.array(x)
+        per_input_batch_sums = []
+        for i in range(len(x)):
+            batch_sums = []
+            for j in range(len(x[i])):
+                sum = np.sum(x[i][j])
+                batch_sums.append(sum)
+            per_input_batch_sums.append(batch_sums)
+        x = np.array(per_input_batch_sums)
+        # x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
         print("ag_gradient:", ag.shape)
-        # TODO continue here, get each individual batch of x before summing
-        # use each individual batch to calculate batch specific gradients
-        # summing & decrypting x as still un-summed from cache
-        x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
         print("ann_x", x.shape)
+        print("ann_weights.shape", self.weights.shape)
         # save gradients of parameters with respect to output
         self.bias_gradient = 1 * ag
-        self.weights_gradient = self.weights * x * ag
+        self.weights_gradient = x * ag
         # calculate gradient with respect to fully connected ANN
-        local_gradient = 1 * self.weights
-        df_dx = local_gradient * ag
+        df_dx = self.weights * ag
+        print("ann_df_dx", df_dx.shape)
         return df_dx
 
     def update(self):
