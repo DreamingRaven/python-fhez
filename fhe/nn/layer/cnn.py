@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-09T14:12:44+00:00
+# @Last modified time: 2021-03-12T16:21:45+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -45,14 +45,12 @@ class Layer_CNN(Layer):
         Given the gradient that precedes us,
         what is the local gradient after us.
         """
-        # if gradient not given like if its the start of the chain then 1
-        gradient = gradient if gradient is not None else 1
-        # calculate gradient of activation function
-        activation_gradient = self.activation_function.backward(gradient)
+        ag = gradient
+        x = np.array(x)
         # calculate gradient with respect to cross correlation
-        local_gradient = self.cc.backward(activation_gradient)
+        df_dx = self.cc.backward(ag, x)
         # return local gradient
-        return local_gradient
+        return df_dx
 
     def update(self):
         self.cc.update()
@@ -100,11 +98,9 @@ class Cross_Correlation(Layer):
             cc.append(t)
         return cc  # return the now biased convolution ready for activation
 
-    @Layer.bwd
     def backward(self, gradient, x):
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
-        per_batch_sum = None
         # for each window find what it corresponds to in x so we see what
         # specifically the weights were multiplied by in each batch
         # sum all of what the weights were multiplied by together per batch
@@ -112,36 +108,38 @@ class Cross_Correlation(Layer):
         # the only trick here is that batches are the first dimension and
         # the window expression explicitly ignores this so use a lambda
         # to apply the windows in each batch seperateley
+        print("x", x.shape)
+        print("weights", self.weights.shape)
+        print("gradient", gradient.shape)
+        print(self.windows)
+        per_batch_windows = []
         for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
                 self.__class__.__name__, "backward-window"),
             ncols=80, colour="blue"
         ):
             batch_window = np.array(
-                list(map(lambda a: a[self.windows[i]]*gradient[i], x)))
-            if per_batch_sum is not None:
-                per_batch_sum += batch_window
-            else:
-                per_batch_sum = batch_window
-
-        weight_total = None
-        # now loop through the length of the now summed windows, which is
-        # effectiveley the batch size so we can sum them up too but also
-        # allow us to calculate the average of these
-        for i in tqdm(range(len(per_batch_sum)), desc="{}.{}".format(
-            self.__class__.__name__, "backward-weight-avg"),
-                ncols=80, colour="blue"):
-            if weight_total is None:
-                weight_total = per_batch_sum[i]
-            else:
-                weight_total += per_batch_sum[i]
-        # final calculation of average
-        weight_avg = weight_total / len(per_batch_sum)
-
-        # print(x[0][self.windows[i]].shape)
-        # df/dweights is also simple as it is a chain of addition with a single
-        # multiplication against the input so the derivative is just gradient
-        # multiplied by input
-        self.weights_gradients = per_batch_sum * gradient
+                list(map(lambda a: a[self.windows[i]], x)))
+            per_batch_windows.append(batch_window)
+        windows = np.array(per_batch_windows)
+        # weight_total = None
+        # # now loop through the length of the now summed windows, which is
+        # # effectiveley the batch size so we can sum them up too but also
+        # # allow us to calculate the average of these
+        # for i in tqdm(range(len(per_batch_sum)), desc="{}.{}".format(
+        #     self.__class__.__name__, "backward-weight-avg"),
+        #         ncols=80, colour="blue"):
+        #     if weight_total is None:
+        #         weight_total = per_batch_sum[i]
+        #     else:
+        #         weight_total += per_batch_sum[i]
+        # # final calculation of average
+        # weight_avg = weight_total / len(per_batch_sum)
+        #
+        # # print(x[0][self.windows[i]].shape)
+        # # df/dweights is also simple as it is a chain of addition with a single
+        # # multiplication against the input so the derivative is just gradient
+        # # multiplied by input
+        # self.weights_gradients = per_batch_sum * gradient
         local_gradient = 0  # dont care as end of computational chain
         return local_gradient
 
@@ -154,7 +152,7 @@ class Cross_Correlation(Layer):
 
     def windex(self, data: list, filter: list, stride: list,
                dimension: int = 0, partial: list = []):
-        """Recursive window index (windex).
+        """Recursive window index or Windex.
 
         This function takes 3 lists; data, filter, and stride.
         Data is a regular multidimensional list, so in the case of a 32x32
@@ -289,35 +287,35 @@ class cnn_tests(unittest.TestCase):
         # cnn.backward(gradient=1)
         # cnn.update()
 
-    def test_rearray(self):
-        cnn = Layer_CNN(weights=self.weights,
-                        bias=self.bias,
-                        stride=self.stride)
-        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        accumulator = []
-        for i in range(len(activations)):
-            if(i % 10 == 0) or (i == len(activations) - 1):
-                logger.debug("decrypting: {}".format(len(activations)))
-            t = np.array(activations.pop(0))
-            accumulator.append(t)
-        plaintext_activations = np.around(np.array(accumulator), 2)
-        compared_activations = np.around(cnn.forward(x=self.data), 2)
-        self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
-                             compared_activations.flatten()[:200].tolist())
-
-    def test_rearray_cnn_ann(self):
-        cnn = Layer_CNN(weights=self.weights,
-                        bias=self.bias,
-                        stride=self.stride)
-        activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        np_acti = cnn.forward(x=self.data)
-
-        from fhe.nn.layer.ann import Layer_ANN
-
-        dense = Layer_ANN(weights=(len(activations),), bias=0)
-        y_hat_np = np.sum(np.array(dense.forward(np_acti)))
-        y_hat_re = np.sum(np.array(dense.forward(activations)))
-        self.assertEqual(y_hat_np, y_hat_re)
+    # def test_rearray(self):
+    #     cnn = Layer_CNN(weights=self.weights,
+    #                     bias=self.bias,
+    #                     stride=self.stride)
+    #     activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+    #     accumulator = []
+    #     for i in range(len(activations)):
+    #         if(i % 10 == 0) or (i == len(activations) - 1):
+    #             logger.debug("decrypting: {}".format(len(activations)))
+    #         t = np.array(activations.pop(0))
+    #         accumulator.append(t)
+    #     plaintext_activations = np.around(np.array(accumulator), 2)
+    #     compared_activations = np.around(cnn.forward(x=self.data), 2)
+    #     self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
+    #                          compared_activations.flatten()[:200].tolist())
+    #
+    # def test_rearray_cnn_ann(self):
+    #     cnn = Layer_CNN(weights=self.weights,
+    #                     bias=self.bias,
+    #                     stride=self.stride)
+    #     activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
+    #     np_acti = cnn.forward(x=self.data)
+    #
+    #     from fhe.nn.layer.ann import Layer_ANN
+    #
+    #     dense = Layer_ANN(weights=(len(activations),), bias=0)
+    #     y_hat_np = np.sum(np.array(dense.forward(np_acti)))
+    #     y_hat_re = np.sum(np.array(dense.forward(activations)))
+    #     self.assertEqual(y_hat_np, y_hat_re)
 
     def test_rearray_backprop(self):
         cnn = Layer_CNN(weights=self.weights,
