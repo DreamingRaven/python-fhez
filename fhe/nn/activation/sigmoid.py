@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T21:48:10+00:00
+# @Last modified time: 2021-03-13T20:42:25+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
@@ -42,7 +42,6 @@ class Sigmoid_Approximation(Activation):
                     gradient, gradient.shape
                 ))
 
-        print(gradient)
         df_dbatch_accumulator = []
         # iterate through each batch and calculate the per batch gradient
         for i in tqdm(range(len(x)), desc="{}.backward.batch".format(
