@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-03-08T21:09:26+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-12T14:21:14+00:00
+# @Last modified time: 2021-03-13T12:11:29+00:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.rearray import ReArray
@@ -69,6 +69,8 @@ class Block():
             # once we bottom out and get some non-list type abort and pull up
             except (AttributeError, IndexError):
                 return (len(lst),)
+        elif isinstance(lst, (int, float)):
+            return (1,)
         else:
             return lst.shape
 
@@ -183,7 +185,7 @@ class Block():
                 # activation function into decorator so it is not looped
                 x = np.squeeze(np.array(self.x), axis=0)
                 # pass this now squeezed x into backprop
-                df_dx = func(self, gradient, x)
+                df_dx = np.array(func(self, gradient, x))
             else:
                 # checking value of attributes to prevent circular import
                 # rather than using isinstance
@@ -193,7 +195,7 @@ class Block():
             logger.debug("{}.{} return.shape={}".format(
                 self.__class__.__name__,
                 func.__name__,
-                df_dx.shape))
+                self.probe_shape(df_dx)))
 
             return df_dx
         return inner
