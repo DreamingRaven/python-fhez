@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-12T16:21:45+00:00
+# @Last modified time: 2021-03-13T21:44:13+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -111,7 +111,9 @@ class Cross_Correlation(Layer):
         print("x", x.shape)
         print("weights", self.weights.shape)
         print("gradient", gradient.shape)
-        print(self.windows)
+        print("windows", self.probe_shape(self.windows))
+        # for each window slice apply window to cached x to find what weights
+        # were multiplied against
         per_batch_windows = []
         for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
                 self.__class__.__name__, "backward-window"),
@@ -121,6 +123,24 @@ class Cross_Correlation(Layer):
                 list(map(lambda a: a[self.windows[i]], x)))
             per_batch_windows.append(batch_window)
         windows = np.array(per_batch_windows)
+
+        print("windows2", windows.shape)
+        print("windows_sum", windows.sum(axis=0).shape)
+        # # for the number of outputs
+        # for i in range(len(windows)):
+        #     # for the number of batches in that output
+        #     for j in range(len(windows[i])):
+        len_diff = len(windows.shape) - len(gradient.shape)
+        reshape = np.ones((len_diff,))
+        reshape = tuple(map(tuple, reshape))
+        reshape = gradient.shape + reshape
+        t = np.reshape(gradient, reshape)
+        # t = np.reshape(gradient, gradient.shape + tuple(
+        #     map(tuple, np.ones((len_diff,)))))
+        print("rehsaped_gradient", t.shape)
+
+        self.weights_gradient = (windows * gradient).sum(axis=0)
+        # get local gradient of weights with respect to cross correlation
         # weight_total = None
         # # now loop through the length of the now summed windows, which is
         # # effectiveley the batch size so we can sum them up too but also
@@ -140,7 +160,8 @@ class Cross_Correlation(Layer):
         # # multiplication against the input so the derivative is just gradient
         # # multiplied by input
         # self.weights_gradients = per_batch_sum * gradient
-        local_gradient = 0  # dont care as end of computational chain
+        local_gradient = 0  # dont care as end of computational chain for now
+        # TODO finish calculating gradient of inputs with respect to cc outputs
         return local_gradient
 
     def update(self, learning_rate=None):
