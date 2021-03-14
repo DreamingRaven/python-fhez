@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-13T21:44:13+00:00
+# @Last modified time: 2021-03-14T22:03:10+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -126,40 +126,15 @@ class Cross_Correlation(Layer):
 
         print("windows2", windows.shape)
         print("windows_sum", windows.sum(axis=0).shape)
-        # # for the number of outputs
-        # for i in range(len(windows)):
-        #     # for the number of batches in that output
-        #     for j in range(len(windows[i])):
-        len_diff = len(windows.shape) - len(gradient.shape)
-        reshape = np.ones((len_diff,))
-        reshape = tuple(map(tuple, reshape))
-        reshape = gradient.shape + reshape
-        t = np.reshape(gradient, reshape)
-        # t = np.reshape(gradient, gradient.shape + tuple(
-        #     map(tuple, np.ones((len_diff,)))))
-        print("rehsaped_gradient", t.shape)
 
-        self.weights_gradient = (windows * gradient).sum(axis=0)
-        # get local gradient of weights with respect to cross correlation
-        # weight_total = None
-        # # now loop through the length of the now summed windows, which is
-        # # effectiveley the batch size so we can sum them up too but also
-        # # allow us to calculate the average of these
-        # for i in tqdm(range(len(per_batch_sum)), desc="{}.{}".format(
-        #     self.__class__.__name__, "backward-weight-avg"),
-        #         ncols=80, colour="blue"):
-        #     if weight_total is None:
-        #         weight_total = per_batch_sum[i]
-        #     else:
-        #         weight_total += per_batch_sum[i]
-        # # final calculation of average
-        # weight_avg = weight_total / len(per_batch_sum)
-        #
-        # # print(x[0][self.windows[i]].shape)
-        # # df/dweights is also simple as it is a chain of addition with a single
-        # # multiplication against the input so the derivative is just gradient
-        # # multiplied by input
-        # self.weights_gradients = per_batch_sum * gradient
+        t = gradient
+        len_diff = len(windows.shape) - len(gradient.shape)
+        # expand the dimensions of the ndarray according to the difference
+        for i in range(len_diff):
+            t = np.expand_dims(t, axis=t.ndim)
+        print(t.shape)
+        self.weights_gradient = (windows * t).sum(axis=0)
+
         local_gradient = 0  # dont care as end of computational chain for now
         # TODO finish calculating gradient of inputs with respect to cc outputs
         return local_gradient
