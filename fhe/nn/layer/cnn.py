@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-15T14:29:24+00:00
+# @Last modified time: 2021-03-15T14:39:01+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -277,10 +277,6 @@ class cnn_tests(unittest.TestCase):
         np_acti = cnn_copy.forward(x=self.data)
         self.assertEqual(re_acti.shape, (25,)+self.data.shape)
         self.assertEqual(np_acti.shape, (25,)+self.data.shape)
-        # self.assertListEqual(
-        #     np.around(np.array(re_acti), decimals=2).flatten().tolist(),
-        #     np.around(np.array(np_acti), decimals=2).flatten().tolist(),
-        # )
 
         # CREATE IDENTICAL ANN LAYERS
         dense = Layer_ANN(weights=(len(re_acti),), bias=0)
@@ -291,27 +287,31 @@ class cnn_tests(unittest.TestCase):
         np_fwd = dense_copy.forward(np_acti)
         self.assertEqual(re_fwd.shape, self.data.shape)
         self.assertEqual(np_fwd.shape, self.data.shape)
-        # self.assertListEqual(
-        #     np.around(np.array(re_fwd), decimals=2).flatten().tolist(),
-        #     np.around(np.array(np_fwd), decimals=2).flatten().tolist(),
-        # )
         y_hat_re = np.sum(re_fwd, axis=tuple(range(1, re_fwd.ndim)))
         y_hat_np = np.sum(np_fwd, axis=tuple(range(1, re_fwd.ndim)))
 
         # BACKWARD PASS CNN AND ANN
-        gradient = cnn.backward(dense.backward(1))
-        gradient_copy = cnn_copy.backward(dense_copy.backward(1))
-        self.assertEqual(gradient.shape, (self.data.shape[0],))
-        self.assertEqual(gradient_copy.shape, (self.data.shape[0],))
+        re_gradient = cnn.backward(dense.backward(1))
+        np_gradient = cnn_copy.backward(dense_copy.backward(1))
+        self.assertEqual(re_gradient.shape, (self.data.shape[0],))
+        self.assertEqual(np_gradient.shape, (self.data.shape[0],))
 
         # RESEAL VS NUMPY NOISE DIFFERENCE TESTING
+        self.assertListEqual(
+            np.around(np.array(re_acti), decimals=2).flatten().tolist(),
+            np.around(np.array(np_acti), decimals=2).flatten().tolist(),
+        )
+        self.assertListEqual(
+            np.around(np.array(re_fwd), decimals=2).flatten().tolist(),
+            np.around(np.array(np_fwd), decimals=2).flatten().tolist(),
+        )
         self.assertListEqual(
             np.around(np.array(y_hat_re), decimals=2).flatten().tolist(),
             np.around(np.array(y_hat_np), decimals=2).flatten().tolist(),
         )
         self.assertListEqual(
-            np.around(np.array(gradient), decimals=2).flatten().tolist(),
-            np.around(np.array(gradient_copy), decimals=2).flatten().tolist(),
+            np.around(np.array(re_gradient), decimals=2).flatten().tolist(),
+            np.around(np.array(np_gradient), decimals=2).flatten().tolist(),
         )
 
 
