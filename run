@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-05-22T10:08:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T20:32:51+00:00
+# @Last modified time: 2021-03-15T11:51:19+00:00
 # @License: please see LICENSE file in project root
 
 sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses our docker

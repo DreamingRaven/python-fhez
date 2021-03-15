@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-14T22:03:10+00:00
+# @Last modified time: 2021-03-15T11:26:43+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -101,17 +101,6 @@ class Cross_Correlation(Layer):
     def backward(self, gradient, x):
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
-        # for each window find what it corresponds to in x so we see what
-        # specifically the weights were multiplied by in each batch
-        # sum all of what the weights were multiplied by together per batch
-        # then average out the batches to get a stable gradient
-        # the only trick here is that batches are the first dimension and
-        # the window expression explicitly ignores this so use a lambda
-        # to apply the windows in each batch seperateley
-        print("x", x.shape)
-        print("weights", self.weights.shape)
-        print("gradient", gradient.shape)
-        print("windows", self.probe_shape(self.windows))
         # for each window slice apply window to cached x to find what weights
         # were multiplied against
         per_batch_windows = []
@@ -124,15 +113,14 @@ class Cross_Correlation(Layer):
             per_batch_windows.append(batch_window)
         windows = np.array(per_batch_windows)
 
-        print("windows2", windows.shape)
-        print("windows_sum", windows.sum(axis=0).shape)
-
+        # calculate weight gradient by expanding the gradient dims to match
+        # the window dims so they can be broadcast then sum them allong the
+        # number of filters axis
         t = gradient
         len_diff = len(windows.shape) - len(gradient.shape)
         # expand the dimensions of the ndarray according to the difference
         for i in range(len_diff):
             t = np.expand_dims(t, axis=t.ndim)
-        print(t.shape)
         self.weights_gradient = (windows * t).sum(axis=0)
 
         local_gradient = 0  # dont care as end of computational chain for now
