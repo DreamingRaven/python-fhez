@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-15T11:26:43+00:00
+# @Last modified time: 2021-03-15T14:29:24+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -36,7 +36,7 @@ class Layer_CNN(Layer):
         ):
             t = self.activation_function.forward(cross_correlated.pop(0))
             activated.append(t)
-        return activated
+        return np.array(activated)
 
     @Layer.bwd
     def backward(self, gradient, x):
@@ -123,9 +123,9 @@ class Cross_Correlation(Layer):
             t = np.expand_dims(t, axis=t.ndim)
         self.weights_gradient = (windows * t).sum(axis=0)
 
-        local_gradient = 0  # dont care as end of computational chain for now
+        # dont care as end of computational chain for now
         # TODO finish calculating gradient of inputs with respect to cc outputs
-        return local_gradient
+        return np.random.rand(len(x))
 
     def update(self, learning_rate=None):
         """We need to update 2 things, both the biases and the weights"""
@@ -263,61 +263,56 @@ class cnn_tests(unittest.TestCase):
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
-    def test_numpy_matrix(self):
-        cnn = Layer_CNN(weights=self.weights,
-                        bias=self.bias,
-                        stride=self.stride)
-        cnn.forward(x=self.data)
-        # cnn.backward(gradient=1)
-        # cnn.update()
+    def test_cnn_whole(self):
+        from fhe.nn.layer.ann import Layer_ANN
 
-    # def test_rearray(self):
-    #     cnn = Layer_CNN(weights=self.weights,
-    #                     bias=self.bias,
-    #                     stride=self.stride)
-    #     activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-    #     accumulator = []
-    #     for i in range(len(activations)):
-    #         if(i % 10 == 0) or (i == len(activations) - 1):
-    #             logger.debug("decrypting: {}".format(len(activations)))
-    #         t = np.array(activations.pop(0))
-    #         accumulator.append(t)
-    #     plaintext_activations = np.around(np.array(accumulator), 2)
-    #     compared_activations = np.around(cnn.forward(x=self.data), 2)
-    #     self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
-    #                          compared_activations.flatten()[:200].tolist())
-    #
-    # def test_rearray_cnn_ann(self):
-    #     cnn = Layer_CNN(weights=self.weights,
-    #                     bias=self.bias,
-    #                     stride=self.stride)
-    #     activations = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-    #     np_acti = cnn.forward(x=self.data)
-    #
-    #     from fhe.nn.layer.ann import Layer_ANN
-    #
-    #     dense = Layer_ANN(weights=(len(activations),), bias=0)
-    #     y_hat_np = np.sum(np.array(dense.forward(np_acti)))
-    #     y_hat_re = np.sum(np.array(dense.forward(activations)))
-    #     self.assertEqual(y_hat_np, y_hat_re)
-
-    def test_rearray_backprop(self):
+        # CREATE IDENTICAL CNN LAYERS
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride)
         cnn_copy = copy.deepcopy(cnn)
+
+        # FORWARD PASS CNN
         re_acti = cnn.forward(x=ReArray(self.data, **self.reseal_args))
         np_acti = cnn_copy.forward(x=self.data)
+        self.assertEqual(re_acti.shape, (25,)+self.data.shape)
+        self.assertEqual(np_acti.shape, (25,)+self.data.shape)
+        # self.assertListEqual(
+        #     np.around(np.array(re_acti), decimals=2).flatten().tolist(),
+        #     np.around(np.array(np_acti), decimals=2).flatten().tolist(),
+        # )
 
-        from fhe.nn.layer.ann import Layer_ANN
-
+        # CREATE IDENTICAL ANN LAYERS
         dense = Layer_ANN(weights=(len(re_acti),), bias=0)
         dense_copy = copy.deepcopy(dense)
-        y_hat_re = np.sum(np.array(dense.forward(re_acti)))
-        y_hat_np = np.sum(np.array(dense_copy.forward(np_acti)))
+
+        # FORWARD PASS ANN
+        re_fwd = dense.forward(re_acti)
+        np_fwd = dense_copy.forward(np_acti)
+        self.assertEqual(re_fwd.shape, self.data.shape)
+        self.assertEqual(np_fwd.shape, self.data.shape)
+        # self.assertListEqual(
+        #     np.around(np.array(re_fwd), decimals=2).flatten().tolist(),
+        #     np.around(np.array(np_fwd), decimals=2).flatten().tolist(),
+        # )
+        y_hat_re = np.sum(re_fwd, axis=tuple(range(1, re_fwd.ndim)))
+        y_hat_np = np.sum(np_fwd, axis=tuple(range(1, re_fwd.ndim)))
+
+        # BACKWARD PASS CNN AND ANN
         gradient = cnn.backward(dense.backward(1))
-        print("Gradient:", gradient)
-        self.assertEqual(y_hat_np, y_hat_re)
+        gradient_copy = cnn_copy.backward(dense_copy.backward(1))
+        self.assertEqual(gradient.shape, (self.data.shape[0],))
+        self.assertEqual(gradient_copy.shape, (self.data.shape[0],))
+
+        # RESEAL VS NUMPY NOISE DIFFERENCE TESTING
+        self.assertListEqual(
+            np.around(np.array(y_hat_re), decimals=2).flatten().tolist(),
+            np.around(np.array(y_hat_np), decimals=2).flatten().tolist(),
+        )
+        self.assertListEqual(
+            np.around(np.array(gradient), decimals=2).flatten().tolist(),
+            np.around(np.array(gradient_copy), decimals=2).flatten().tolist(),
+        )
 
 
 if __name__ == "__main__":
