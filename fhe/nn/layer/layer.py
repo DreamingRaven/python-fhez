@@ -3,15 +3,15 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T13:19:36+00:00
+# @Last modified time: 2021-03-11T12:55:56+00:00
 # @License: please see LICENSE file in project root
 
-from tqdm import tqdm
 import numpy as np
 from fhe.nn.activation.sigmoid import Sigmoid_Approximation
+from fhe.nn.block.block import Block
 
 
-class Layer():
+class Layer(Block):
 
     def __init__(self, weights, bias, stride=None, activation=None):
         self.weights = weights
@@ -20,6 +20,16 @@ class Layer():
             self.activation_function = activation
         if stride:
             self.stride = stride
+
+    @property
+    def is_activation(self):
+        """Are we an Activation function."""
+        return False
+
+    @property
+    def is_layer(self):
+        """Are we a Layer."""
+        return True
 
     @property
     def weights(self):
@@ -71,45 +81,3 @@ class Layer():
     @activation_function.setter
     def activation_function(self, activation_function):
         self._activation_function = activation_function
-
-    @property
-    def cache(self):
-        if self.__dict__.get("_cache") is None:
-            self._cache = {}
-        return self._cache
-
-    @cache.setter
-    def cache(self, cache):
-        self._cache = cache
-
-    @property
-    def x(self):
-        """Plaintext x for backward pass"""
-        if self.cache.get("x") is None:
-            self.cache["x"] = []
-        return self.cache["x"]
-
-    @x.setter
-    def x(self, x):
-        self.cache["x"] = x
-
-    def fwd(func):
-        """Forward decorator, unpacking + stashing x to use in backward."""
-
-        def inner(self, x):
-            self.x.append(x)
-            return func(self, x)
-        return inner
-
-    def bwd(func):
-        """Backward decorator to use decrypted or decrypt stashed x."""
-
-        def inner(self, gradient=1):
-            accumulator = []
-            for i in tqdm(range(len(self.x)), desc="{}.{}".format(
-                    self.__class__.__name__, func.__name__),
-                    position=0, leave=False, ncols=80, colour="blue"
-            ):
-                accumulator.append(func(self, gradient))
-            return np.array(accumulator)
-        return inner

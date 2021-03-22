@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-03T13:50:09+00:00
+# @Last modified time: 2021-03-15T12:56:14+00:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -49,26 +49,32 @@ class Layer_ANN(Layer):
         return self.activation_function.forward(sum)
 
     @Layer.bwd
-    def backward(self, gradient):
+    def backward(self, gradient, x):
         """Calculate the local gradient of this CNN.
 
         Given the gradient that precedes us,
         what is the local gradient after us.
         """
-        # if gradient not given like if its the start of the chain then 1
-        gradient = gradient if gradient is not None else 1
-        # calculate gradient of activation function
-        activation_gradient = self.activation_function.backward(gradient)
-        x = self.x.pop(0)
-        # summing & decrypting x as still un-summed from cache
-        x = np.array(list(map(lambda a: np.sum(np.array(a)), x)))
+        # activation gradient already calculated for us
+        ag = gradient
+        # iterate over inputs and batches to get per-input-per-batch sums
+        x = np.array(x)
+        per_input_batch_sums = []
+        for i in range(len(x)):
+            batch_sums = []
+            for j in range(len(x[i])):
+                sum = np.sum(x[i][j])
+                batch_sums.append(sum)
+            per_input_batch_sums.append(batch_sums)
+        x = np.array(per_input_batch_sums)
+
         # save gradients of parameters with respect to output
-        self.bias_gradient = 1 * activation_gradient
-        self.weights_gradient = self.weights * x * activation_gradient
+        self.bias_gradient = 1 * ag
+        self.weights_gradient = x * ag
         # calculate gradient with respect to fully connected ANN
-        local_gradient = 1 * self.weights
-        # return local gradient
-        return local_gradient * activation_gradient
+        df_dx = np.array(list(map(lambda a: a * np.squeeze(ag, axis=0),
+                                  self.weights)))
+        return df_dx
 
     def update(self):
         self.cc.update()
@@ -79,8 +85,9 @@ class ann_tests(unittest.TestCase):
 
     @property
     def data(self):
-        array = np.arange(1*32*32*3)
-        array.shape = (1, 32, 32, 3)
+        # array = np.arange(1*32*32*3)
+        # array.shape = (1, 32, 32, 3)
+        array = np.random.rand(2, 3, 4)
         return array
 
     @property
@@ -109,31 +116,52 @@ class ann_tests(unittest.TestCase):
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
-    def test_numpy_matrix(self):
-        ann = Layer_ANN(weights=self.weights,
-                        bias=self.bias)
-        ann.forward(x=self.data)
+    def test_ann_shapes(self):
+        """Test both numpy and ReArray input result in desired ann output."""
+        import copy
 
-    def test_rearray(self):
-        ann = Layer_ANN(weights=self.weights,
+        x_dummy = ReArray(self.data, **self.reseal_args)
+        x = []
+        num_inputs = 5
+        weights = np.random.rand(num_inputs)
+        for i in range(num_inputs):
+            r = ReArray(clone=x_dummy, plaintext=self.data)
+            x.append(r)
+        self.assertIsInstance(x[i], ReArray)
+
+        ann = Layer_ANN(weights=weights,
                         bias=self.bias)
-        activations = ann.forward(x=ReArray(self.data, **self.reseal_args))
-        accumulator = []
-        for i in range(len(activations)):
-            if(i % 10 == 0) or (i == len(activations) - 1):
-                logger.debug("decrypting: {}".format(len(activations)))
-            t = np.array(activations.pop(0))
-            accumulator.append(t)
-        plaintext_activations = np.around(np.array(accumulator), 2)
-        compared_activations = np.around(ann.forward(x=self.data), 2)
-        self.assertListEqual(plaintext_activations.flatten()[:200].tolist(),
-                             compared_activations.flatten()[:200].tolist())
-        self.assertListEqual
+        np_ann = copy.deepcopy(ann)
+
+        # FORWARD PASS TEST
+        activations = ann.forward(x)
+        np_activations = np_ann.forward(np.array(x))
+        # check that output is equal in shape to any single input ndarray
+        # also check that ReArray and numpy produce the same results
+        self.assertEqual(activations.shape, x_dummy.shape)
+        self.assertEqual(np_activations.shape, x_dummy.shape)
+        self.assertListEqual(
+            np.around(np.array(activations), decimals=2).flatten().tolist(),
+            np.around(np.array(np_activations), decimals=2).flatten().tolist(),
+        )
+
+        # BACKWARD PASS TEST
+        gradient = ann.backward()
+        np_gradient = np_ann.backward()
+        # we desire the resultant gradient to be of shape
+        # (num_inputs, num_batches) pass back num_batches gradients per input
+        desired_shape = (num_inputs,) + (len(x_dummy),)
+        self.assertEqual(gradient.shape, desired_shape)
+        self.assertEqual(np_gradient.shape, desired_shape)
+        self.assertListEqual(
+            np.around(np.array(gradient), decimals=2).flatten().tolist(),
+            np.around(np.array(np_gradient), decimals=2).flatten().tolist(),
+        )
 
 
 if __name__ == "__main__":
     logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.DEBUG,
+        level=logger.INFO,
         format="%(asctime)s %(levelname)s:%(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S")
     # run all the unit-tests
