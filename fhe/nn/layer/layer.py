@@ -18,7 +18,8 @@ class Layer(Block):
         self.bias = bias
         if activation:
             self.activation_function = activation
-        if stride:
+        if stride is not None:
+            stride = np.broadcast_to(stride, self.weights.ndim)
             self.stride = stride
 
     @property
