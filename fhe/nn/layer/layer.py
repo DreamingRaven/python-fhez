@@ -88,7 +88,8 @@ class Layer(Block):
         lr = learning_rate if learning_rate is not None else 0.001
         lr = lr if isinstance(lr, np.ndarray) else np.array([lr])
         # new_parameter = old_parameter - learning_rate * gradient_of_parameter
-        bias_shape_origin = np.array([self.bias]).shape
+        bias_shape_origin = self.bias.shape if isinstance(
+            self.bias, np.ndarray) else np.array([self.bias]).shape
         self.bias = self.bias - (lr * self.bias_gradient)
         txt = "Shape changed: {} to: {} given LR: {} and gradient: {}".format(
             bias_shape_origin,
