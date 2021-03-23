@@ -60,7 +60,10 @@ class Layer_ANN(Layer):
         # iterate over inputs and batches to get per-input-per-batch sums
         x = np.array(x)
         per_input_batch_sums = []
-        for i in range(len(x)):
+        for i in tqdm(range(len(x)), desc="{}.{}".format(
+                self.__class__.__name__, "backward"),
+            ncols=80, colour="blue"
+        ):
             batch_sums = []
             for j in range(len(x[i])):
                 sum = np.sum(x[i][j])
@@ -70,14 +73,17 @@ class Layer_ANN(Layer):
 
         # save gradients of parameters with respect to output
         self.bias_gradient = 1 * ag
-        self.weights_gradient = x * ag
+        self.weights_gradients = x * ag
+        # calculate the average of these gradient between batches
+        self.bias_gradient = np.sum(
+            self.bias_gradient, axis=1)/self.bias_gradient.shape[1]
+        self.weights_gradients = np.sum(
+            self.weights_gradients, axis=1)/self.weights_gradients.shape[1]
+
         # calculate gradient with respect to fully connected ANN
         df_dx = np.array(list(map(lambda a: a * np.squeeze(ag, axis=0),
                                   self.weights)))
         return df_dx
-
-    def update(self):
-        self.cc.update()
 
 
 class ann_tests(unittest.TestCase):
@@ -157,6 +163,10 @@ class ann_tests(unittest.TestCase):
             np.around(np.array(gradient), decimals=2).flatten().tolist(),
             np.around(np.array(np_gradient), decimals=2).flatten().tolist(),
         )
+
+        # UPDATE ANN
+        ann.update()
+        np_ann.update()
 
 
 if __name__ == "__main__":

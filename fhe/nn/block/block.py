@@ -91,53 +91,6 @@ class Block():
             return temp
         return inner
 
-    # def bwd(func):
-    #     """Backward decorator to use decrypted or decrypt stashed x."""
-    #
-    #     def inner(self, gradient=1):
-    #         if self.is_activation:
-    #             self.x = np.array(self.x)
-    #         elif self.is_layer:
-    #             self.x = np.squeeze(np.array(self.x), axis=0)
-    #
-    #         if len(self.x) == 0:
-    #             raise ValueError("{}.{}(gradient={}) {}".format(
-    #                 self.__class__.__name__,
-    #                 func.__name__),
-    #                 gradient,
-    #                 "has no cached x/ input yet, please run a forward pass")
-    #
-    #         # if the start of gradient chain I.E is some numeric
-    #         if isinstance(gradient, (int, float)):
-    #             gradient = np.array([gradient])
-    #             gradient = np.broadcast_to(gradient, (1, len(self.x[0])))
-    #
-    #         logger.debug("{}.{} gradient.shape={}, x.shape={}".format(
-    #             self.__class__.__name__,
-    #             func.__name__,
-    #             gradient.shape,
-    #             self.probe_shape(self.x)))
-    #
-    #         accumulator = []
-    #         for i in tqdm(range(len(self.x)), desc="{}.{}".format(
-    #                 self.__class__.__name__, func.__name__),
-    #                 position=0, leave=False, ncols=80, colour="blue"
-    #         ):
-    #             # pop and decrypt cached x
-    #             x = self.to_plaintext(self.x[i])
-    #             accumulator.append(func(self, gradient, x))
-    #         del self.x
-    #         self.x = []
-    #         df_dx = np.array(accumulator)
-    #
-    #         logger.debug("{}.{} gradient.shape={}".format(
-    #             self.__class__.__name__,
-    #             func.__name__,
-    #             df_dx.shape))
-    #
-    #         return df_dx
-    #     return inner
-
     def bwd(func):
         """Backward decorator to use decrypted or decrypt stashed x."""
 
@@ -180,11 +133,7 @@ class Block():
                     accumulator.append(func(self, gradient[i], x))
                 df_dx = np.array(accumulator)
             elif self.is_layer:
-                # squeeze that additional axis added by appending to a list
-                # TODO: loop to handle multiple input passes and move
-                # activation function into decorator so it is not looped
-                x = np.squeeze(np.array(self.x), axis=0)
-                # pass this now squeezed x into backprop
+                x = np.array(self.x.pop(0))
                 df_dx = np.array(func(self, gradient, x))
             else:
                 # checking value of attributes to prevent circular import

@@ -52,8 +52,8 @@ class Layer_CNN(Layer):
         # return local gradient
         return df_dx
 
-    def update(self):
-        self.cc.update()
+    def update(self, learning_rate=None):
+        self.cc.update(learning_rate=learning_rate)
 
 
 class Cross_Correlation(Layer):
@@ -101,6 +101,10 @@ class Cross_Correlation(Layer):
     def backward(self, gradient, x):
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
+        # gradient from a CNN can be from multiple outputs so need to avg
+        # the batches then sum the gradients that remain
+        self.bias_gradient = np.sum(np.sum(self.bias_gradient, axis=1) /
+                                    self.bias_gradient.shape[1], axis=0)
         # for each window slice apply window to cached x to find what weights
         # were multiplied against
         per_batch_windows = []
@@ -121,18 +125,11 @@ class Cross_Correlation(Layer):
         # expand the dimensions of the ndarray according to the difference
         for i in range(len_diff):
             t = np.expand_dims(t, axis=t.ndim)
-        self.weights_gradient = (windows * t).sum(axis=0)
+        self.weights_gradients = (windows * t).sum(axis=0).mean(axis=0)
 
         # dont care as end of computational chain for now
         # TODO finish calculating gradient of inputs with respect to cc outputs
         return np.random.rand(len(x))
-
-    def update(self, learning_rate=None):
-        """We need to update 2 things, both the biases and the weights"""
-        learning_rate = learning_rate if learning_rate is not None else 0.001
-        # new_parameter = old_parameter - learning_rate * gradient_of_parameter
-        self.bias = self.bias - (learning_rate * self.bias_gradient)
-        self.weights = self.weights - (learning_rate * self.weights_gradients)
 
     def windex(self, data: list, filter: list, stride: list,
                dimension: int = 0, partial: list = []):
@@ -295,6 +292,12 @@ class cnn_tests(unittest.TestCase):
         np_gradient = cnn_copy.backward(dense_copy.backward(1))
         self.assertEqual(re_gradient.shape, (self.data.shape[0],))
         self.assertEqual(np_gradient.shape, (self.data.shape[0],))
+
+        # UPDATE CNN AND ANN
+        dense.update()
+        dense_copy.update()
+        cnn.update()
+        cnn_copy.update()
 
         # RESEAL VS NUMPY NOISE DIFFERENCE TESTING
         self.assertListEqual(

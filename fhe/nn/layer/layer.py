@@ -82,3 +82,27 @@ class Layer(Block):
     @activation_function.setter
     def activation_function(self, activation_function):
         self._activation_function = activation_function
+
+    def update(self, learning_rate=None):
+        """We need to update 2 things, both the biases and the weights"""
+        lr = learning_rate if learning_rate is not None else 0.001
+        lr = lr if isinstance(lr, np.ndarray) else np.array([lr])
+        # new_parameter = old_parameter - learning_rate * gradient_of_parameter
+        bias_shape_origin = self.bias.shape if isinstance(
+            self.bias, np.ndarray) else np.array([self.bias]).shape
+        self.bias = self.bias - (lr * self.bias_gradient)
+        txt = "Shape changed: {} to: {} given LR: {} and gradient: {}".format(
+            bias_shape_origin,
+            np.array(self.bias).shape,
+            np.array(lr).shape,
+            self.bias_gradient.shape)
+        assert (self.bias.shape == bias_shape_origin), txt
+
+        weights_shape_origin = self.weights.shape
+        self.weights = self.weights - (lr * self.weights_gradients)
+        txt = "Shape changed: {} to: {} given LR: {} and gradient: {}".format(
+            weights_shape_origin,
+            self.weights.shape,
+            np.array(lr).shape,
+            self.weights_gradients.shape)
+        assert (self.weights.shape == weights_shape_origin), txt
