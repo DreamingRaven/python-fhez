@@ -138,35 +138,56 @@ class ann_tests(unittest.TestCase):
         ann = Layer_ANN(weights=weights,
                         bias=self.bias)
         np_ann = copy.deepcopy(ann)
+        previous_activation = None
 
-        # FORWARD PASS TEST
-        activations = ann.forward(x)
-        np_activations = np_ann.forward(np.array(x))
-        # check that output is equal in shape to any single input ndarray
-        # also check that ReArray and numpy produce the same results
-        self.assertEqual(activations.shape, x_dummy.shape)
-        self.assertEqual(np_activations.shape, x_dummy.shape)
-        self.assertListEqual(
-            np.around(np.array(activations), decimals=2).flatten().tolist(),
-            np.around(np.array(np_activations), decimals=2).flatten().tolist(),
-        )
+        for i in range(5):
+            # FORWARD PASS TEST
+            activations = ann.forward(x)
+            np_activations = np_ann.forward(np.array(x))
+            # check that output is equal in shape to any single input ndarray
+            # also check that ReArray and numpy produce the same results
+            self.assertEqual(activations.shape, x_dummy.shape)
+            self.assertEqual(np_activations.shape, x_dummy.shape)
+            # self.assertListEqual(
+            #     np.around(np.array(activations),
+            #               decimals=2).flatten().tolist(),
+            #     np.around(np.array(np_activations),
+            #               decimals=2).flatten().tolist(),
+            # )
+            a = np.array(activations)
+            # print(a, "\n", a.shape)
+            for _ in range(1, a.ndim):
+                a = a.sum(axis=-1)
+                # print(a, "\n", a.shape)
+            a = np.around(a.mean(axis=0), decimals=5)
 
-        # BACKWARD PASS TEST
-        gradient = ann.backward()
-        np_gradient = np_ann.backward()
-        # we desire the resultant gradient to be of shape
-        # (num_inputs, num_batches) pass back num_batches gradients per input
-        desired_shape = (num_inputs,) + (len(x_dummy),)
-        self.assertEqual(gradient.shape, desired_shape)
-        self.assertEqual(np_gradient.shape, desired_shape)
-        self.assertListEqual(
-            np.around(np.array(gradient), decimals=2).flatten().tolist(),
-            np.around(np.array(np_gradient), decimals=2).flatten().tolist(),
-        )
+            # CHECK IF MORE ACCURATE PREDICTION
+            print(a)
+            current_loss = 1-a
+            if previous_activation is not None:
+                previous_loss = 1-previous_activation
+                txt = "loss somehow more inacurate activations".format()
+                self.assertLess(abs(current_loss), abs(previous_loss), txt)
+            previous_activation = a
 
-        # UPDATE ANN
-        ann.update()
-        np_ann.update()
+            # BACKWARD PASS TEST
+            gradient = ann.backward(1-a)
+            np_gradient = np_ann.backward(1-a)
+            # we desire the resultant gradient to be of shape
+            # (num_inputs, num_batches)
+            desired_shape = (num_inputs,) + (len(x_dummy),)
+            self.assertEqual(gradient.shape, desired_shape)
+            self.assertEqual(np_gradient.shape, desired_shape)
+            self.assertListEqual(
+                np.around(np.array(gradient),
+                          decimals=2).flatten().tolist(),
+                np.around(np.array(np_gradient),
+                          decimals=2).flatten().tolist(),
+            )
+
+            # UPDATE ANN
+            ann.update(learning_rate=0.1)
+            np_ann.update(learning_rate=0.1)
 
 
 if __name__ == "__main__":
