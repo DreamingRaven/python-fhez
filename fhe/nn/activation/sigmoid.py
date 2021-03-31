@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
@@ -5,7 +7,9 @@
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhe.nn.activation.activation import Activation
+import logging as logger
 from tqdm import tqdm
+import unittest
 
 
 class Sigmoid_Approximation(Activation):
@@ -23,7 +27,8 @@ class Sigmoid_Approximation(Activation):
 
         # dividing 0.5 by size of x to prevent broadcast explosion
         # when not summed yet as commuting it to later post-decryption
-        return (0.5/(x.size/len(x))) + (0.197 * x) + ((-0.004 * x) * (x * x))
+        # return (0.5/(x.size/len(x))) + (0.197 * x) + ((-0.004 * x) * (x * x))
+        return 0.5 + (0.197 * x) + ((-0.004 * x) * (x * x))
 
     @Activation.bwd
     def backward(self, gradient: np.array, x: np.array):
@@ -43,6 +48,7 @@ class Sigmoid_Approximation(Activation):
                 ))
 
         df_dbatch_accumulator = []
+        print(x.shape)
         # iterate through each batch and calculate the per batch gradient
         for i in tqdm(range(len(x)), desc="{}.backward.batch".format(
                 self.__class__.__name__),
@@ -65,3 +71,38 @@ class Sigmoid_Approximation(Activation):
 
     def sigmoid(self, x):
         return (1/(1+np.exp(-x)))
+
+
+class Sigmoid_Test(unittest.TestCase):
+
+    @property
+    def x(self):
+        x = [
+            [0.0, 0.2, 0.3],
+            [0.8, 0.9, 1.0]
+        ]
+        return np.array(x)
+
+    def test_forward(self):
+        print(self.x.shape)
+        activation_function = Sigmoid_Approximation()
+        activation = activation_function.forward(self.x)
+        truth = activation_function.sigmoid(self.x)
+        print(activation)
+        print(truth)
+
+    def test_backward(self):
+        pass
+
+    def test_update(self):
+        pass
+
+
+if __name__ == "__main__":
+    logger.basicConfig(  # filename="{}.log".format(__file__),
+        level=logger.INFO,
+        format="%(asctime)s %(levelname)s:%(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S")
+    # run all the unit-tests
+    print("now testing:", __file__, "...")
+    unittest.main()

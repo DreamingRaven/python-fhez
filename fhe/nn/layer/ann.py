@@ -154,7 +154,7 @@ class ann_tests(unittest.TestCase):
             #     np.around(np.array(np_activations),
             #               decimals=2).flatten().tolist(),
             # )
-            a = np.array(activations)
+            a = np.array(np_activations)
             # print(a, "\n", a.shape)
             for _ in range(1, a.ndim):
                 a = a.sum(axis=-1)
