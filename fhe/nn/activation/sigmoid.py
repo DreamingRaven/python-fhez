@@ -92,7 +92,12 @@ class Sigmoid_Test(unittest.TestCase):
         print(truth)
 
     def test_backward(self):
-        pass
+        activation_function = Sigmoid_Approximation()
+        activation = activation_function.forward(self.x)
+        activation = activation_function.forward(self.x)
+        df_dx = activation_function.backward()
+        print(activation.shape)
+        print(df_dx.shape)
 
     def test_update(self):
         pass
