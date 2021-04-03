@@ -9,9 +9,12 @@
 sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses our docker
 # sudo docker build -t archer/fhe -f Dockerfile_archlinux --no-cache .
 
+# build the docs
 sudo docker run -v ${PWD}/docs/build/:/python-fhe/docs/build -it archer/fhe make -C /python-fhe/docs html
-# sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/reseal.py
-# sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/rearray.py
+
+# test each component library
+sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/reseal.py
+sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/rearray.py
 sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/layer/cnn.py
 sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/layer/ann.py
 sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/activation/sigmoid.py
