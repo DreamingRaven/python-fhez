@@ -57,8 +57,9 @@ class Sigmoid_Approximation(Activation):
             # all values of x should be summed if they arent already a single
             # value (may be the case commuting summation)
             batch = np.sum(x[i])
-            df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
-                gradient[i]
+            # df_dbatch = (1 - self.sigmoid(batch)) * self.sigmoid(batch) * \
+            #     gradient[i]
+            df_dbatch = 0.197 + ((batch ** 2)*-0.012) * gradient[i]
             df_dbatch_accumulator.append(df_dbatch)
         df_dx = np.array(df_dbatch_accumulator)
         # return shape should be (num_batches,) which are later accumulated
