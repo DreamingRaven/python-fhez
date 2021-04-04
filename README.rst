@@ -5,8 +5,8 @@ Python-ReSeal is a fully homomorphic encryption, abstraction library, primarily 
 
 Please read the docs:
 
-.. image:: https://readthedocs.org/projects/pyrtd/badge/?version=latest
-  :target: https://pyrtd.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/python-reseal/badge/?version=latest
+  :target: https://python-reseal.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status,
 
 Python-ReSeal will start to transition to gitlab at: https://gitlab.com/GeorgeRaven/python-reseal for a plethora of reasons including Ci/CD, however github will remain an up-to-date mirror.
