@@ -27,8 +27,8 @@ class Sigmoid_Approximation(Activation):
 
         # dividing 0.5 by size of x to prevent broadcast explosion
         # when not summed yet as commuting it to later post-decryption
-        # return (0.5/(x.size/len(x))) + (0.197 * x) + ((-0.004 * x) * (x * x))
-        return 0.5 + (0.197 * x) + ((-0.004 * x) * (x * x))
+        return (0.5/(x.size/len(x))) + (0.197 * x) + ((-0.004 * x) * (x * x))
+        # return 0.5 + (0.197 * x) + ((-0.004 * x) * (x * x))
 
     @Activation.bwd
     def backward(self, gradient: np.array, x: np.array):
