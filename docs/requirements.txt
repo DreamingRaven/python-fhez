@@ -1,4 +1,4 @@
-sphinx>=2.1.2
+sphinx>=3.5.1
 sphinx-argparse>=0.2.5
 sphinx-rtd-theme>=0.4.3
 ConfigArgParse>=0.14.0
