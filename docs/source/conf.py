@@ -45,8 +45,8 @@ print("sys path:", sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyrtd'
-copyright = '2019, George Onoufriou (GeorgeRaven, archer, DreamingRaven)'
+project = 'python-fhe'
+copyright = '2021, George Onoufriou (GeorgeRaven, archer, DreamingRaven)'
 author = 'GeorgeRaven'
 master_doc = 'index'
 
@@ -71,7 +71,8 @@ release = version_num
 extensions = [
     "sphinx_rtd_theme",
     "sphinxarg.ext",
-    "sphinx.ext.autodoc"
+    "sphinx.ext.autodoc",
+    # "sphinx.ext.mathbase"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
