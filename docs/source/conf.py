@@ -71,7 +71,8 @@ release = version_num
 extensions = [
     "sphinx_rtd_theme",
     "sphinxarg.ext",
-    "sphinx.ext.autodoc"
+    "sphinx.ext.autodoc",
+    "sphinx.ext.mathbase"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
