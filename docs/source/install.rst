@@ -35,7 +35,10 @@ If you would rather build this library locally/ for security reasons, you can is
 
   The build process could take several minutes to build, as it will compile, bind, and package the Microsoft-SEAL library in with itself.
 
-To build the detailed documentation with all the autodoc functionality for the core classes, you can use your now build container to create these docs for you by:
+Docker Documentation Build
+--------------------------
+
+To build the detailed documentation with all the autodoc functionality for the core classes, you can use your now built container to create these docs for you by:
 
 .. code-block:: bash
 
@@ -43,7 +46,10 @@ To build the detailed documentation with all the autodoc functionality for the c
 
 The docs will then be available in ``${PWD}/docs/build/html`` for your viewing pleasure
 
-To run the now locally built container you can issue the following command to gain interactive access:
+Locally-Built Docker-Image Interactive Usage
+--------------------------------------------
+
+To run the now locally built container you can issue the following command to gain interactive access, by selecting the tag (-t) that you named it previously (here it is archer/fhe):
 
 .. code-block:: bash
 
