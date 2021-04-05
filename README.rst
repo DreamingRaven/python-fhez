@@ -3,7 +3,7 @@ Python-ReSeal
 
 Python-ReSeal is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library for now supports the CKKS scheme through Microsoft-SEAL being bound to python using pybind11, then we abstract all of MS-SEAL's objects into one single meta object that facilitates serialization, deserialization, encryption, addition, multiplication, etc, in an attempt to make it as streamlined and as easy to use as possible.
 
-Please read the docs:
+Cypherpunks please read the docs:
 
 .. image:: https://readthedocs.org/projects/python-reseal/badge/?version=latest
   :target: https://python-reseal.readthedocs.io/en/latest/?badge=latest
