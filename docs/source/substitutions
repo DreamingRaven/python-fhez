@@ -1,0 +1,25 @@
+.. _docker: https://www.docker.com/
+.. |docker| replace:: Docker
+
+.. _docker-compose: https://docs.docker.com/compose/
+.. |docker-compose| replace:: Docker-Compose
+
+.. _bash shell: https://en.wikipedia.org/wiki/Bash_%28Unix_shell%29
+.. |bash shell| replace:: Bash shell
+
+.. _manifest: https://kubernetes.io/docs/reference/kubectl/cheatsheet/#creating-objects
+.. |manifest| replace:: Manifest
+
+.. _helm: https://helm.sh/
+.. |helm| replace:: Helm
+
+.. |username| replace:: ``username``
+.. |group| replace:: ``group``
+.. |csr| replace:: ``csr``
+
+.. |section_sigmoid| replace:: :ref:`section_sigmoid`
+.. |section_sigmoid_approx| replace:: :ref:`section_sigmoid_approximation`
+.. |section_sigmoid_deriv| replace:: :ref:`section_sigmoid_derivative`
+.. |section_sigmoid_approx_deriv| replace:: :ref:`section_sigmoid_approximation_derivative`
+
+.. |section_docker_build| replace:: :ref:`section_docker_build`

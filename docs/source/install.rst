@@ -20,10 +20,12 @@ E.G, download and run interactively:
 
   docker run -it registry.gitlab.com/georgeraven/python-reseal:master
 
+.. _section_docker_build:
+
 Docker Build
 ++++++++++++
 
-If you would rather build it locally/ for security reasons, you can issue the following build command from inside the projects root directory:
+If you would rather build this library locally/ for security reasons, you can issue the following build command from inside the projects root directory:
 
 .. code-block:: bash
 
