@@ -17,7 +17,7 @@
   :alt: Single neuron represented as computational graph of inputs and outputs
 
 .. |ann-fig| image:: img/ann.svg
-  :width: 400
+  :width: 700
   :alt: Full ANN computational graph
 
 Fully Connected Dense Net (ANN)
@@ -42,6 +42,9 @@ We can then expand these computational graphs to show en-mass operations. This i
 ANN Equations
 +++++++++++++++++
 
+Thankfully there needs not be any approximation in an ANN ignoring the activation function.
+This our ANN can be largely unchanged to standard implementations being a polynomial
+
 ANN
 -------
 
@@ -53,30 +56,6 @@ ANN
   a = \sigma(W_1x+b_1)
 
 |activation-fig|
-
-ANN Derivative
-------------------
-
-|ann-deriv| ANN derivative
-
-.. math::
-  :label: ann-derivative
-
-  \frac{d\sigma(x)}{dx} = \frac{e^{-x}}{(1+e^{-x})^2} = (\frac{1+e^{-x}-1}{1+e^{-x}})(\frac{1}{1+e^{-x}}) = (1-\sigma(x))\sigma(x)
-
-|ann-derivative-fig|
-
-ANN
--------
-
-|ann| ANN
-
-.. math::
-  :label: ann
-
-  a = \sigma(W_1x+b_1)
-
-|ann-fig|
 
 ANN Derivative
 ------------------
