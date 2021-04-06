@@ -8,11 +8,21 @@
   :width: 400
   :alt: Graph of sigmoid plotted on 2d axes
 
+.. |neuron-fig| image:: img/neuron.svg
+  :width: 400
+  :alt: Artificial neural network single neuron
+  
+.. |neuron-fig| image:: img/neuron.svg
+  :width: 400
+  :alt: Artificial neural network single neuron
+
 Fully Connected Dense Net (ANN)
 ###############################
 
 .. |ann| replace:: :eq:`ann`
 .. |ann-deriv| replace:: :eq:`ann-derivative`
+
+|neuron-fig|
 
 ANN Equations
 +++++++++++++++++
