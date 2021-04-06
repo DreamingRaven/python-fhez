@@ -269,35 +269,56 @@ class cnn_tests(unittest.TestCase):
                         stride=self.stride)
         cnn_copy = copy.deepcopy(cnn)
 
-        # FORWARD PASS CNN
-        re_acti = cnn.forward(x=ReArray(self.data, **self.reseal_args))
-        np_acti = cnn_copy.forward(x=self.data)
-        self.assertEqual(re_acti.shape, (25,)+self.data.shape)
-        self.assertEqual(np_acti.shape, (25,)+self.data.shape)
+        # CREATE PLACEHOLDER FOR ANN
+        dense = None
+        dense_copy = None
+        previous_loss_np = None
 
-        # CREATE IDENTICAL ANN LAYERS
-        dense = Layer_ANN(weights=(len(re_acti),), bias=0)
-        dense_copy = copy.deepcopy(dense)
+        # DEFINE DATA (DONT REGENERATE)
+        data = self.data
 
-        # FORWARD PASS ANN
-        re_fwd = dense.forward(re_acti)
-        np_fwd = dense_copy.forward(np_acti)
-        self.assertEqual(re_fwd.shape, self.data.shape)
-        self.assertEqual(np_fwd.shape, self.data.shape)
-        y_hat_re = np.sum(re_fwd, axis=tuple(range(1, re_fwd.ndim)))
-        y_hat_np = np.sum(np_fwd, axis=tuple(range(1, re_fwd.ndim)))
+        for i in range(50):
 
-        # BACKWARD PASS CNN AND ANN
-        re_gradient = cnn.backward(dense.backward(1))
-        np_gradient = cnn_copy.backward(dense_copy.backward(1))
-        self.assertEqual(re_gradient.shape, (self.data.shape[0],))
-        self.assertEqual(np_gradient.shape, (self.data.shape[0],))
+            # FORWARD PASS CNN
+            re_acti = cnn.forward(x=ReArray(data, **self.reseal_args))
+            np_acti = cnn_copy.forward(x=data)
+            # self.assertEqual(re_acti.shape, (25,)+data.shape)
+            # self.assertEqual(np_acti.shape, (25,)+data.shape)
 
-        # UPDATE CNN AND ANN
-        dense.update()
-        dense_copy.update()
-        cnn.update()
-        cnn_copy.update()
+            # CREATE IDENTICAL ANN LAYERS
+            if dense is None:
+                dense = Layer_ANN(weights=(len(re_acti),), bias=0)
+                dense_copy = copy.deepcopy(dense)
+
+            # FORWARD PASS ANN
+            re_fwd = dense.forward(re_acti)
+            np_fwd = dense_copy.forward(np_acti)
+            self.assertEqual(re_fwd.shape, data.shape)
+            self.assertEqual(np_fwd.shape, data.shape)
+            y_hat_re = np.sum(re_fwd, axis=tuple(range(1, re_fwd.ndim)))
+            y_hat_np = np.sum(np_fwd, axis=tuple(range(1, re_fwd.ndim)))
+
+            # CALCULATE AND DISPLAY LOSS
+            re_loss = 1 - y_hat_re.mean()
+            np_loss = 1 - y_hat_np.mean()
+            print("loss_re", re_loss)
+            print("loss_np", np_loss)
+            if previous_loss_np is not None:
+                txt = "loss somehow more inacurate activations".format()
+                # self.assertLess(abs(np_loss), abs(previous_loss_np), txt)
+            previous_loss_np = re_loss
+
+            # BACKWARD PASS CNN AND ANN
+            re_gradient = cnn.backward(dense.backward(re_loss))
+            np_gradient = cnn_copy.backward(dense_copy.backward(np_loss))
+            self.assertEqual(re_gradient.shape, (data.shape[0],))
+            self.assertEqual(np_gradient.shape, (data.shape[0],))
+
+            # UPDATE CNN AND ANN
+            dense.update()
+            dense_copy.update()
+            cnn.update()
+            cnn_copy.update()
 
         # RESEAL VS NUMPY NOISE DIFFERENCE TESTING
         self.assertListEqual(

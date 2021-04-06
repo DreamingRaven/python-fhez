@@ -48,7 +48,6 @@ class Sigmoid_Approximation(Activation):
                 ))
 
         df_dbatch_accumulator = []
-        print(x.shape)
         # iterate through each batch and calculate the per batch gradient
         for i in tqdm(range(len(x)), desc="{}.backward.batch".format(
                 self.__class__.__name__),
