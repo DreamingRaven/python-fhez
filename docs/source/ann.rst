@@ -1,6 +1,6 @@
 .. include:: substitutions
 
-.. |ann-fig| image:: img/sigmoid.png
+.. |activation-fig| image:: img/sigmoid.png
   :width: 400
   :alt: Graph of sigmoid plotted on 2d axes
 
@@ -11,10 +11,14 @@
 .. |neuron-fig| image:: img/neuron.svg
   :width: 400
   :alt: Artificial neural network single neuron
-  
-.. |neuron-fig| image:: img/neuron.svg
+
+.. |neuron-cg-fig| image:: img/neuron-computational-graph.svg
   :width: 400
-  :alt: Artificial neural network single neuron
+  :alt: Single neuron represented as computational graph of inputs and outputs
+
+.. |ann-fig| image:: img/ann.svg
+  :width: 400
+  :alt: Full ANN computational graph
 
 Fully Connected Dense Net (ANN)
 ###############################
@@ -23,6 +27,8 @@ Fully Connected Dense Net (ANN)
 .. |ann-deriv| replace:: :eq:`ann-derivative`
 
 |neuron-fig|
+|neuron-cg-fig|
+|ann-fig|
 
 ANN Equations
 +++++++++++++++++
@@ -37,7 +43,7 @@ ANN
 
   a = \sigma(W_1x+b_1)
 
-|ann-fig|
+|activation-fig|
 
 ANN Derivative
 ------------------
