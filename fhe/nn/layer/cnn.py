@@ -249,7 +249,7 @@ class cnn_tests(unittest.TestCase):
     def setUp(self):
         import time
 
-        self.weights = (1, 3, 3, 3)  # if tuple allows cnn to initialise itself
+        self.weights = (1, 3, 3, 3)  # tuple allows cnn to initialise itself
         self.stride = [1, 3, 3, 3]  # stride list per-dimension
         self.bias = 0  # assume no bias at first
 
@@ -277,13 +277,13 @@ class cnn_tests(unittest.TestCase):
         # DEFINE DATA (DONT REGENERATE)
         data = self.data
 
-        for i in range(50):
+        for i in range(5):
 
             # FORWARD PASS CNN
             re_acti = cnn.forward(x=ReArray(data, **self.reseal_args))
             np_acti = cnn_copy.forward(x=data)
-            # self.assertEqual(re_acti.shape, (25,)+data.shape)
-            # self.assertEqual(np_acti.shape, (25,)+data.shape)
+            self.assertEqual(re_acti.shape, (25,)+data.shape)
+            self.assertEqual(np_acti.shape, (25,)+data.shape)
 
             # CREATE IDENTICAL ANN LAYERS
             if dense is None:
@@ -305,7 +305,7 @@ class cnn_tests(unittest.TestCase):
             print("loss_np", np_loss)
             if previous_loss_np is not None:
                 txt = "loss somehow more inacurate activations".format()
-                # self.assertLess(abs(np_loss), abs(previous_loss_np), txt)
+                self.assertLess(abs(np_loss), abs(previous_loss_np), txt)
             previous_loss_np = re_loss
 
             # BACKWARD PASS CNN AND ANN
