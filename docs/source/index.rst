@@ -19,3 +19,8 @@ python-fhe
   sigmoid
   reseal
   rearray
+  building-blocks
+  blocks
+  layers
+  activations
+  optimizers
