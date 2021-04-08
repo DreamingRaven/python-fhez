@@ -23,52 +23,7 @@ class Layer_CNN(Layer):
     @Layer.fwd
     def forward(self, x: (np.array, ReArray)):
         """Take lst of batches of x, return activated output lst of layer."""
-        # if no cross correlation object exists yet, create it as inherit Layer
-        if self.__dict__.get("cc") is None:
-            self.cc = Cross_Correlation(weights=self.weights,
-                                        bias=self.bias,
-                                        stride=self.stride)
-        cross_correlated = self.cc.forward(x)
-        activated = []
-        for i in tqdm(range(len(cross_correlated)), desc="{}.{}".format(
-            self.__class__.__name__, "forward"),
-            ncols=80, colour="blue"
-        ):
-            t = self.activation_function.forward(cross_correlated.pop(0))
-            activated.append(t)
-        return np.array(activated)
 
-    @Layer.bwd
-    def backward(self, gradient, x):
-        """Calculate the local gradient of this CNN.
-
-        Given the gradient that precedes us,
-        what is the local gradient after us.
-        """
-        ag = gradient
-        x = np.array(x)
-        # calculate gradient with respect to cross correlation
-        df_dx = self.cc.backward(ag, x)
-        # return local gradient
-        return df_dx
-
-    def update(self, learning_rate=None):
-        self.cc.update(learning_rate=learning_rate)
-
-
-class Cross_Correlation(Layer):
-
-    @property
-    def windows(self):
-        if self.cache.get("windows") is not None:
-            return self.cache["windows"]
-
-    @windows.setter
-    def windows(self, windows):
-        self.cache["windows"] = windows
-
-    @Layer.fwd
-    def forward(self, x):
         # stride over x using our convolutional filter
         # lets say x = (64, 32, 32, 3) or x_1D = (3, 100, 1, 8)
         # also could be x = (64, 32, 32, crypt), x = (3, 100, 1, crypt)
@@ -85,7 +40,7 @@ class Cross_Correlation(Layer):
         cc = []
         # apply each window and do it by index so can state progress
         for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
-                self.__class__.__name__, "forward"),
+                self.__class__.__name__, "forward.cross-correlate"),
             ncols=80, colour="blue"
         ):
             # create a primer for application of window without having to
@@ -96,9 +51,26 @@ class Cross_Correlation(Layer):
             t = cc_primer * x
             t = t + (self.bias/(t.size/len(t)))  # commute addition before sum
             cc.append(t)
-        return cc  # return the now biased convolution ready for activation
 
+        activated = []
+        for i in tqdm(range(len(cc)), desc="{}.{}".format(
+            self.__class__.__name__, "forward.activation"),
+            ncols=80, colour="blue"
+        ):
+            t = self.activation_function.forward(cc.pop(0))
+            activated.append(t)
+        return np.array(activated)
+
+    @Layer.bwd
     def backward(self, gradient, x):
+        """Calculate the local gradient of this CNN.
+
+        Given the gradient that precedes us,
+        what is the local gradient after us.
+        """
+        ag = gradient
+        x = np.array(x)
+        # calculate gradient with respect to cross correlation
         # df/dbias is easy as its addition so its same as previous gradient
         self.bias_gradient = gradient * 1  # uneccessary but here for clarity
         # gradient from a CNN can be from multiple outputs so need to avg
@@ -129,7 +101,18 @@ class Cross_Correlation(Layer):
 
         # dont care as end of computational chain for now
         # TODO finish calculating gradient of inputs with respect to cc outputs
-        return np.random.rand(len(x))
+        # return local gradient
+        df_dx = np.random.rand(len(x))
+        return df_dx
+
+    @property
+    def windows(self):
+        if self.cache.get("windows") is not None:
+            return self.cache["windows"]
+
+    @windows.setter
+    def windows(self, windows):
+        self.cache["windows"] = windows
 
     def windex(self, data: list, filter: list, stride: list,
                dimension: int = 0, partial: list = []):

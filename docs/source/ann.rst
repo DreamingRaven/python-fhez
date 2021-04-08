@@ -37,7 +37,6 @@ We however want to keep using a computational graph style. This computational gr
 
 We can then expand these computational graphs to show en-mass operations. This is even more helpful as now we can see how the data comes in together, and how each ndimensional matrix accrues the same operations upon it. This is important as we do not encrypt individual values by themselves. Instead they are encoded into a polynomial and that polynomial is then encrypted. This brings about the final caveat we want to talk about here, and that is the 0th-sum. Since these values are encoded as one long polynomial we cannot "fold" the encryption in on itself, I.E we cannot sum through this polynomial. This is a special case when sums would usually occur in say each filter of a CNN after it has been cross-correlated with sections of the input x. These cross-correlated sections would usually be summed, but we can not do this as again we cannot sum through a cyphertext, we can only sum between cyphertexts. This means we have to treat these ndimensional arrays as if they were singular values, and commute the summation to post decryption. Thus what you put in is what you get out, it will retain its shape, the end result must simply be summed to retrieve the answer once it has been decrypted by the user. We call this the (commuted) 0th-sum. Every operation in every network must account for this 0th-sum in particular broadcasting should never occur unless expressly desired.
 
-|ann-fig|
 
 ANN Equations
 +++++++++++++++++
@@ -48,14 +47,35 @@ This our ANN can be largely unchanged to standard implementations being a polyno
 ANN
 -------
 
-|ann| ANN
+|ann| ANN: There is little unique about our ANN with the exception of the application of the bias.
+
+Normal ANN equation:
 
 .. math::
   :label: ann
 
-  a = \sigma(W_1x+b_1)
+  a = g(\sum_{i=0}^{n-1}(w_ix_i)+b)
 
-|activation-fig|
+Our ANN equation to handle the commuted-sum problem:
+
+.. math::
+  :label: ann-commuted
+
+  a = g(\sum_{i=0}^{n-1}(w_ix_i)+b/n)
+
+|ann-fig|
+
+where:
+
+- :math:`g`; some activation function e.g :math:`\sigma_a` (see:|section_sigmoid_approx|)
+- :math:`m`; the total number of input arrays to the network in one pass
+- :math:`n`; the total number of elements in any individual input array
+- :math:`w_i`; the :math:`i`'th weight that corresponds to the :math:`i`'th input (:math:`x`) of the network
+- :math:`x_i`; the :math:`i`'th input (:math:`x`) into the network in one forward pass
+- :math:`a`; the output / activation of this neural network (if the last network then :math:`a=\hat{y}`)
+- :math:`y`; the (normalized) ground-truth / observed outcome
+- :math:`\hat{y}`; the (normalized) prediction of :math:`y`
+
 
 ANN Derivative
 ------------------
