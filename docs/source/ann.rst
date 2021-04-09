@@ -64,18 +64,14 @@ Our ANN implementation |ann-commuted| slightly differs to this |ann|, to handle 
 
   a = g(\sum_{i=0}^{n-1}(w_ix_i)+b/n)
 
+.. math::
+  :label: ann-commuted-2
+
+  a = g(\sum_{i=0}^{n-1}(w_ix^{(i)<t>})+B/N)
+
 .. note::
 
-  where:
-
-  - :math:`g`; some activation function e.g :math:`\sigma_a` (see:|section_sigmoid_approx|)
-  - :math:`m`; the total number of input arrays to the network in one pass
-  - :math:`n`; the total number of elements in any individual input array
-  - :math:`w_i`; the :math:`i`'th weight that corresponds to the :math:`i`'th input (:math:`x`) of the network
-  - :math:`x_i`; the :math:`i`'th input (:math:`x`) into the network in one forward pass
-  - :math:`a`; the output / activation of this neural network (if the last network then :math:`a=\hat{y}`)
-  - :math:`y`; the (normalized) ground-truth / observed outcome
-  - :math:`\hat{y}`; the (normalized) prediction of :math:`y`
+  .. include:: variables
 
 Visual computational graph (rough) implementation of |ann-commuted|:
 
