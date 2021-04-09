@@ -8,6 +8,10 @@
   :width: 700
   :alt: Full CNN computational graph
 
+.. |cnn-ann-loss-fig| image:: img/cnn-ann-loss.svg
+  :width: 700
+  :alt: Full end-to-end cnn-ann-loss computational graph
+
 Convolutional Neural Network (CNN)
 ##################################
 
@@ -56,3 +60,5 @@ Commuted-Sum
 .. warning::
 
   If you are intending to write your own or extend an additional neural network please pay special attention to the |section_commuted_sum|, it will change the behavior of the networks drastically and in some unexpected ways if it is not accounted for. CNNs and other single input multiple branch networks are the source of commuted-sums.
+
+|cnn-ann-loss-fig|
