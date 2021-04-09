@@ -15,6 +15,8 @@
 Convolutional Neural Network (CNN)
 ##################################
 
+|cnn-fig|
+
 Convolutional neural networks are quite complicated cases with FHE.
 Since the encrypted cyphertext is the most atomic form of the input data that we can access and we need to be able to multiply subsets of the data by different amounts we use a sparse n-dimensional array with the weights embedded in different positions and the rest zeroed out (see |section_hadmard_product|). This way we can still convolve out filters but instead of manipulating :math:`x` (normally by selecting a slice of :math:`x` that you were interested in) we manipulate the filter instead generating windows where the filter should be placed, and caching these windows for later use in back-propogation so we know exactly what input :math:`x` multiplied which weights once :math:`x` is finally decrypted.
 
@@ -31,9 +33,6 @@ Since the encrypted cyphertext is the most atomic form of the input data that we
 .. note::
 
   .. include:: variables
-
-
-|cnn-fig|
 
 .. _section_hadmard_product:
 

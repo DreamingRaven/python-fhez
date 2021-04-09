@@ -1,10 +1,21 @@
 where:
 
+- :math:`x`:
+
+  - :math:`x^{(i)}` ; the multidimensional-input array used as the :math:`i`'th training example / pass of the network. E.G cnn.forward is one whole forward pass.
+  - :math:`x_{n}^{(i)<t>}` ; The :math:`n`'th input value of the multi-dimensional input array :math:`x^{(i)}`. Corresponding to the :math:`i`'th training example of the network, and branch/ time-step :math:`t`.
+
+- :math:`T_x` and :math:`t`:
+
+  - :math:`T_x` ; The total number of branches per input array :math:`x`. No need for :math:`T_x^{(i)}` as branches should be the same every time.
+  - :math:`t` ; The current (relative)/ :math:`t`'th timestep/ branch.
+
 - :math:`g`; some activation function e.g :math:`\sigma_a` (see:|section_sigmoid_approx|)
-- :math:`m`; the total number of input arrays to the network in one pass
-- :math:`n`; the total number of elements in any individual input array
-- :math:`w_i`; the :math:`i`'th weight that corresponds to the :math:`i`'th input (:math:`x`) of the network
-- :math:`x_i`; the :math:`i`'th input (:math:`x`) into the network in one forward pass
-- :math:`a`; the output / activation of this neural network (if the last network then :math:`a=\hat{y}`)
+- :math:`N`; the total number of elements in any individual multi-dimensional input array :math:`X`
+- :math:`n`; the :math:`n`'th input element any individual multi-dimensional input array :math:`X`, e.g :math:`x_n` is the :math:`n`'th value :math:`x` in the multi-dimensional array :math:`X`.
+- :math:`a`; the sum of output / activation of this neural network (if the last network then :math:`a=\hat{y}`)
 - :math:`y`; the (normalized) ground-truth / observed outcome
 - :math:`\hat{y}`; the (normalized) prediction of :math:`y`
+- :math:`w`; a weight
+
+Please also note, this is with respect to each network. One networks output activation :math:`A` might be another networks input :math:`X`

@@ -48,6 +48,8 @@ This our ANN can be largely unchanged to standard implementations being a polyno
 ANN
 -------
 
+|ann-fig|
+
 |ann| ANN: There is little unique about our ANN with the exception of the application of the bias.
 
 Normal ANN equation:
@@ -75,7 +77,6 @@ Our ANN implementation |ann-commuted| slightly differs to this |ann|, to handle 
 
 Visual computational graph (rough) implementation of |ann-commuted|:
 
-|ann-fig|
 
 ANN Derivative
 ------------------
