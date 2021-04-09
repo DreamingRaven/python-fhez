@@ -10,12 +10,24 @@ where:
   - :math:`T_x` ; The total number of branches per input array :math:`x`. No need for :math:`T_x^{(i)}` as branches should be the same every time.
   - :math:`t` ; The current (relative)/ :math:`t`'th timestep/ branch.
 
-- :math:`g`; some activation function e.g :math:`\sigma_a` (see:|section_sigmoid_approx|)
-- :math:`N`; the total number of elements in any individual multi-dimensional input array :math:`X`
-- :math:`n`; the :math:`n`'th input element any individual multi-dimensional input array :math:`X`, e.g :math:`x_n` is the :math:`n`'th value :math:`x` in the multi-dimensional array :math:`X`.
-- :math:`a`; the sum of output / activation of this neural network (if the last network then :math:`a=\hat{y}`)
-- :math:`y`; the (normalized) ground-truth / observed outcome
-- :math:`\hat{y}`; the (normalized) prediction of :math:`y`
-- :math:`w`; a weight
+- :math:`N` and :math:`n`:
 
-Please also note, this is with respect to each network. One networks output activation :math:`A` might be another networks input :math:`X`
+  - :math:`N`; the total number of elements in any individual multi-dimensional input array :math:`x`
+  - :math:`n`; the :math:`n`'th input element any individual multi-dimensional input array :math:`x`, e.g :math:`x_n` is the :math:`n`'th value :math:`x` in the multi-dimensional array :math:`x`.
+
+- :math:`g` and :math:`a`
+
+  - :math:`g`; some activation function e.g :math:`\sigma_a` (see:|section_sigmoid_approx|)
+  - :math:`a`; the sum of output / activation of this neural network (if the last network then :math:`a=\hat{y}`)
+
+- :math:`y` and :math:`\hat{y}:`
+
+  - :math:`y`; the (normalized) ground-truth / observed outcome
+  - :math:`\hat{y}`; the (normalized) prediction of :math:`y`
+
+- :math:`w` and :math:`b`:
+
+  - :math:`w`; a weight
+  - :math:`b`; a bias
+
+Please also note, this is with respect to each network. One networks output activation :math:`a` might be another networks input :math:`x`
