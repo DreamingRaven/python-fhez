@@ -53,3 +53,9 @@ Commuted-Sum
   If you are intending to write your own or extend an additional neural network please pay special attention to the |section_commuted_sum|, it will change the behavior of the networks drastically and in some unexpected ways if it is not accounted for. CNNs and other single input multiple branch networks are the source of commuted-sums.
 
 |cnn-ann-loss-fig|
+
+CNN API
+-------
+
+.. autoclass:: fhe.nn.layer.cnn.Layer_CNN
+  :members:

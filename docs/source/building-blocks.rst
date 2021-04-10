@@ -5,7 +5,7 @@ Building Blocks
 
 .. note::
 
-  You may see some or no content at all on this page that documents the API. If that is the case please build the documentation locally (|section_docker_build|), as we have yet to find a good way to build these complex libraries on RTDs servers.
+  |api-build-note|
 
 There are several main types of neural network components we implement. This page serves as a quick reference to each of these.
 

@@ -89,3 +89,9 @@ ANN Derivative
   \frac{d\sigma(x)}{dx} = \frac{e^{-x}}{(1+e^{-x})^2} = (\frac{1+e^{-x}-1}{1+e^{-x}})(\frac{1}{1+e^{-x}}) = (1-\sigma(x))\sigma(x)
 
 |ann-derivative-fig|
+
+ANN API
+-------
+
+.. autoclass:: fhe.nn.layer.ann.Layer_ANN
+  :members:
