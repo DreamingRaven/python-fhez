@@ -56,7 +56,7 @@ The derivative of a CNN (:math:`f`) with respect to the bias :math:`b`:
 
   \frac{df(x)}{db} = T_x \frac{dg}{dx}
 
-The derviative of a CNN (:math:`f`) with respect to the weights multi-dimensional array :math:`w` is the sum of all portions of :math:`x^{(i)}` unmasked during product calculation:
+The derivative of a CNN (:math:`f`) with respect to the weights multi-dimensional array :math:`w` is the sum of all portions of :math:`x^{(i)}` unmasked during product calculation:
 
 .. math::
   :label: cnn-dfdw
