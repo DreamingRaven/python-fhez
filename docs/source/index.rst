@@ -26,7 +26,7 @@ This library also supports:
 - Single-cyphertext-multiple-values en-mass/ simultaneous processing via |section_hadmard_product|
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
   :caption: Table of Contents
   :numbered:
 
