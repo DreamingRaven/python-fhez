@@ -25,9 +25,10 @@ where:
   - :math:`y`; the (normalized) ground-truth / observed outcome
   - :math:`\hat{y}`; the (normalized) prediction of :math:`y`
 
-- :math:`w` and :math:`b`:
+- :math:`w`, :math:`k`, and :math:`b`:
 
   - :math:`w`; a weight
   - :math:`b`; a bias
+  - :math:`k`; a kernel that multiplies over some input data, for us this is the |section_masquerade|
 
 Please also note, this is with respect to each network. One networks output activation :math:`a` might be another networks input :math:`x`

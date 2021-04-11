@@ -12,6 +12,10 @@
   :width: 700
   :alt: Full end-to-end cnn-ann-loss computational graph
 
+.. |kernel-masquerade-fig| image:: img/kernel-masquerade.svg
+  :width: 700
+  :alt: Kernel masquerading as a mask.
+
 Convolutional Neural Network (CNN)
 ##################################
 
@@ -28,11 +32,21 @@ Since the encrypted cyphertext is the most atomic form of the input data that we
 .. math::
   :label: cnn-commuted
 
-  a = g(\sum_{i=0}^{n-1}(w_ix_i)+b/n)
+  a_{n} = g(\sum_{n=0}^{N-1}(k_{n}x_{n}^{(i)<t>})+b/N)
 
 .. note::
 
   .. include:: variables
+
+
+.. _section_masquerade:
+
+Kernel-Masquerade
++++++++++++++++++
+
+The |section_masquerade| is the combining of a convolutional kernel and a *mask* to simultaneously calculate the product of any given kernel/ filter over a dataset. This is to *act* as though we were capable of normally slicing some input data which is impossible when this data is embedded in the FHE cyphertext. We deploy kernel weights embedded in a sparse/ zeroed multi-dimensional array, thus ignoring undesired values, and minimising computational depth of cyphertexts in processing.
+
+|kernel-masquerade-fig|
 
 .. _section_hadmard_product:
 
@@ -42,6 +56,7 @@ Hadmard Product
 The Hadmard product is simply two equally shaped n-dimensional arrays operated on element wise to produce a third product n-dimensional array of the same size/ shape:
 
 |hadmard-fig|
+
 
 .. _section_commuted_sum:
 
@@ -56,6 +71,10 @@ Commuted-Sum
 
 CNN API
 -------
+
+.. note::
+
+  |api-build-note|
 
 .. autoclass:: fhe.nn.layer.cnn.Layer_CNN
   :members:

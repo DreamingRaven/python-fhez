@@ -17,6 +17,9 @@
 .. |group| replace:: ``group``
 .. |csr| replace:: ``csr``
 
+.. |section_fhe| replace:: :ref:`section_fhe`
+.. |fhe| replace:: :ref:`section_fhe`
+
 .. |section_optimizers| replace:: :ref:`section_optimizers`
 .. |section_activations| replace:: :ref:`section_activations`
 .. |section_layers| replace:: :ref:`section_layers`
@@ -24,6 +27,7 @@
 
 .. |section_commuted_sum| replace:: :ref:`section_commuted_sum`
 .. |section_hadmard_product| replace:: :ref:`section_hadmard_product`
+.. |section_masquerade| replace:: :ref:`section_masquerade`
 
 .. |section_sigmoid| replace:: :ref:`section_sigmoid`
 .. |section_sigmoid_approx| replace:: :ref:`section_sigmoid_approximation`

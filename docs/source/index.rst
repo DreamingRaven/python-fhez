@@ -3,8 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-python-fhe
-==========
+.. include:: substitutions
+
+.. |neuron-cg-fig| image:: img/neuron-computational-graph.svg
+  :width: 400
+  :alt: Single neuron represented as computational graph of inputs and outputs
+
+python-reseal
+=============
+
+Python-ReSeal is a privacy-preserving |fhe| (FHE) and deep learning library.
+
+|neuron-cg-fig|
+
+This library is capable of both fully homomorphically encrypting data and processing encrypted cyphertexts without the private keys, thus completely privately.
+
+This library also supports:
+
+- advanced serialization of cyphertext objects, for transmission over networks
+- The |section_masquerade|
+- Single-cyphertext-multiple-values en-mass/ simultaneous processing via |section_hadmard_product|
 
 .. toctree::
   :maxdepth: 2
