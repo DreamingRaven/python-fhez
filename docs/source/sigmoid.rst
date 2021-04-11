@@ -19,6 +19,11 @@
 Sigmoid & Approximation
 #######################
 
+.. warning::
+
+  This activation function has an asymptote to negative :math:`y` infinity and positive y infinity outside of a very small *safe* band of input :math:`x` values. This **will** cause *nan* and extremely large numbers if you aren't especially careful and keep all values passed into this activation function within the range -4 to 4 which is its *golden* range. Think especially carefully of your *initial* weights, and whether or not they will exceed this band into the *danger* zone. See: |section_sigmoid_approx|
+
+
 .. |sigmoid| replace:: :eq:`sigmoid`
 .. |sigmoid-approx| replace:: :eq:`sigmoid-approx`
 .. |sigmoid-deriv| replace:: :eq:`sigmoid-derivative`
