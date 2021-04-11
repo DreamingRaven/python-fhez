@@ -25,7 +25,6 @@ Fully Connected Dense Net (ANN)
 
 .. |ann| replace:: :eq:`ann`
 .. |ann-commuted| replace:: :eq:`ann-commuted`
-.. |ann-deriv| replace:: :eq:`ann-derivative`
 
 Here ANN shall mean a fully connected/ dense neuron.
 Usually these are depicted similar to the following:
@@ -36,7 +35,7 @@ We however want to keep using a computational graph style. This computational gr
 
 |neuron-cg-fig|
 
-We can then expand these computational graphs to show en-mass operations. This is even more helpful as now we can see how the data comes in together, and how each ndimensional matrix accrues the same operations upon it. This is important as we do not encrypt individual values by themselves. Instead they are encoded into a polynomial and that polynomial is then encrypted. This brings about the final caveat we want to talk about here, and that is the 0th-sum. Since these values are encoded as one long polynomial we cannot "fold" the encryption in on itself, I.E we cannot sum through this polynomial. This is a special case when sums would usually occur in say each filter of a CNN after it has been cross-correlated with sections of the input x. These cross-correlated sections would usually be summed, but we can not do this as again we cannot sum through a cyphertext, we can only sum between cyphertexts. This means we have to treat these ndimensional arrays as if they were singular values, and commute the summation to post decryption. Thus what you put in is what you get out, it will retain its shape, the end result must simply be summed to retrieve the answer once it has been decrypted by the user. We call this the |section_commuted_sum|. Every operation in every network must account for this |section_commuted_sum| in particular broadcasting should never occur unless expressly desired.
+We can then expand these computational graphs to show en-mass operations. This is even more helpful as now we can see how the data comes in together, and how each multi-dimensional matrix accrues the same operations upon it. This is important as we do not encrypt individual values by themselves. Instead they are encoded into a polynomial and that polynomial is then encrypted. Please keep in mind the |section_commuted_sum|.
 
 
 ANN Equations
@@ -57,38 +56,43 @@ Normal ANN equation:
 .. math::
   :label: ann
 
-  a = g(\sum_{i=0}^{n-1}(w_ix_i)+b)
+  a = g(\sum_{i=0}^{T_x-1}(w_ix_i)+b)
 
-Our ANN implementation |ann-commuted| slightly differs to this |ann|, to handle the commuted-sum problem is as follows but note how the bias is divided by :math:`n` which in normal scenarios is simply 1 but in scenarios where an input :math:`x_i` is an ndimensional array such as when we are dealing with a commuted sum, serves to counteract broadcasting of values keeping activations in a sensible range:
+Our ANN implementation |ann-commuted| slightly differs to this |ann|, to handle the |section_commuted_sum| problem is as follows but note how the bias is divided by :math:`N` which in normal scenarios is simply 1 since it would be a single value, whereas in scenarios where an input :math:`x` is an un-summable cyphertext holding a multi-dimensional array, :math:`b/N` serves to counteract broadcasting of values keeping activations in the golden range for our activation function:
 
 .. math::
   :label: ann-commuted
 
-  a = g(\sum_{i=0}^{n-1}(w_ix_i)+b/n)
+  a^{(i)} = g(\sum_{t=0}^{T_x-1}(w^{<t>}x^{(i)<t>})+b/N)
+
+ANN Derivatives
+---------------
+
+The derivative of an ANN (:math:`f`) with respect to the bias :math:`b`:
 
 .. math::
-  :label: ann-commuted-2
+  :label: ann-dfdb
 
-  a = g(\sum_{i=0}^{n-1}(w_ix^{(i)<t>})+b/N)
+  \frac{df}{db} = 1 \frac{dg}{dx}
+
+The derivative of an ANN (:math:`f`) with respect to the weights :math:`w`:
+
+.. math::
+  :label: ann-dfdw
+
+  \frac{df}{dw^{<t>}} = x^{(i)<t>} \frac{dg}{dx}
+
+The derivative of a ANN (:math:`f`) with respect to the input :math:`x`:
+
+.. math::
+  :label: ann-dfdx
+
+  \frac{df}{dx^{(i)<t>}} = w^{<t>} \frac{dg}{dx}
+
 
 .. note::
 
   .. include:: variables
-
-Visual computational graph (rough) implementation of |ann-commuted|:
-
-
-ANN Derivative
-------------------
-
-|ann-deriv| ANN derivative
-
-.. math::
-  :label: ann-derivative
-
-  \frac{d\sigma(x)}{dx} = \frac{e^{-x}}{(1+e^{-x})^2} = (\frac{1+e^{-x}-1}{1+e^{-x}})(\frac{1}{1+e^{-x}}) = (1-\sigma(x))\sigma(x)
-
-|ann-derivative-fig|
 
 ANN API
 -------

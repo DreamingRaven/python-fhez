@@ -39,12 +39,36 @@ Standard neuron equation:
 
   a = g(\sum_{i=0}^{n-1}(w_ix_i)+b)
 
-|section_masquerade|\ ed weighted, and biased cross correlation.
+|section_masquerade|, weighted, and biased cross correlation.
 
 .. math::
   :label: cnn-commuted
 
-  a^{(i)<t>} = g(\sum_{n=0}^{N-1}(k_{n}^{<t>}x_{n}^{(i)<t>})+b/N)
+  a^{(i)<t>} = g(\sum_{t=0}^{T_x-1}(k^{<t>}x^{(i)})+b/N)
+
+CNN Derivatives
+---------------
+
+The derivative of a CNN (:math:`f`) with respect to the bias :math:`b`:
+
+.. math::
+  :label: cnn-dfdb
+
+  \frac{df(x)}{db} = T_x \frac{dg}{dx}
+
+The derviative of a CNN (:math:`f`) with respect to the weights multi-dimensional array :math:`w` is the sum of all portions of :math:`x^{(i)}` unmasked during product calculation:
+
+.. math::
+  :label: cnn-dfdw
+
+  \frac{df(x)}{dw} = \sum_{t=0}^{T_x}(x^{(i)<t>})\frac{dg}{dx}
+
+The derivative of a CNN (:math:`f`) with respect to the input :math:`x`:
+
+.. math::
+  :label: cnn-dfdx
+
+  \frac{df(x)}{dx} = \sum_{t=0}^{T_x}(k^{(i)<t>})\frac{dg}{dx}
 
 .. note::
 
