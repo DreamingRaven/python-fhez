@@ -69,7 +69,7 @@ Our ANN implementation |ann-commuted| slightly differs to this |ann|, to handle 
 .. math::
   :label: ann-commuted-2
 
-  a = g(\sum_{i=0}^{n-1}(w_ix^{(i)<t>})+B/N)
+  a = g(\sum_{i=0}^{n-1}(w_ix^{(i)<t>})+b/N)
 
 .. note::
 

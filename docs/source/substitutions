@@ -25,6 +25,8 @@
 .. |section_layers| replace:: :ref:`section_layers`
 .. |section_blocks| replace:: :ref:`section_blocks`
 
+.. |section_cnn| replace:: :ref:`section_cnn`
+.. |section_cnn_equations| replace:: :ref:`section_cnn_equations`
 .. |section_commuted_sum| replace:: :ref:`section_commuted_sum`
 .. |section_hadmard_product| replace:: :ref:`section_hadmard_product`
 .. |section_masquerade| replace:: :ref:`section_masquerade`

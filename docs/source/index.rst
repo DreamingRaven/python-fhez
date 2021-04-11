@@ -22,6 +22,7 @@ This library also supports:
 
 - advanced serialization of cyphertext objects, for transmission over networks
 - The |section_masquerade|
+- The |section_commuted_sum|
 - Single-cyphertext-multiple-values en-mass/ simultaneous processing via |section_hadmard_product|
 
 .. toctree::
