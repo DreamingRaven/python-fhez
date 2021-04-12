@@ -13,9 +13,15 @@ from fhe.nn.block.block import Block
 
 class Layer(Block):
 
-    def __init__(self, weights, bias, stride=None, activation=None):
+    def __init__(self,
+                 weights,
+                 bias, stride=None,
+                 activation=None,
+                 branches=None):
         self.weights = weights
         self.bias = bias
+        if branches is not None:
+            self.branches = branches
         if activation:
             self.activation_function = activation
         if stride is not None:
@@ -33,6 +39,27 @@ class Layer(Block):
         return True
 
     @property
+    def branches(self):
+        """How many branches will this layer be expected to sum.
+
+        Branches is an int that represents how many forks/ branches/ timesteps
+        the weights are expected to operate over.
+        """
+        if self.__dict__.get("_branches") is not None:
+            return self._branches
+        else:
+            self.branches = 1
+            return self.branches
+
+    @branches.setter
+    def branches(self, branches: int):
+        if branches is not None:
+            self._branches = branches
+        else:
+            raise ValueError("branches got {}, {}. Expected {}".format(
+                type(branches), branches, int))
+
+    @property
     def weights(self):
         return self._weights
 
@@ -44,6 +71,8 @@ class Layer(Block):
             # https://www.coursera.org/specializations/deep-learning
             # https://towardsdatascience.com/weight-initialization-techniques-in-neural-networks-26c649eb3b78
             self._weights = np.random.rand(*weights)
+            # ensure initial product of weights * x is in range 0-1
+            self._weights = self.weights / self.branches
         else:
             self._weights = weights
 

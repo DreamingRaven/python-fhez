@@ -140,7 +140,7 @@ class ann_tests(unittest.TestCase):
         np_ann = copy.deepcopy(ann)
         previous_activation = None
 
-        for i in range(20):
+        for i in range(10):
             print("ANN ITERATION:", i)
 
             # FORWARD PASS TEST
