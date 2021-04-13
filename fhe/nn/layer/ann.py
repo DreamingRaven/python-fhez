@@ -140,8 +140,9 @@ class ann_tests(unittest.TestCase):
         previous_activation = None
 
         for i in range(10):
+            debug = {}
             print("ANN ITERATION:", i)
-
+            debug["iteration"] = i
             # FORWARD PASS TEST
             activations = ann.forward(x)
             np_activations = np_ann.forward(np.array(x))
@@ -161,21 +162,27 @@ class ann_tests(unittest.TestCase):
                 a = a.sum(axis=-1)
                 # print(a, "\n", a.shape)
             a = np.around(a.mean(axis=0), decimals=5)
+            debug["activation-np"] = a
 
             # CHECK IF MORE ACCURATE PREDICTION
-            print(a)
+            # print(a)
             current_loss = 1-a
+            debug["target"] = 1
+            debug["loss-np"] = current_loss
             if previous_activation is not None:
                 previous_loss = 1-previous_activation
                 txt = "loss somehow more inacurate activations".format()
-                print("current:", abs(current_loss),
-                      "previous:", abs(previous_loss))
+                # print("current:", abs(current_loss),
+                #       "previous:", abs(previous_loss))
                 # self.assertLess(abs(current_loss), abs(previous_loss), txt)
             previous_activation = a
 
             # BACKWARD PASS TEST
             gradient = ann.backward(1-a)
+            # print("GRADIENT", gradient)
             np_gradient = np_ann.backward(1-a)
+            debug["gradient-np"] = np_gradient
+            print(debug)
             # we desire the resultant gradient to be of shape
             # (num_inputs, num_batches)
             desired_shape = (num_inputs,) + (len(x_dummy),)
@@ -189,8 +196,8 @@ class ann_tests(unittest.TestCase):
             # )
 
             # UPDATE ANN
-            ann.update(learning_rate=0.001)
-            np_ann.update(learning_rate=0.001)
+            ann.update()
+            np_ann.update()
 
 
 if __name__ == "__main__":
