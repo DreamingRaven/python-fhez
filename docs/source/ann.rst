@@ -42,7 +42,7 @@ ANN Equations
 +++++++++++++++++
 
 Thankfully there needs not be any approximation in an ANN ignoring the activation function.
-This our ANN can be largely unchanged to standard implementations being a polynomial
+Thus our ANN can be largely unchanged compared to standard implementations, both being polynomials (excluding :math:`g`)
 
 ANN
 -------
