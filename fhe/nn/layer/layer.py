@@ -17,11 +17,9 @@ class Layer(Block):
                  weights,
                  bias, stride=None,
                  activation=None,
-                 branches=None):
+                 ):
         self.weights = weights
         self.bias = bias
-        if branches is not None:
-            self.branches = branches
         if activation:
             self.activation_function = activation
         if stride is not None:
@@ -39,27 +37,6 @@ class Layer(Block):
         return True
 
     @property
-    def branches(self):
-        """How many branches will this layer be expected to sum.
-
-        Branches is an int that represents how many forks/ branches/ timesteps
-        the weights are expected to operate over.
-        """
-        if self.__dict__.get("_branches") is not None:
-            return self._branches
-        else:
-            self.branches = 1
-            return self.branches
-
-    @branches.setter
-    def branches(self, branches: int):
-        if branches is not None:
-            self._branches = branches
-        else:
-            raise ValueError("branches got {}, {}. Expected {}".format(
-                type(branches), branches, int))
-
-    @property
     def weights(self):
         return self._weights
 
@@ -72,7 +49,10 @@ class Layer(Block):
             # https://towardsdatascience.com/weight-initialization-techniques-in-neural-networks-26c649eb3b78
             self._weights = np.random.rand(*weights)
             # ensure initial product of weights * x is in range 0-1
-            self._weights = self.weights / self.branches
+            # since each product of these wieghts is summed lets ensure they
+            # are smaller than 1 when they are summed by dividing the weights
+            # (not X as its a cyphertext) by the number of elements being sumd
+            self._weights = self.weights / self.weights.size
         else:
             self._weights = weights
 

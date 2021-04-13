@@ -248,7 +248,6 @@ class cnn_tests(unittest.TestCase):
         cnn = Layer_CNN(weights=self.weights,
                         bias=self.bias,
                         stride=self.stride,
-                        branches=25
                         )
         cnn_copy = copy.deepcopy(cnn)
 
@@ -270,7 +269,7 @@ class cnn_tests(unittest.TestCase):
 
             # CREATE IDENTICAL ANN LAYERS
             if dense is None:
-                dense = Layer_ANN(weights=(len(re_acti),), bias=0, branches=25)
+                dense = Layer_ANN(weights=(len(re_acti),), bias=0)
                 dense_copy = copy.deepcopy(dense)
 
             # FORWARD PASS ANN
