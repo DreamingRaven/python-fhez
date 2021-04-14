@@ -51,12 +51,12 @@ ANN
 
 |ann| ANN: There is little unique about our ANN with the exception of the application of the bias.
 
-Normal ANN equation:
+Normal ANN equation (not compatible with our representations, where :math:`w_0` is actually the bias):
 
 .. math::
   :label: ann
 
-  a = g(\sum_{i=0}^{T_x-1}(w_ix_i)+b)
+  a = g(\sum_{i=1}^{T_x}(w_ix_i)+w_0)
 
 Our ANN implementation |ann-commuted| slightly differs to this |ann|, to handle the |section_commuted_sum| problem is as follows but note how the bias is divided by :math:`N` which in normal scenarios is simply 1 since it would be a single value, whereas in scenarios where an input :math:`x` is an un-summable cyphertext holding a multi-dimensional array, :math:`b/N` serves to counteract broadcasting of values keeping activations in the golden range for our activation function:
 

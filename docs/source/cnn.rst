@@ -26,18 +26,17 @@ Convolutional Neural Network (CNN)
 Convolutional neural networks are quite complicated cases with FHE.
 Since the encrypted cyphertext is the most atomic form of the input data that we can access and we need to be able to multiply subsets of the data by different amounts we use a sparse n-dimensional array with the weights embedded in different positions and the rest zeroed out (see |section_masquerade| and |section_hadmard_product|). This way we can still convolve out filters/ kernels but instead of manipulating :math:`x` (normally by selecting a slice of :math:`x` that you were interested in) we manipulate the filter instead generating windows where the filter should be placed, and caching these windows for later use in back-propogation so we know exactly what input :math:`x` multiplied which weights once :math:`x` is finally decrypted. Each window becoming a different branch :math:`<t>` and the total number of windows our total branches :math:`T_x`.
 
-
 .. _section_cnn_equations:
 
 CNN Equations
 +++++++++++++
 
-Standard neuron equation:
+Standard neuron equation (not compatible with our representations, where :math:`w_0` is actually the bias):
 
 .. math::
   :label: cnn
 
-  a = g(\sum_{i=0}^{n-1}(w_ix_i)+b)
+  a = g(\sum_{i=1}^{N}(w_ix_i)+w_0)
 
 |section_masquerade|, weighted, and biased cross correlation.
 
