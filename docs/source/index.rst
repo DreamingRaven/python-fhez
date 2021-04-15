@@ -38,6 +38,8 @@ This library also supports:
   sigmoid
   reseal
   rearray
+  graph
+  node
   building-blocks
   blocks
   layers
