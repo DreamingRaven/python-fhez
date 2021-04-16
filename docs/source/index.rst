@@ -39,6 +39,7 @@ This library also supports:
   reseal
   rearray
   graph
+  dll
   node
   building-blocks
   blocks
