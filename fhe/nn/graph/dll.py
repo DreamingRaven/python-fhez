@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-16T12:48:12+01:00
+# @Last modified time: 2021-04-16T13:16:49+01:00
 # @License: please see LICENSE file in project root
 
 import unittest
@@ -66,6 +66,16 @@ class DLL(object):
             self.tail = self.tail.next
         self.count += 1
 
+    def prepend(self, data):
+        """Prepend given data to start of dll as new node."""
+        if self.head is None:
+            return self.append(data)
+        else:
+            self.head.previous = Node(data)
+            self.head.previous.next = self.head
+            self.head = self.head.previous
+        self.count += 1
+
     def _index_check(self, index):
         if not isinstance(index, int):
             raise TypeError("Index type: {}, expected int".format(type(index)))
@@ -81,9 +91,7 @@ class DLL(object):
         if index == self.count:
             return self.append(data)
         elif index == 0:
-            self.head.previous = Node(data)
-            self.head.previous.next = self.head
-            self.head = self.head.previous
+            return self.prepend(data)
         else:
             node = self.head
             # traverse to indexed node as current "node"
@@ -134,10 +142,32 @@ class DLL(object):
 
 
 class DLL_tests(unittest.TestCase):
+    """Testing DLL class."""
+
     def setUp(self):
+        """Initialise empty DLL."""
         self.dll = DLL()
 
+    def test_append_empty(self):
+        """Check append on empty dll."""
+        self.dll.append("appended")
+        self.assertEqual(self.dll.size, 1)
+        self.assertEqual(self.dll.tail.data, "appended")
+
+    def test_prepend_empty(self):
+        """Check prepend on empty dll."""
+        self.dll.append("prepended")
+        self.assertEqual(self.dll.size, 1)
+        self.assertEqual(self.dll.head.data, "prepended")
+
+    def test_insert_empty(self):
+        """Check insert on empty dll."""
+        self.dll.insert("inserted", 0)
+        self.assertEqual(self.dll.size, 1)
+        self.assertEqual(self.dll.head.data, "inserted")
+
     def tearDown(self):
+        """Destroy our DLL."""
         del self.dll
 
 
