@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-16T13:16:49+01:00
+# @Last modified time: 2021-04-16T13:49:39+01:00
 # @License: please see LICENSE file in project root
 
 import unittest
@@ -17,6 +17,20 @@ class DLL(object):
     def __init__(self):
         """Initialise a new doubly linked list."""
         pass
+
+    def __getitem__(self, indices):
+        """."""
+        # convert a simple index x[y] to a tuple for consistency
+        if not isinstance(indices, tuple):
+            indices = tuple(indices)
+
+        # traverse and collect data points
+        # TODO: can improve search by using sorted tuples and continue traverse
+        # instead of re-doing the traversal multiple times
+        accumulator = []
+        for i in indices:
+            accumulator.append(self.traverse(i).data)
+        return accumulator
 
     @property
     def head(self):
@@ -120,10 +134,7 @@ class DLL(object):
             self.tail = self.tail.previous
             self.tail.next = None
         else:
-            node = self.head
-            # traverse to indexed node as current "node"
-            for i in range(index):
-                node = node.next
+            node = self.traverse(index)
             # sew the two nodes either side of us together
             node.previous.next, node.next.previous = node.next, node.previous
         self.count -= 1
@@ -136,6 +147,20 @@ class DLL(object):
                 return i
             node = node.next
 
+    def traverse(self, index: int):
+        """Get node corresponding to index."""
+        self._index_check(index)
+        # handling the special off by one error for removal
+        if self.count == index:
+            raise ValueError("{}: {}, as zero indexed/ range 0-{}".format(
+                "Off by one cannot remove", index, self.count-1))
+
+        node = self.head
+        # traverse to indexed node as current "node"
+        for _ in range(index):
+            node = node.next
+        return node
+
     def __len__(self):
         """Get length of dll."""
         return self.count
@@ -147,6 +172,13 @@ class DLL_tests(unittest.TestCase):
     def setUp(self):
         """Initialise empty DLL."""
         self.dll = DLL()
+
+    def midway_dll(self):
+        """Create a somewhat formed dll for testing."""
+        self.dll.append("first")
+        self.dll.append("second")
+        self.dll.append("third")
+        return 3
 
     def test_append_empty(self):
         """Check append on empty dll."""
@@ -165,6 +197,40 @@ class DLL_tests(unittest.TestCase):
         self.dll.insert("inserted", 0)
         self.assertEqual(self.dll.size, 1)
         self.assertEqual(self.dll.head.data, "inserted")
+
+    def test_remove(self):
+        """Check deleting from existing dll."""
+        leng = self.midway_dll()
+        self.dll.remove(1)
+        self.assertEqual(self.dll.size, leng-1)
+
+    def test_insert(self):
+        """Check inserting midway of existing dll."""
+        leng = self.midway_dll()
+        self.dll.insert("inserted", 1)
+        self.assertEqual(self.dll.size, leng+1)
+        self.assertEqual(self.dll.head.next.data, "inserted")
+
+    def test_prepend(self):
+        """Check prepending midway of existing dll."""
+        leng = self.midway_dll()
+        self.dll.prepend("prepended")
+        self.assertEqual(self.dll.size, leng+1)
+        self.assertEqual(self.dll.head.data, "prepended")
+
+    def test_append(self):
+        """Check appending midway of existing dll."""
+        leng = self.midway_dll()
+        self.dll.append("appended")
+        self.assertEqual(self.dll.size, leng+1)
+        self.assertEqual(self.dll.tail.data, "appended")
+
+    def test_getitem(self):
+        """Test getting an item mid way using array notation."""
+        leng = self.midway_dll()
+        out = self.dll[0, 1, 2]
+        self.assertEqual(len(out), leng)
+        print(out)
 
     def tearDown(self):
         """Destroy our DLL."""
