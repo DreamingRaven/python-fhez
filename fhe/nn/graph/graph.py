@@ -3,8 +3,10 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-15T15:30:16+01:00
+# @Last modified time: 2021-04-16T16:15:38+01:00
 # @License: please see LICENSE file in project root
+
+from fhe.nn.graph.node import Node
 
 
 class Graph(object):
@@ -16,27 +18,30 @@ class Graph(object):
 
     @property
     def head(self):
-        """Get the head/ first node."""
+        """Get the single origin node of the computational graph."""
         return self.__dict__.get("_head")
 
     @head.setter
-    def head(self, node):
+    def head(self, node: Node):
         self._head = node
 
     @property
     def tail(self):
-        """Get the tail/last node."""
+        """Get the single final node of the computational graph."""
         return self.__dict__.get("_tail")
 
     @tail.setter
-    def tail(self, node):
+    def tail(self, node: Node):
         self._tail = node
 
-    @property
-    def count(self):
-        """Count the nodes in the doubly linked list."""
-        return self.__dict__.get("_count")
+    def train(self, x, y):
+        """Train graphed neural network using some input data."""
+        pass
 
-    @count.setter
-    def count(self, node):
-        self._count = node
+    def test(self, x):
+        """Test / infer/ predict based on some input data."""
+        pass
+
+    def traverse(self):
+        """Traverse and yield nodes on the graph, depth first."""
+        pass
