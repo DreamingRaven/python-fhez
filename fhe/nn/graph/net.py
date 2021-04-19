@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-19T22:01:08+01:00
+# @Last modified time: 2021-04-19T22:14:25+01:00
 # @License: please see LICENSE file in project root
 
 import unittest
@@ -18,22 +18,13 @@ class Net(object):
         pass
 
     @property
-    def head(self):
-        """Get the single origin node of the computational graph."""
-        return self.__dict__.get("_head")
+    def graph(self):
+        """Get computational graph describing neural network."""
+        return self.__dict__.get("_graph")
 
-    @head.setter
-    def head(self, node: Node):
-        self._head = node
-
-    @property
-    def tail(self):
-        """Get the single final node of the computational graph."""
-        return self.__dict__.get("_tail")
-
-    @tail.setter
-    def tail(self, node: Node):
-        self._tail = node
+    @graph.setter
+    def graph(self, graph):
+        self._graph = graph
 
     def train(self, x, y):
         """Train graphed neural network using some input data."""
@@ -54,7 +45,9 @@ class net_tests(unittest.TestCase):
     def setUp(self):
         """Init graph."""
         import networkx as nx
-        self.graph = nx.Graph()
+        graph = nx.Graph()
+        self.net = Net()
+        self.net.graph = graph
 
     def test_graph_run(self):
         """Test running graph."""
