@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-19T21:44:08+01:00
+# @Last modified time: 2021-04-19T22:01:08+01:00
 # @License: please see LICENSE file in project root
 
 import unittest
@@ -50,3 +50,16 @@ class Net(object):
 
 class net_tests(unittest.TestCase):
     """Testing net class."""
+
+    def setUp(self):
+        """Init graph."""
+        import networkx as nx
+        self.graph = nx.Graph()
+
+    def test_graph_run(self):
+        """Test running graph."""
+        pass
+
+    def tearDown(self):
+        """Delete graph."""
+        pass
