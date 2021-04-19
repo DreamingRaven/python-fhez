@@ -2,3 +2,4 @@ ConfigArgParse>=0.14.0
 numpy>=1.18.5
 marshmallow>=3.6.1
 tqdm>=4.57.0
+networkx>=2.5.
