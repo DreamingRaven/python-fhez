@@ -7,6 +7,7 @@
 # @License: please see LICENSE file in project root
 
 import unittest
+import logging as logger
 
 # graphing libs
 from networkx import nx
@@ -52,12 +53,25 @@ class net_tests(unittest.TestCase):
         net.graph = graph
         return net
 
+    def basic_igraph(self):
+        return None
+
     def test_basic_networkx(self):
         """Test running graph."""
-        net = self.basic_networkx()
+        net = self.basic_igraph()
         print(net)
 
     def test_basic_igraph(self):
         """Test running graph."""
         net = self.basic_networkx()
         print(net)
+
+
+if __name__ == "__main__":
+    logger.basicConfig(  # filename="{}.log".format(__file__),
+        level=logger.INFO,
+        format="%(asctime)s %(levelname)s:%(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S")
+    # run all the unit-tests
+    print("now testing:", __file__, "...")
+    unittest.main()
