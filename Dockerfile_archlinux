@@ -55,7 +55,14 @@ RUN cd /seal-python && \
     python3 setup.py install
 
 # Clean-up
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    mkdir -p /python-fhe
+
+# early copy of requirements file
+COPY ./requirements.txt /python-fhe/requirements.txt
+
+# install package specific dependencies
+RUN pip3 install -r /python-fhe/requirements.txt
 
 # copy our files in
 COPY . /python-fhe
