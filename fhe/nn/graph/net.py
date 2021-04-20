@@ -3,11 +3,14 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-19T22:14:25+01:00
+# @Last modified time: 2021-04-20T00:38:31+01:00
 # @License: please see LICENSE file in project root
 
 import unittest
-from fhe.nn.graph.node import Node
+
+# graphing libs
+from networkx import nx
+import igraph
 
 
 class Net(object):
@@ -42,17 +45,19 @@ class Net(object):
 class net_tests(unittest.TestCase):
     """Testing net class."""
 
-    def setUp(self):
+    def basic_networkx(self):
         """Init graph."""
-        import networkx as nx
-        graph = nx.Graph()
-        self.net = Net()
-        self.net.graph = graph
+        graph = nx.DiGraph()
+        net = Net()
+        net.graph = graph
+        return net
 
-    def test_graph_run(self):
+    def test_basic_networkx(self):
         """Test running graph."""
-        pass
+        net = self.basic_networkx()
+        print(net)
 
-    def tearDown(self):
-        """Delete graph."""
-        pass
+    def test_basic_igraph(self):
+        """Test running graph."""
+        net = self.basic_networkx()
+        print(net)
