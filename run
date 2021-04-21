@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-05-22T10:08:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-16T12:51:59+01:00
+# @Last modified time: 2021-04-21T23:12:17+01:00
 # @License: please see LICENSE file in project root
 
 sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses our docker
@@ -14,7 +14,7 @@ sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/reseal.py
 sudo docker run --cpus=2 --memory 8G -it archer/fhe /python-fhe/fhe/rearray.py
 sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/layer/cnn.py
 sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/layer/ann.py
-sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/activation/sigmoid.py
 
 # test graph components
-sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/graph/dll.py
+sudo docker run --cpus=2 --memory 2G -it archer/fhe /python-fhe/fhe/nn/graph/dll.py
+sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/graph/net.py

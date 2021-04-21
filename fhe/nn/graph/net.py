@@ -30,6 +30,15 @@ class Net(object):
     def graph(self, graph):
         self._graph = graph
 
+    @property
+    def g(self):
+        """Get computational graph describing neural network."""
+        return self.__dict__.get("_graph")
+
+    @g.setter
+    def g(self, graph):
+        self._graph = graph
+
     def train(self, x, y):
         """Train graphed neural network using some input data."""
         pass
@@ -48,8 +57,22 @@ class net_tests(unittest.TestCase):
 
     def basic_networkx(self):
         """Init graph."""
+        from fhe.nn.layer.cnn import Layer_CNN
+        from fhe.nn.layer.ann import Layer_ANN
+        # init basic graph
         graph = nx.DiGraph()
         net = Net()
+        # populate basic graph
+        graph.add_node("cnn-0",
+                       type="neuron",
+                       nn=Layer_CNN(weights=(1, 3, 3, 3),
+                                    stride=[1, 3, 3, 3],
+                                    bias=0))
+        graph.add_node("ann-0",
+                       type="neuron",
+                       nn=Layer_ANN(weights=(5,), bias=0))
+        graph.add_edge("cnn-0", "ann-0")
+        # return basic graph in net
         net.graph = graph
         return net
 
