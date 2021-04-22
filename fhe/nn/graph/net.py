@@ -3,15 +3,16 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-20T00:38:31+01:00
+# @Last modified time: 2021-04-22T18:50:40+01:00
 # @License: please see LICENSE file in project root
 
+import time
 import unittest
 import logging as logger
 
 # graphing libs
 from networkx import nx
-import igraph
+# import igraph
 
 
 class Net(object):
@@ -51,9 +52,23 @@ class Net(object):
         """Traverse and yield nodes on the graph, depth first."""
         pass
 
+    def plt(self):
+        """Attempt to return a basic plot of the directed graph network."""
+        pass
+
 
 class net_tests(unittest.TestCase):
     """Testing net class."""
+
+    def setUp(self):
+        """Connect to db and set up timer."""
+        self.startTime = time.time()
+
+    def tearDown(self):
+        """Consume time and display."""
+        t = time.time() - self.startTime
+        logger.info("{}: {}".format(
+            self.id(), t))
 
     def basic_networkx(self):
         """Init graph."""
@@ -63,6 +78,10 @@ class net_tests(unittest.TestCase):
         graph = nx.DiGraph()
         net = Net()
         # populate basic graph
+        graph.add_node("x")
+        graph.add_node("y")
+        graph.add_node("sum")
+        graph.add_node("loss")
         graph.add_node("cnn-0",
                        type="neuron",
                        nn=Layer_CNN(weights=(1, 3, 3, 3),
@@ -71,20 +90,17 @@ class net_tests(unittest.TestCase):
         graph.add_node("ann-0",
                        type="neuron",
                        nn=Layer_ANN(weights=(5,), bias=0))
+
+        graph.add_edge("x", "cnn-0")
         graph.add_edge("cnn-0", "ann-0")
+        graph.add_edge("ann-0", "sum")
+        graph.add_edge("sum", "loss")
+        graph.add_edge("y", "loss")
         # return basic graph in net
         net.graph = graph
         return net
 
-    def basic_igraph(self):
-        return None
-
     def test_basic_networkx(self):
-        """Test running graph."""
-        net = self.basic_igraph()
-        print(net)
-
-    def test_basic_igraph(self):
         """Test running graph."""
         net = self.basic_networkx()
         print(net)
