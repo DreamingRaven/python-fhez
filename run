@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-05-22T10:08:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-21T23:12:17+01:00
+# @Last modified time: 2021-04-26T12:11:35+01:00
 # @License: please see LICENSE file in project root
 
 sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses our docker
@@ -17,4 +17,4 @@ sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/layer/an
 
 # test graph components
 sudo docker run --cpus=2 --memory 2G -it archer/fhe /python-fhe/fhe/nn/graph/dll.py
-sudo docker run --cpus=2 --memory 24G -it archer/fhe /python-fhe/fhe/nn/graph/net.py
+sudo docker run --cpus=2 -v ${PWD}/plots:/plots --memory 24G -it archer/fhe /python-fhe/fhe/nn/graph/net.py

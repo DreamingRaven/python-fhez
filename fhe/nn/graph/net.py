@@ -3,9 +3,10 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-22T18:50:40+01:00
+# @Last modified time: 2021-04-26T12:04:16+01:00
 # @License: please see LICENSE file in project root
 
+import os
 import time
 import unittest
 import logging as logger
@@ -52,9 +53,59 @@ class Net(object):
         """Traverse and yield nodes on the graph, depth first."""
         pass
 
-    def plt(self):
+    def plot(self, filepath: str):
         """Attempt to return a basic plot of the directed graph network."""
-        pass
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+
+        # set basic values
+        G = self.g
+        pos = nx.layout.spring_layout(G)
+        node_sizes = [3 + 10 * i for i in range(len(G))]
+        M = G.number_of_edges()
+        edge_colors = range(2, M + 2)
+        edge_alphas = [(5 + i) / (M + 4) for i in range(M)]
+        fig = plt.figure()
+
+        # create graph based on values
+        nodes = nx.draw_networkx_nodes(G,
+                                       pos,
+                                       node_size=node_sizes,
+                                       node_color="blue")
+        edges = nx.draw_networkx_edges(
+            G,
+            pos,
+            node_size=node_sizes,
+            arrowstyle="->",
+            arrowsize=10,
+            edge_color=edge_colors,
+            edge_cmap=plt.cm.Blues,
+            width=2,
+        )
+        # set alpha value for each edge
+        for i in range(M):
+            edges[i].set_alpha(edge_alphas[i])
+
+        pc = mpl.collections.PatchCollection(edges, cmap=plt.cm.Blues)
+        pc.set_array(edge_colors)
+        plt.colorbar(pc)
+
+        ax = plt.gca()
+        ax.set_axis_off()
+        plt.show()
+        fig.savefig(self._create_path(filepath))
+        # fig.savefig(filepath)
+
+    def _create_path(self, path: str):
+        """Util functon to create a path properly for us for plotting."""
+        path = os.path.abspath(path)
+        try:
+            dirpath = os.path.split(path)[0]
+            os.mkdir(dirpath)
+            logger.info("Created path: {}".format(dirpath))
+        except FileExistsError:
+            logger.info("path: {}, exists ignoring".format(dirpath))
+        return path
 
 
 class net_tests(unittest.TestCase):
@@ -103,6 +154,12 @@ class net_tests(unittest.TestCase):
     def test_basic_networkx(self):
         """Test running graph."""
         net = self.basic_networkx()
+        print(net)
+
+    def test_basic_networkx_plot(self):
+        """Test running graph."""
+        net = self.basic_networkx()
+        net.plot("./plots/basic_plot.png")
         print(net)
 
 
