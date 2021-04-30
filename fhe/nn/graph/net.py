@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-29T11:49:24+01:00
+# @Last modified time: 2021-04-30T11:07:56+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -13,7 +13,7 @@ import logging as logger
 
 # graphing libs
 from networkx import nx
-# import igraph
+import igraph
 
 
 class Net(object):
@@ -30,6 +30,7 @@ class Net(object):
 
     @graph.setter
     def graph(self, graph):
+        assert isinstance(graph, (nx.DiGraph, igraph.Graph))
         self._graph = graph
 
     @property
@@ -53,8 +54,8 @@ class Net(object):
         """Traverse and yield nodes on the graph, depth first."""
         pass
 
-    def plot(self, filepath: str):
-        """Attempt to return a basic plot of the directed graph network."""
+    def basic_plot(self, filepath: str):
+        """Generate a very basic plot of the directed graph network."""
         import matplotlib as mpl
         import matplotlib.pyplot as plt
 
@@ -154,13 +155,22 @@ class net_tests(unittest.TestCase):
     def test_basic_networkx(self):
         """Test running graph."""
         net = self.basic_networkx()
+        print(type(net.graph))
         print(net)
 
     def test_basic_networkx_plot(self):
         """Test running graph."""
         net = self.basic_networkx()
-        net.plot("./plots/basic_plot.png")
+        net.basic_plot("./plots/basic_plot.png")
         print(net)
+
+    def basic_igraph(self):
+        """Generate a basic igraph example to operate on."""
+        pass
+
+    def test_basic_igraph(self):
+        """Testing initialising the basic igraph."""
+        self.basic_igraph()
 
 
 if __name__ == "__main__":
