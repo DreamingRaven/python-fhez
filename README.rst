@@ -31,3 +31,30 @@ If you would like to build the documentation manually, for example to auto-doc t
 - you can then find the documentation in: ``${PWD}/docs/build/html/``
 
 The docs will walk you through the rest. Enjoy.
+
+Cite
+++++
+
+Either:
+
+.. code-block:: latex
+
+  @online{reseal,
+    author = {George Onoufriou},
+    title = {Python-Reseal Source Repository},
+    year = {2021},
+    url = {https://gitlab.com/GeorgeRaven/python-reseal},
+  }
+
+Or if you do not have @online support:
+
+
+.. code-block:: latex
+
+  @misc{reseal,
+    author = {George Onoufriou},
+    title = {Python-Reseal Source Repository},
+    howpublished = {Github, GitLab},
+    year = {2021},
+    note = {\url{https://gitlab.com/GeorgeRaven/python-reseal}},
+  }
