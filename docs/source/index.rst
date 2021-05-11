@@ -63,6 +63,7 @@ Or if you do not have @online support:
   ann
   cnn
   sigmoid
+  relu
   reseal
   rearray
   graph
