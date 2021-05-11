@@ -25,6 +25,33 @@ This library also supports:
 - The |section_commuted_sum|
 - Single-cyphertext-multiple-values en-mass/ simultaneous processing via |section_hadmard_product|
 
+Cite
+++++
+
+Either:
+
+.. code-block:: latex
+
+  @online{reseal,
+    author = {George Onoufriou},
+    title = {Python-Reseal Source Repository},
+    year = {2021},
+    url = {https://gitlab.com/GeorgeRaven/python-reseal},
+  }
+
+Or if you do not have @online support:
+
+
+.. code-block:: latex
+
+  @misc{reseal,
+    author = {George Onoufriou},
+    title = {Python-Reseal Source Repository},
+    howpublished = {Github, GitLab},
+    year = {2021},
+    note = {\url{https://gitlab.com/GeorgeRaven/python-reseal}},
+  }
+
 .. toctree::
   :maxdepth: 1
   :caption: Table of Contents
