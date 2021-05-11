@@ -77,7 +77,7 @@ Sigmoid-Approximation :math:`\sigma_a(x)`
 .. math::
   :label: sigmoid-approx
 
-  \sigma_a(x) \approx 0.5 + 0.197x + -0.004x^3, where\ x \in \{4 > x > -4 \subset \R \}
+  \sigma(x) \approx \sigma_a(x) = 0.5 + 0.197x + -0.004x^3, where\ x \in \{4 > x > -4 \subset \R \}
 
 |sigmoid-approx-fig|
 
@@ -91,6 +91,6 @@ Sigmoid-Approximation :math:`\sigma_a(x)`
 .. math::
   :label: sigmoid-approx-derivative
 
-  \frac{d\sigma_a(x)}{dx} \approx 0.0 + 0.197 + (-0.004*3)x^2 = 0.197 + -0.012x^2, where\ x \in \{4 > x > -4 \subset \R \}
+  \frac{d\sigma(x)}{dx} \approx \frac{d\sigma_a(x)}{dx} = 0.0 + 0.197 + (-0.004*3)x^2 = 0.197 + -0.012x^2, where\ x \in \{4 > x > -4 \subset \R \}
 
 |sigmoid-approx-derivative-fig|
