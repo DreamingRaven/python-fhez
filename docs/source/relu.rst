@@ -6,7 +6,11 @@
 
 .. |relu-approx-fig| image:: img/relu-approx.png
   :width: 400
-  :alt: Graph of relu-approximation plotted on 2d axes, where there is overlap between the range -4 and 4 but significant divergence outside this range
+  :alt: Graph of relu-approximation plotted on 2d axes, where the approximation range is -1,1
+
+.. |relu-approx-2-fig| image:: img/relu-approx-2.png
+  :width: 400
+  :alt: Graph of relu-approximation plotted on 2d axes, where the approximation range is -2,2
 
 .. |relu-derivative-fig| image:: img/relu-derivative.png
   :width: 400
@@ -54,7 +58,7 @@ ReLU :math:`\max(0,x)`
 :math:`\frac{d\max(0,x)}{dx}`
 -----------------------------
 
-|relu-deriv| relu derivative (Andrej Karpathy `CS231n lecture <https://youtu.be/i94OvYb6noo?t=1714>`_)
+|relu-deriv|
 
 .. math::
   :label: relu-derivative
@@ -72,14 +76,20 @@ ReLU-Approximation :math:`\max_a(0,x)`
 :math:`\max_a(0,x)`
 -------------------
 
-|relu-approx| `relu-approximation <https://eprint.iacr.org/2018/462>`_
+|relu-approx| `relu-approximation <https://www.researchgate.net/publication/345756894_On_Polynomial_Approximations_for_Privacy-Preserving_and_Verifiable_ReLU_Networks>`_
 
 .. math::
   :label: relu-approx
 
-  \sigma_a(x) \approx 0.5 + 0.197x + -0.004x^3, where\ x \in \{4 > x > -4 \subset \R \}
+  \max(0,x) \approx \max_a(0,x) = \frac{4}{3\pi q}x^2 + \frac{1}{2}x + \frac{q}{3\pi}, where\ x \in \{q > x > -q \subset \R \}
+
+where q is 1:
 
 |relu-approx-fig|
+
+where q is 2
+
+|relu-approx-2-fig|
 
 .. _section_relu_approximation_derivative:
 
@@ -91,6 +101,6 @@ ReLU-Approximation :math:`\max_a(0,x)`
 .. math::
   :label: relu-approx-derivative
 
-  \frac{d\sigma_a(x)}{dx} \approx 0.0 + 0.197 + (-0.004*3)x^2 = 0.197 + -0.012x^2, where\ x \in \{4 > x > -4 \subset \R \}
+  \frac{d\max(0,x)}{dx} \approx \frac{d\max_a(0,x)}{dx} = \frac{8}{3\pi q}x + \frac{1}{2}, where\ x \in \{q > x > -q \subset \R \}
 
 |relu-approx-derivative-fig|
