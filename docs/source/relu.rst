@@ -41,7 +41,7 @@ ReLU :math:`R(x)`
 
 .. _section_relu:
 
-:math:`\max(0,x)`
+:math:`R(x)`
 -----------------
 
 |relu| Relu
@@ -55,7 +55,7 @@ ReLU :math:`R(x)`
 
 .. _section_relu_derivative:
 
-:math:`\frac{d\max(0,x)}{dx}`
+:math:`\frac{dR(x)}{dx}`
 -----------------------------
 
 |relu-deriv|
@@ -73,7 +73,7 @@ ReLU-Approximation :math:`R_a(x)`
 
 .. _section_relu_approximation:
 
-:math:`\max_a(0,x)`
+:math:`R_a(x)`
 -------------------
 
 |relu-approx| `relu-approximation <https://www.researchgate.net/publication/345756894_On_Polynomial_Approximations_for_Privacy-Preserving_and_Verifiable_ReLU_Networks>`_
@@ -81,7 +81,7 @@ ReLU-Approximation :math:`R_a(x)`
 .. math::
   :label: relu-approx
 
-  \max(0,x) \approx \text{max}_a(0,x) = \frac{4}{3\pi q}x^2 + \frac{1}{2}x + \frac{q}{3\pi}, where\ x \in \{q > x > -q \subset \R \}
+  R(x) \approx R_a(x) = \frac{4}{3\pi q}x^2 + \frac{1}{2}x + \frac{q}{3\pi}, where\ x \in \{q > x > -q \subset \R \}
 
 where q is 1:
 
@@ -93,7 +93,7 @@ where q is 2
 
 .. _section_relu_approximation_derivative:
 
-:math:`\frac{d\max_a(0,x)}{dx}`
+:math:`\frac{dR_a(x)}{dx}`
 -------------------------------
 
 |relu-approx-deriv| relu-approximation derivative
@@ -101,6 +101,6 @@ where q is 2
 .. math::
   :label: relu-approx-derivative
 
-  \frac{d\max(0,x)}{dx} \approx \frac{d\text{max}_a(0,x)}{dx} = \frac{8}{3\pi q}x + \frac{1}{2}, where\ x \in \{q > x > -q \subset \R \}
+  \frac{dR(x)}{dx} \approx \frac{dR_a(x)}{dx} = \frac{8}{3\pi q}x + \frac{1}{2}, where\ x \in \{q > x > -q \subset \R \}
 
 |relu-approx-derivative-fig|
