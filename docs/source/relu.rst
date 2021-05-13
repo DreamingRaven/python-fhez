@@ -49,7 +49,7 @@ ReLU :math:`R(x)`
 .. math::
   :label: relu
 
-  \sigma(x)=\frac{1}{1+e^{-x}}
+  R(x)=\text{max}(0,x)
 
 |relu-fig|
 
@@ -63,7 +63,7 @@ ReLU :math:`R(x)`
 .. math::
   :label: relu-derivative
 
-  \frac{d\sigma(x)}{dx} = \frac{e^{-x}}{(1+e^{-x})^2} = (\frac{1+e^{-x}-1}{1+e^{-x}})(\frac{1}{1+e^{-x}}) = (1-\sigma(x))\sigma(x)
+  \frac{dR(x)}{dx} = \begin{cases} 1, & \text{if}\ x>0 \\ 0, & \text{otherwise} \end{cases}
 
 |relu-derivative-fig|
 
@@ -81,7 +81,7 @@ ReLU-Approximation :math:`R_a(x)`
 .. math::
   :label: relu-approx
 
-  \max(0,x) \approx \max_a(0,x) = \frac{4}{3\pi q}x^2 + \frac{1}{2}x + \frac{q}{3\pi}, where\ x \in \{q > x > -q \subset \R \}
+  \max(0,x) \approx \text{max}_a(0,x) = \frac{4}{3\pi q}x^2 + \frac{1}{2}x + \frac{q}{3\pi}, where\ x \in \{q > x > -q \subset \R \}
 
 where q is 1:
 
@@ -101,6 +101,6 @@ where q is 2
 .. math::
   :label: relu-approx-derivative
 
-  \frac{d\max(0,x)}{dx} \approx \frac{d\max_a(0,x)}{dx} = \frac{8}{3\pi q}x + \frac{1}{2}, where\ x \in \{q > x > -q \subset \R \}
+  \frac{d\max(0,x)}{dx} \approx \frac{d\text{max}_a(0,x)}{dx} = \frac{8}{3\pi q}x + \frac{1}{2}, where\ x \in \{q > x > -q \subset \R \}
 
 |relu-approx-derivative-fig|
