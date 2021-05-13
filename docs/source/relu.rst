@@ -36,7 +36,7 @@ ReLU & Approximation
 To be able to use (fully homomorphically encrypted) cyphertexts with deep learning we need to ensure our activations functions are abelian compatible operations, polynomials. relu :eq:`relu` is not a polynomial, thus we approximate :eq:`relu-approx`. Similarly since we used an approximation for the forward activations we use a derivative of the relu approximation :eq:`relu-approx-derivative` for the backward pass to calculate the local gradient in hopes of descending towards the global optimum (gradient descent).
 
 
-ReLU :math:`\max(0,x)`
+ReLU :math:`R(x)`
 ++++++++++++++++++++++
 
 .. _section_relu:
@@ -68,7 +68,7 @@ ReLU :math:`\max(0,x)`
 |relu-derivative-fig|
 
 
-ReLU-Approximation :math:`\max_a(0,x)`
+ReLU-Approximation :math:`R_a(x)`
 +++++++++++++++++++++++++++++++++++++++++++
 
 .. _section_relu_approximation:
