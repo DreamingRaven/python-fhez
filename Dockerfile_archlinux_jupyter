@@ -76,6 +76,9 @@ COPY . /python-fhe
 RUN cd /python-fhe && \
     python3 setup.py install
 
+# install examples specific/ additional requirements
+RUN pip3 install -r /python-fhe/examples/requirements.txt
+
 WORKDIR /python-fhe
 
 ENTRYPOINT /usr/bin/jupyter lab --allow-root --no-browser --ip "*"
