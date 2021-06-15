@@ -24,6 +24,8 @@ RUN pacman -S \
     python-sphinx-argparse \
     python-sphinx_rtd_theme \
     python-configargparse \
+    jupyterlab \
+    python-ipykernel \
     python-tqdm \
     --noconfirm
 
@@ -73,3 +75,7 @@ COPY . /python-fhe
 
 RUN cd /python-fhe && \
     python3 setup.py install
+
+WORKDIR /python-fhe
+
+ENTRYPOINT /usr/bin/jupyter lab --allow-root --no-browser --ip "*"
