@@ -1,3 +1,4 @@
 # preventing .git files from entering context
 # .git
 .github
+docs/build

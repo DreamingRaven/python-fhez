@@ -72,4 +72,5 @@ COPY . /python-fhe
 #     mv python-reseal /python-fhe
 
 RUN cd /python-fhe && \
-    python3 setup.py install
+    python3 setup.py install && \
+    rm -r /python-fhe/examples
