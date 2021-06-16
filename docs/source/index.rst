@@ -60,6 +60,7 @@ Or if you do not have @online support:
   license
   fhe
   install
+  examples
   ann
   cnn
   sigmoid
