@@ -45,7 +45,7 @@ print("sys path:", sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = 'python-reseal'
+project = 'Python-FHEz'
 copyright = '2021, George Onoufriou (GeorgeRaven, archer, DreamingRaven)'
 author = 'GeorgeRaven'
 master_doc = 'index'

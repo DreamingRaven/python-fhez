@@ -9,10 +9,10 @@
   :width: 400
   :alt: Single neuron represented as computational graph of inputs and outputs
 
-python-reseal
-=============
+Python-FHEz
+===========
 
-Python-ReSeal is a privacy-preserving |fhe| (FHE) and deep learning library.
+Python-FHEz is a privacy-preserving |fhe| (FHE) and deep learning library.
 
 |neuron-cg-fig|
 
@@ -32,11 +32,11 @@ Either:
 
 .. code-block:: latex
 
-  @online{reseal,
+  @online{fhez,
     author = {George Onoufriou},
-    title = {Python-Reseal Source Repository},
+    title = {Python-FHEz Source Repository},
     year = {2021},
-    url = {https://gitlab.com/GeorgeRaven/python-reseal},
+    url = {https://gitlab.com/DeepCypher/Python-FHEz},
   }
 
 Or if you do not have @online support:
@@ -44,12 +44,12 @@ Or if you do not have @online support:
 
 .. code-block:: latex
 
-  @misc{reseal,
+  @misc{fhez,
     author = {George Onoufriou},
-    title = {Python-Reseal Source Repository},
+    title = {Python-FHEz Source Repository},
     howpublished = {Github, GitLab},
     year = {2021},
-    note = {\url{https://gitlab.com/GeorgeRaven/python-reseal}},
+    note = {\url{https://gitlab.com/DeepCypher/Python-FHEz}},
   }
 
 .. toctree::

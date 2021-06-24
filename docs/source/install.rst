@@ -7,18 +7,18 @@ Installation
 ############
 
 Currently due to a certain amount of awkwardness of the python to Microsoft-SEAL bindings, the only "supported" installation method is by docker container.
-However we are working on fixing some of these issues in the near future, or at the very least supporting a second pure-python backend so that installation is easier as a native library if that is desired.
+However we are working on fixing some of these issues in the near future, or at the very least supporting a second pure-python back-end so that installation is easier as a native library if that is desired.
 
 Docker Registry
 +++++++++++++++
 
-Dockerised images that you can play around with are available at: https://gitlab.com/GeorgeRaven/python-reseal/container_registry/1756780
+Dockerised images that you can play around with are available at: https://gitlab.com/deepcypher/python-fhez/container_registry/2063426
 
 E.G, download and run interactively:
 
 .. code-block:: bash
 
-  docker run -it registry.gitlab.com/georgeraven/python-reseal:master
+  docker run -it registry.gitlab.com/deepcypher/python-reseal:master
 
 .. _section_docker_build:
 

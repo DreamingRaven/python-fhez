@@ -1,7 +1,12 @@
-Python-ReSeal
-#############
+Python-FHEz
+###########
 
-Python-ReSeal is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library for now supports the CKKS scheme through Microsoft-SEAL being bound to python using pybind11, then we abstract all of MS-SEAL's objects into one single meta object that facilitates serialization, deserialization, encryption, addition, multiplication, etc, in an attempt to make it as streamlined and as easy to use as possible.
+(Formerly Python-ReSeal)
+
+Python-FHEz is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library will be able to use various back-ends and streamline them into a single generic API to try to reduce both programmatic and conceptual complexity. Currently this library supports:
+
+- Microsoft SEAL (stable)
+- py-fhe (Saroja Erabelli) (alpha)
 
 Cypherpunks please read the docs:
 
@@ -9,7 +14,7 @@ Cypherpunks please read the docs:
   :target: https://python-reseal.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status,
 
-Python-ReSeal will start to transition to gitlab at: https://gitlab.com/GeorgeRaven/python-reseal for a plethora of reasons including Ci/CD, however github will remain an up-to-date mirror.
+Python-FHEz will start to transition to gitlab at: https://gitlab.com/DeepCypher/python-fhez for a plethora of reasons including Ci/CD, however github will remain an up-to-date mirror.
 
 Build It Yourself
 +++++++++++++++++
