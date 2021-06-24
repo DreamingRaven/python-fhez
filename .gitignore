@@ -1,3 +1,7 @@
 # Ignore everything that isnt already tracked
 # please use "git add -f foo.txt" to force into tracking.
-/*
+#/*
+build
+.ipynb_checkpoints
+plots
+datasets
