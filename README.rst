@@ -21,10 +21,10 @@ This library supports extensions that expose a uniform API which we call "errays
 - [Microsoft SEAL](https://github.com/Microsoft/SEAL) ([beta](https://gitlab.com/deepcypher/python-fhez-seal))\*
 - [py-fhe](https://github.com/sarojaerabelli/py-fhe) ([Saroja Erabelli](https://github.com/sarojaerabelli)) ([alpha](https://gitlab.com/deepcypher/python-fhez-erabelli))
 
-\* Currently built in but we are in the process of separating into its own module
+\* Currently built in but we are in the process of separating into its own module so excuse the potentially empty repository, this will be its final destination.
 
-Build It Yourself
-+++++++++++++++++
+Build The Docs
+++++++++++++++
 
 If you would like to build the documentation manually, for example to auto-doc the API (which read-the-docs cannot do) then from this directory:
 
