@@ -3,10 +3,7 @@ Python-FHEz
 
 (Formerly Python-ReSeal)
 
-Python-FHEz is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library will be able to use various back-ends and streamline them into a single generic API to try to reduce both programmatic and conceptual complexity. Currently this library supports:
-
-- Microsoft SEAL (stable)
-- py-fhe (Saroja Erabelli) (alpha)
+Python-FHEz is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library will be able to use various back-ends and streamline them into a single generic API to try to reduce both programmatic and conceptual complexity.
 
 Cypherpunks please read the docs:
 
@@ -15,6 +12,16 @@ Cypherpunks please read the docs:
   :alt: Documentation Status,
 
 Python-FHEz will start to transition to gitlab at: https://gitlab.com/DeepCypher/python-fhez for a plethora of reasons including Ci/CD, however github will remain an up-to-date mirror.
+
+Modules
++++++++
+
+This library supports extensions that expose a uniform API which we call "errays" or encrypted-arrays much like numpys custom containers, of which as simple implementation can be achieved by inheriting from our erray class. We hope to add more modules over time and would welcome others implementations too. We ourselves support the following modules:
+
+- [Microsoft SEAL](https://github.com/Microsoft/SEAL) ([beta](https://gitlab.com/deepcypher/python-fhez-seal))\*
+- [py-fhe](https://github.com/sarojaerabelli/py-fhe) ([Saroja Erabelli](https://github.com/sarojaerabelli)) ([alpha](https://gitlab.com/deepcypher/python-fhez-erabelli))
+
+\* Currently built in but we are in the process of separating into its own module
 
 Build It Yourself
 +++++++++++++++++
@@ -52,7 +59,6 @@ Either:
   }
 
 Or if you do not have @online support:
-
 
 .. code-block:: latex
 
