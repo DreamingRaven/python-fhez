@@ -81,4 +81,4 @@ RUN pip3 install -r /python-fhe/examples/requirements.txt
 
 WORKDIR /python-fhe
 
-ENTRYPOINT /usr/bin/jupyter lab --allow-root --no-browser --ip "*"
+ENTRYPOINT /usr/bin/jupyter lab --allow-root --no-browser --ip "*" ./examples
