@@ -16,7 +16,7 @@ Python-FHEz will start to transition to gitlab at: https://gitlab.com/DeepCypher
 Modules
 +++++++
 
-This library supports extensions that expose a uniform API which we call "errays" or encrypted-arrays much like numpys custom containers, of which as simple implementation can be achieved by inheriting from our erray class. We hope to add more modules over time and would welcome others implementations too. We ourselves support the following modules:
+This library supports extensions that expose a uniform API which we call "errays" or encrypted-arrays much like numpy custom containers, of which as simple implementation can be achieved by inheriting from our erray class. We hope to add more modules over time and would welcome others implementations too. We ourselves support the following modules:
 
 - [Microsoft SEAL](https://github.com/Microsoft/SEAL) ([beta](https://gitlab.com/deepcypher/python-fhez-seal))\*
 - [py-fhe](https://github.com/sarojaerabelli/py-fhe) ([Saroja Erabelli](https://github.com/sarojaerabelli)) ([alpha](https://gitlab.com/deepcypher/python-fhez-erabelli))
