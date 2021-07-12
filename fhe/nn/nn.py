@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-12T00:36:42+01:00
+# @Last modified time: 2021-07-12T20:30:12+01:00
 
 import os
 import time
@@ -111,13 +111,19 @@ class ComputationalNode(abc.ABC):
     def backward(self, gradient):
         """Calculate backward pass for singular example."""
 
-    @abc.abstractmethod
     def forwards(self, xs):
         """Calculate forward pass for multiple examples simultaneously."""
+        accumulator = []
+        for i in xs:
+            accumulator.append(self.forward(x=i))
+        return accumulator
 
-    @abc.abstractmethod
     def backwards(self, gradients):
         """Calculate backward pass for multiple examples simultaneously."""
+        accumulator = []
+        for i in gradients:
+            accumulator.append(self.backward(gradient=i))
+        return accumulator
 
     @abc.abstractmethod
     def update(self):
@@ -130,6 +136,10 @@ class ComputationalNode(abc.ABC):
 
 class RELU(ComputationalNode):
     """Rectified Liniar Unit (ReLU) computational graph node."""
+
+    def __init__(self, q=None):
+        """Create a RELU approximation object."""
+        self.q = q  # this is the approximation range of this ReLU approximator
 
     @property
     def q(self):
@@ -170,21 +180,20 @@ class RELU(ComputationalNode):
         # again
         # x = [1, 2, 3, 4, 5] # iterate in formward order -> (matters)
         # df = [1, 2, 3, 4, 5] # working backwards for "backward" <- (matters)
-        # update = [1, 2, 3, 4, 5] # update in forward order -> (arbitrary)
-        self.gradients.append({"dfdq": dfdq})
+        # update = [5, 4, 3, 2, 1] # update in forward order <- (arbitrary)
+        self.gradients.append({"dfdq": dfdq, "dfdx": dfdx})
         return dfdx
-
-    def forwards(self, xs):
-        """Calculate forward pass for multiple examples simultaneously."""
-
-    def backwards(self, gradients):
-        """Calculate backward pass for multiple examples simultaneously."""
 
     def update(self):
         """Update node state/ weights for a single example."""
+        dfd_ = self.gradients.pop()
+        print(dfd_)
 
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
+        for _ in len(self.gradients):
+            dfd_ = self.gradients.pop()
+            print(dfd_)
 
 
 class NeuralNetwork():
@@ -229,11 +238,14 @@ NN = NeuralNetwork
 class NNTest(unittest.TestCase):
 
     def setUp(self):
-        self.nn = NN()
-        self.relu = RELU()
-        pass
+        graph = nx.MultiDiGraph()
+        graph.add_node(RELU())
+        self.nn = NN(graph=graph)
 
     def tearDown(self):
+        pass
+
+    def test_create(self):
         pass
 
 
