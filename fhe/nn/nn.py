@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-12T20:30:12+01:00
+# @Last modified time: 2021-07-12T21:12:02+01:00
 
 import os
 import time
@@ -239,13 +239,17 @@ class NNTest(unittest.TestCase):
 
     def setUp(self):
         graph = nx.MultiDiGraph()
-        graph.add_node(RELU())
+        graph.add_node("input")
+        graph.add_node("ReLU", layer=RELU())
+        graph.add_node("output")
+        graph.add_edge("input", "ReLU")
+        graph.add_edge("ReLU", "output")
         self.nn = NN(graph=graph)
 
     def tearDown(self):
         pass
 
-    def test_create(self):
+    def test_init(self):
         pass
 
 
