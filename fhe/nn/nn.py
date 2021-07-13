@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-13T13:54:54+01:00
+# @Last modified time: 2021-07-13T14:29:54+01:00
 
 import os
 import time
@@ -236,8 +236,18 @@ class NeuralNetwork():
         """Set computational graph."""
         self._graph = graph
 
-    def forward(self, x):
-        pass
+    def forward(self, x, current_node, end_node):
+        """Traverse and activate nodes until some end node has is reached."""
+        node = self.g[current_node]
+        logger.info("processing node: `{}`={}".format(current_node,
+                                                      node))
+        # process current node
+        output = x
+
+        # process next nodes recursiveley
+        adjacent = self.g.successors(current_node)
+        for i in adjacent:
+            self.forward(x=output, current_node=i, end_node=end_node)
 
     def backward(self, l):
         pass
@@ -293,7 +303,8 @@ class NNTest(unittest.TestCase):
 
     def test_forward(self):
         """Testing single input/ example forward pass."""
-        a = self.nn.forward(x=self.data)
+        a = self.nn.forward(x=self.data, current_node="input",
+                            end_node="output")
 
     def test_forwards(self):
         """Testing multi-input/ examples forward pass."""
@@ -302,7 +313,7 @@ class NNTest(unittest.TestCase):
 
 if __name__ == "__main__":
     logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.INFO,
+        level=logger.DEBUG,
         format="%(asctime)s %(levelname)s:%(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S")
     # run all the unit-tests
