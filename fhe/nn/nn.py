@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-13T15:14:28+01:00
+# @Last modified time: 2021-07-13T21:50:58+01:00
 
 import os
 import time
@@ -237,22 +237,34 @@ class NeuralNetwork():
         self._graph = graph
 
     def forward(self, x, current_node, end_node):
-        """Traverse and activate nodes until some end node has is reached."""
+        """Traverse and activate nodes until all nodes processed."""
         node = self.g.nodes[current_node]
         logger.info("processing node: `{}`, input_shape({})".format(
             current_node,
             self.probe_shape(x)))
         # process current node
         output = node["node"].forward(x)
-        # output = x
-
         # process next nodes recursiveley
         next_nodes = self.g.successors(current_node)
         for i in next_nodes:
-            self.forward(x=output, current_node=i, end_node=end_node)
+            self.forward(x=output,
+                         current_node=i,
+                         end_node=end_node)
 
-    def backward(self, l):
-        pass
+    def backward(self, gradient, current_node, end_node):
+        """Traverse backwards until all nodes processed."""
+        node = self.g.nodes[current_node]
+        logger.info("processing node: `{}`, gradient({})".format(
+            current_node,
+            gradient))
+        # process current nodes gradients
+        local_gradient = node["node"].backward(gradient)
+        # process previous nodes recursiveley
+        previous_nodes = self.g.predecessors(current_node)
+        for i in previous_nodes:
+            self.backward(gradient=local_gradient,
+                          current_node=i,
+                          end_node=end_node)
 
     def forwards(self, xs):
         pass
@@ -329,6 +341,19 @@ class NNTest(unittest.TestCase):
     def test_forwards(self):
         """Testing multi-input/ examples forward pass."""
         a = self.nn.forwards(xs=self.datas)
+
+    def test_backward(self):
+        """Testing single input/ example backward pass."""
+        a = self.nn.forward(x=self.data, current_node="input",
+                            end_node="output")
+        self.nn.backward(gradient=1, current_node="output",
+                         end_node="input")
+
+    def test_backwards(self):
+        """Testing multi-input/ examples backward pass."""
+        a = self.nn.forwards(xs=self.datas)
+        self.nn.backward(gradient=1, current_node="output",
+                         end_node="input")
 
 
 if __name__ == "__main__":
