@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-12T21:12:02+01:00
+# @Last modified time: 2021-07-13T13:54:54+01:00
 
 import os
 import time
@@ -20,7 +20,7 @@ from networkx import nx
 # import igraph
 
 
-class ComputationalNode(abc.ABC):
+class Node(abc.ABC):
     """Abstract class for neural network nodes for traversal/ computation."""
 
     # # # Caching
@@ -134,7 +134,25 @@ class ComputationalNode(abc.ABC):
         """Update node state/ weights for multiple examples simultaneously."""
 
 
-class RELU(ComputationalNode):
+class IO(Node):
+    """An input output node that is primarily used to link and join nodes."""
+
+    def forward(self, x):
+        """Pass input directly to output."""
+        return x
+
+    def backward(self, gradient):
+        """Pass gradient directly to output."""
+        return gradient
+
+    def update(self):
+        """Do nothing."""
+
+    def updates(self):
+        """Do nothing."""
+
+
+class RELU(Node):
     """Rectified Liniar Unit (ReLU) computational graph node."""
 
     def __init__(self, q=None):
@@ -238,19 +256,48 @@ NN = NeuralNetwork
 class NNTest(unittest.TestCase):
 
     def setUp(self):
+        """Set up basic variables and start timer."""
+        self.weights = (1, 3, 3, 3)  # tuple allows cnn to initialise itself
+        self.stride = [1, 3, 3, 3]  # stride list per-dimension
+        self.bias = 0  # assume no bias at first
+        self.start_time = time.time()
+
         graph = nx.MultiDiGraph()
-        graph.add_node("input")
-        graph.add_node("ReLU", layer=RELU())
-        graph.add_node("output")
+        graph.add_node("input", node=IO())
+        graph.add_node("ReLU", node=RELU())
+        graph.add_node("output", node=IO())
         graph.add_edge("input", "ReLU")
         graph.add_edge("ReLU", "output")
         self.nn = NN(graph=graph)
 
     def tearDown(self):
-        pass
+        """Calculate time difference from start."""
+        t = time.time() - self.start_time
+        print('%s: %.3f' % (self.id(), t))
+
+    @property
+    def data(self):
+        """Get random input data example."""
+        array = np.random.rand(32, 32, 3)
+        return array
+
+    @property
+    def datas(self):
+        """Get random input data batch."""
+        array = np.random.rand(64, 32, 32, 3)
+        return array
 
     def test_init(self):
-        pass
+        """Test that object is initialised properly."""
+        self.assertIsInstance(self.nn, NN)
+
+    def test_forward(self):
+        """Testing single input/ example forward pass."""
+        a = self.nn.forward(x=self.data)
+
+    def test_forwards(self):
+        """Testing multi-input/ examples forward pass."""
+        a = self.nn.forwards(xs=self.datas)
 
 
 if __name__ == "__main__":
