@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-13T14:29:54+01:00
+# @Last modified time: 2021-07-13T15:14:28+01:00
 
 import os
 import time
@@ -238,15 +238,17 @@ class NeuralNetwork():
 
     def forward(self, x, current_node, end_node):
         """Traverse and activate nodes until some end node has is reached."""
-        node = self.g[current_node]
-        logger.info("processing node: `{}`={}".format(current_node,
-                                                      node))
+        node = self.g.nodes[current_node]
+        logger.info("processing node: `{}`, input_shape({})".format(
+            current_node,
+            self.probe_shape(x)))
         # process current node
-        output = x
+        output = node["node"].forward(x)
+        # output = x
 
         # process next nodes recursiveley
-        adjacent = self.g.successors(current_node)
-        for i in adjacent:
+        next_nodes = self.g.successors(current_node)
+        for i in next_nodes:
             self.forward(x=output, current_node=i, end_node=end_node)
 
     def backward(self, l):
@@ -257,6 +259,24 @@ class NeuralNetwork():
 
     def backwards(self, ls):
         pass
+
+    def probe_shape(self, lst: list):
+        """Get the shape of a list, assuming each sublist is the same length.
+
+        This function is recursive, sending the sublists down and terminating
+        once a type error is thrown by the final point being a non-list
+        """
+        if isinstance(lst, list):
+            # try appending current length with recurse of sublist
+            try:
+                return (len(lst),) + self.probe_shape(lst[0])
+            # once we bottom out and get some non-list type abort and pull up
+            except (AttributeError, IndexError):
+                return (len(lst),)
+        elif isinstance(lst, (int, float)):
+            return (1,)
+        else:
+            return lst.shape
 
 
 # Shorthand / Alias for Neural Network
