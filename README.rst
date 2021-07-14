@@ -7,9 +7,56 @@ Python-FHEz is a fully homomorphic encryption, abstraction library, primarily fo
 
 Cypherpunks please read the docs:
 
-.. image:: https://readthedocs.org/projects/python-fhez/badge/?version=latest
+.. _docker: https://www.docker.com/
+.. |docker| replace:: Docker
+
+.. _rtd: https://readthedocs.org/
+.. |rtd| replace:: RTD
+
+.. |pages-latest| image:: https://readthedocs.org/projects/python-fhez/badge/?version=latest
+  :target: https://deepcypher.gitlab.io/python-fhez
+  :alt: GitLab Pages Documentation Status (Latest/Master)
+
+.. |rtd-latest| image:: https://readthedocs.org/projects/python-fhez/badge/?version=latest
   :target: https://python-fhez.readthedocs.io/en/latest/?badge=latest
-  :alt: Documentation Status
+  :alt: RTD Documentation Status (Latest/Master)
+
+.. |rtd-stable| image:: https://readthedocs.org/projects/python-fhez/badge/?version=stable
+  :target: https://python-fhez.readthedocs.io/en/stable/?badge=stable
+  :alt: RTD Documentation Status (Latest Stable Release)
+
+.. |rtd-staging| image:: https://readthedocs.org/projects/python-fhez/badge/?version=staging
+  :target: https://python-fhez.readthedocs.io/en/staging/?badge=staging
+  :alt: RTD Documentation Status (Staging)
+
+.. |rtd-dev| image:: https://readthedocs.org/projects/python-fhez/badge/?version=dev
+  :target: https://python-fhez.readthedocs.io/en/dev/?badge=dev
+  :alt: RTD Documentation Status (Staging)
+
+
+.. list-table:: Docs
+    :widths: 25 25 30
+    :header-rows: 1
+
+    * - Version
+      - Provider
+      - Link to Documentation
+    * - Master (Mirror)
+      - `GitLab Pages <https://docs.gitlab.com/ee/user/project/pages/>`_
+      - |pages-latest|
+    * - Master
+      - |rtd|_
+      - |rtd-latest|
+    * - Stable
+      - |rtd|_
+      - |rtd-stable|
+    * - Staging
+      - |rtd|_
+      - |rtd-stable|
+    * - Dev
+      - |rtd|_
+      - |rtd-dev|
+
 
 Python-FHEz will start to transition to gitlab at: https://gitlab.com/DeepCypher/python-fhez for a plethora of reasons including Ci/CD, however github will remain an up-to-date mirror.
 
@@ -26,9 +73,9 @@ This library supports extensions that expose a uniform API which we call "errays
 Build The Docs
 ++++++++++++++
 
-If you would like to build the documentation manually, for example to auto-doc the API (which read-the-docs cannot do) then from this directory:
+If you would like to build the documentation manually, for example to auto-doc the API (which is not easy in |rtd|_ ) then from this directory:
 
-- build the docker container (docker must be installed, repository must be cloned, and you must be in this directory)
+- build the |docker|_ container (docker must be installed, repository must be cloned, and you must be in this directory)
 
 .. code-block:: bash
 
@@ -53,9 +100,10 @@ Either:
 
   @online{reseal,
     author = {George Onoufriou},
-    title = {Python-Reseal Source Repository},
+    title = {Python-FHEz Source Repository},
+    howpublished = {GitLab},
     year = {2021},
-    url = {https://gitlab.com/GeorgeRaven/python-reseal},
+    url = {https://gitlab.com/DeepCypher/python-fhez},
   }
 
 Or if you do not have @online support:
@@ -64,8 +112,8 @@ Or if you do not have @online support:
 
   @misc{reseal,
     author = {George Onoufriou},
-    title = {Python-Reseal Source Repository},
-    howpublished = {Github, GitLab},
+    title = {Python-FHEz Source Repository},
+    howpublished = {GitLab},
     year = {2021},
-    note = {\url{https://gitlab.com/GeorgeRaven/python-reseal}},
+    note = {\url{https://gitlab.com/DeepCypher/python-fhez}},
   }
