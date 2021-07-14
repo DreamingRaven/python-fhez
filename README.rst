@@ -1,7 +1,7 @@
 Python-FHEz
 ===========
 
-.. |fhez-logo| image:: docs/source/img/fhez.svg
+.. |fhez-logo| image:: docs/source/fhez.svg
   :width: 200
   :alt: FHEz fun computational graph snake logo
 
