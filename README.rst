@@ -10,13 +10,14 @@ Python-FHEz
 
 |fhez-logo|
 
-Python-FHEz is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library will be able to use various back-ends and streamline them into a single generic API to try to reduce both programmatic and conceptual complexity.
+Python-FHEz is a fully-homomorphically-encrypted deep-learning library, made with love, and tears.
 
+Cypherpunks write code.
 
 Docs
 ++++
 
-Cypherpunks please read the docs:
+Cypherpunks, read the docs:
 
 .. _docker: https://www.docker.com/
 .. |docker| replace:: Docker
