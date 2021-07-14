@@ -3,7 +3,7 @@
 # @Email:  george raven community at pm dot me
 # @Filename: conf.py
 # @Last modified by:   archer
-# @Last modified time: 2021-07-14T19:04:04+01:00
+# @Last modified time: 2021-07-15T00:18:20+01:00
 # @License: Please see LICENSE in project root
 
 
@@ -96,6 +96,9 @@ html_theme = "sphinx_rtd_theme"  # 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []  # ['_static']
 html_theme_options = {
-    "logo_only": False,
+    "logo_only": True,
 }
+html_css_files = [
+    "css/rtd_dark.css",
+]
 html_logo = "fhez.svg"
