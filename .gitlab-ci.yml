@@ -1,29 +1,50 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-10-20T23:58:25+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-28T01:16:34+00:00
+# @Last modified time: 2021-07-14T15:00:51+01:00
 # @License: please see LICENSE file in project root
 
-image: docker:stable
+stages:
+  - build
+  - test
+  - deploy
 
-services:
-  - docker:dind
-
-before_script:
-  - docker info
-
-build:
+docker_build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  before_script:
+    - docker info
   only:
     - master
     - staging
   before_script:
     - docker login registry.gitlab.com -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
   script:
-    - ls -al
-    - docker build -t "$(echo ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_BRANCH} | tr "[:upper:]" "[:lower:]")" -f Dockerfile_archlinux .
+    - docker build -t "$(echo ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_BRANCH} | tr "[:upper:]" "[:lower:]")" -f Dockerfile .
     - docker push "$(echo ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_BRANCH} | tr "[:upper:]" "[:lower:]")"
   after_script:
     - docker logout ${CI_REGISTRY}
-  stage: build
   tags:
     - docker
+
+pages:
+  stage: deploy
+  image: docker:stable
+  services:
+    - docker:dind
+  only:
+    - master
+  script:
+    # set variables like source code version
+    - export SRC_VER="$(set -o pipefail && git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' || printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")"
+    # generate public artifact path
+    - mkdir -p ./public
+    # make documentation and output to volume in artifact directory
+    - docker run -v ${PWD}/public:/app/docs/build/html -t "$(echo ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_BRANCH} | tr "[:upper:]" "[:lower:]")" make -C ./docs html
+    # display URL of pages
+    - echo "${CI_PAGES_URL}"
+  artifacts:
+    paths:
+      - public
