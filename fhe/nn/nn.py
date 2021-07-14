@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-14T13:00:28+01:00
+# @Last modified time: 2021-07-14T13:15:46+01:00
 
 import os
 import time
@@ -209,7 +209,7 @@ class RELU(Node):
 
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
-        for _ in len(self.gradients):
+        for _ in range(len(self.gradients)):
             dfd_ = self.gradients.pop()
             print(dfd_)
 
@@ -290,9 +290,27 @@ class NeuralNetwork():
 
     def update(self, current_node, end_node):
         """Update weights of all nodes using oldest single example gradient."""
+        node = self.g.nodes[current_node]
+        logger.debug("updating node: `{}`".format(current_node))
+        # update current node
+        node["node"].update()
+        # process next nodes recursiveley
+        next_nodes = self.g.successors(current_node)
+        for i in next_nodes:
+            # update successors recursiveley
+            self.update(current_node=i, end_node=end_node)
 
     def updates(self, current_node, end_node):
         """Update the weights of all nodes by taking the average gradient."""
+        node = self.g.nodes[current_node]
+        logger.debug("updating node: `{}`".format(current_node))
+        # update current node
+        node["node"].updates()
+        # process next nodes recursiveley
+        next_nodes = self.g.successors(current_node)
+        for i in next_nodes:
+            # update successors recursiveley
+            self.updates(current_node=i, end_node=end_node)
 
     def probe_shape(self, lst: list):
         """Get the shape of a list, assuming each sublist is the same length.
