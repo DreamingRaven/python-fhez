@@ -1,7 +1,14 @@
 Python-FHEz
 ===========
 
+.. |fhez-logo| image:: docs/source/img/fhez.svg
+  :width: 200
+  :alt: FHEz fun computational graph snake logo
+
+
 (Formerly Python-ReSeal)
+
+|fhez-logo|
 
 Python-FHEz is a fully homomorphic encryption, abstraction library, primarily focused on enabling encrypted deep learning. This library will be able to use various back-ends and streamline them into a single generic API to try to reduce both programmatic and conceptual complexity.
 
