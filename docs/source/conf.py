@@ -3,7 +3,7 @@
 # @Email:  george raven community at pm dot me
 # @Filename: conf.py
 # @Last modified by:   archer
-# @Last modified time: 2021-07-15T00:18:20+01:00
+# @Last modified time: 2021-07-15T00:49:53+01:00
 # @License: Please see LICENSE in project root
 
 
@@ -94,7 +94,7 @@ html_theme = "sphinx_rtd_theme"  # 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []  # ['_static']
+html_static_path = ['_static']
 html_theme_options = {
     "logo_only": True,
 }
