@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-13T21:50:58+01:00
+# @Last modified time: 2021-07-14T13:00:28+01:00
 
 import os
 import time
@@ -196,7 +196,7 @@ class RELU(Node):
         # this function was called using a FILO popped queue
         # so we maintain the order of inputs by flipping again using a FILO que
         # again
-        # x = [1, 2, 3, 4, 5] # iterate in formward order -> (matters)
+        # x = [1, 2, 3, 4, 5] # iterate in forward order -> (matters)
         # df = [1, 2, 3, 4, 5] # working backwards for "backward" <- (matters)
         # update = [5, 4, 3, 2, 1] # update in forward order <- (arbitrary)
         self.gradients.append({"dfdq": dfdq, "dfdx": dfdx})
@@ -239,7 +239,7 @@ class NeuralNetwork():
     def forward(self, x, current_node, end_node):
         """Traverse and activate nodes until all nodes processed."""
         node = self.g.nodes[current_node]
-        logger.info("processing node: `{}`, input_shape({})".format(
+        logger.debug("processing node: `{}`, input_shape({})".format(
             current_node,
             self.probe_shape(x)))
         # process current node
@@ -254,7 +254,7 @@ class NeuralNetwork():
     def backward(self, gradient, current_node, end_node):
         """Traverse backwards until all nodes processed."""
         node = self.g.nodes[current_node]
-        logger.info("processing node: `{}`, gradient({})".format(
+        logger.debug("processing node: `{}`, gradient({})".format(
             current_node,
             gradient))
         # process current nodes gradients
@@ -266,11 +266,33 @@ class NeuralNetwork():
                           current_node=i,
                           end_node=end_node)
 
-    def forwards(self, xs):
-        pass
+    def forwards(self, xs, current_node, end_node):
+        """Calculate forward pass for multiple examples simultaneously."""
+        accumulator = []
+        for i in xs:
+            accumulator.append(
+                self.forward(
+                    x=i,
+                    current_node=current_node,
+                    end_node=end_node))
+        return accumulator
 
-    def backwards(self, ls):
-        pass
+    def backwards(self, gradients, current_node, end_node):
+        """Calculate backward pass for multiple examples simultaneously."""
+        accumulator = []
+        for i in gradients:
+            accumulator.append(
+                self.backward(
+                    gradient=i,
+                    current_node=current_node,
+                    end_node=end_node))
+        return accumulator
+
+    def update(self, current_node, end_node):
+        """Update weights of all nodes using oldest single example gradient."""
+
+    def updates(self, current_node, end_node):
+        """Update the weights of all nodes by taking the average gradient."""
 
     def probe_shape(self, lst: list):
         """Get the shape of a list, assuming each sublist is the same length.
@@ -326,7 +348,7 @@ class NNTest(unittest.TestCase):
     @property
     def datas(self):
         """Get random input data batch."""
-        array = np.random.rand(64, 32, 32, 3)
+        array = np.random.rand(2, 32, 32, 3)
         return array
 
     def test_init(self):
@@ -340,7 +362,9 @@ class NNTest(unittest.TestCase):
 
     def test_forwards(self):
         """Testing multi-input/ examples forward pass."""
-        a = self.nn.forwards(xs=self.datas)
+        a = self.nn.forwards(xs=self.datas,
+                             current_node="input",
+                             end_node="output")
 
     def test_backward(self):
         """Testing single input/ example backward pass."""
@@ -351,14 +375,33 @@ class NNTest(unittest.TestCase):
 
     def test_backwards(self):
         """Testing multi-input/ examples backward pass."""
-        a = self.nn.forwards(xs=self.datas)
+        a = self.nn.forwards(xs=self.datas,
+                             current_node="input",
+                             end_node="output")
+        self.nn.backwards(gradients=[1, 1], current_node="output",
+                          end_node="input")
+
+    def test_update(self):
+        """Testing multi-input/ example updating."""
+        a = self.nn.forward(x=self.data, current_node="input",
+                            end_node="output")
         self.nn.backward(gradient=1, current_node="output",
                          end_node="input")
+        self.nn.update(current_node="input", end_node="output")
+
+    def test_updates(self):
+        """Testing multi-input/ examples updating."""
+        a = self.nn.forwards(xs=self.datas,
+                             current_node="input",
+                             end_node="output")
+        self.nn.backwards(gradients=[1, 1], current_node="output",
+                          end_node="input")
+        self.nn.updates(current_node="input", end_node="output")
 
 
 if __name__ == "__main__":
     logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.DEBUG,
+        level=logger.INFO,
         format="%(asctime)s %(levelname)s:%(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S")
     # run all the unit-tests
