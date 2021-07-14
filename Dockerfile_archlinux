@@ -1,5 +1,10 @@
 FROM archlinux:latest
 
+# directory containing source files with respect to dockerfile
+ARG SRCDIR="."
+# directory where the source will exist in the dockerfile
+ARG PKGDIR="/app"
+
 # resetting all gnupg keys
 RUN rm -rf /etc/pacman.d/gnupg && \
     pacman-key --init && \
@@ -56,23 +61,19 @@ RUN cd /seal-python && \
 
 # Clean-up
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    mkdir -p /python-fhe
+    mkdir -p ${PKGDIR}
 
 # early copy of requirements file
-COPY ./requirements.txt /python-fhe/requirements.txt
+COPY ${SRCDIR}/requirements.txt ${PKGDIR}/requirements.txt
 
 # install package specific dependencies
-RUN pip3 install -r /python-fhe/requirements.txt
+RUN pip3 install -r ${PKGDIR}/requirements.txt
 
 # copy our files in
-COPY . /python-fhe
+COPY ${SRCDIR} ${PKGDIR}
 
-# RUN cd / && \
-#     git clone -b master https://github.com/DreamingRaven/python-reseal && \
-#     mv python-reseal /python-fhe
-
-RUN cd /python-fhe && \
+RUN cd ${PKGDIR} && \
     python3 setup.py install && \
-    rm -r /python-fhe/examples
+    rm -r ${PKGDIR}/examples
 
-WORKDIR /python-fhe
+WORKDIR ${PKGDIR}
