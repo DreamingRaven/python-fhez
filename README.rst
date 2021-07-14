@@ -7,9 +7,9 @@ Python-FHEz is a fully homomorphic encryption, abstraction library, primarily fo
 
 Cypherpunks please read the docs:
 
-.. image:: https://readthedocs.org/projects/python-reseal/badge/?version=latest
-  :target: https://python-reseal.readthedocs.io/en/latest/?badge=latest
-  :alt: Documentation Status,
+.. image:: https://readthedocs.org/projects/python-fhez/badge/?version=latest
+  :target: https://python-fhez.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 Python-FHEz will start to transition to gitlab at: https://gitlab.com/DeepCypher/python-fhez for a plethora of reasons including Ci/CD, however github will remain an up-to-date mirror.
 
