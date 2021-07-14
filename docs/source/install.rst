@@ -1,7 +1,4 @@
-.. pyrtd documentation master file, created by
-   sphinx-quickstart on Mon Aug 26 13:30:29 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: substitutions
 
 Installation
 ############
@@ -54,3 +51,38 @@ To run the now locally built container you can issue the following command to ga
 .. code-block:: bash
 
   docker run -it archer/fhe
+
+FHE Modules/ Plugins
+++++++++++++++++++++
+
+This library will support extensions that expose a uniform API which we call "errays" or encrypted-arrays much like numpy custom containers, of which as simple implementation can be achieved by inheriting from our erray class. We hope to add more modules over time and would welcome others implementations too. We ourselves support the following modules:
+
+- `Microsoft SEAL <https://github.com/Microsoft/SEAL>`_ (`beta <https://gitlab.com/deepcypher/python-fhez-seal>`_)\*
+- `py-fhe <https://github.com/sarojaerabelli/py-fhe>`_ (`Saroja Erabelli <https://github.com/sarojaerabelli>`_) (`alpha <https://gitlab.com/deepcypher/python-fhez-erabelli>`_)
+
+\* Currently built in but being separated.
+
+.. note::
+
+  More instructions to follow on specific installation of modules once implementation is complete for them.
+
+Build The Docs
+++++++++++++++
+
+If you would like to build the documentation manually, for example to auto-doc the API (which is not easy in |rtd|_ ) then from this directory:
+
+- build the |docker|_ container (docker must be installed, repository must be cloned, and you must be in this directory)
+
+.. code-block:: bash
+
+   sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1
+
+- run the docker container with volume-mount, and trigger documentation build
+
+.. code-block:: bash
+
+   sudo docker run -v ${PWD}/docs/build/:/python-fhe/docs/build -it archer/fhe make -C /python-fhe/docs html
+
+- you can then find the documentation in: ``${PWD}/docs/build/html/``
+
+The docs will walk you through the rest. Enjoy.

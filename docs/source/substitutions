@@ -13,6 +13,9 @@
 .. _helm: https://helm.sh/
 .. |helm| replace:: Helm
 
+.. _rtd: https://readthedocs.org/
+.. |rtd| replace:: RTD
+
 .. |username| replace:: ``username``
 .. |group| replace:: ``group``
 .. |csr| replace:: ``csr``
