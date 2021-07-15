@@ -5,16 +5,26 @@
 
 .. include:: substitutions
 
-.. |neuron-cg-fig| image:: img/neuron-computational-graph.svg
+.. |fhe-fig| image:: img/fhe.svg
+  :width: 800
+  :alt: Fully Homomorphic Encryption stages: encoding, encryption, computation, decryption and decoding.
+
+.. |dl-fig| image:: img/neuron-computational-graph.svg
   :width: 400
-  :alt: Single neuron represented as computational graph of inputs and outputs
+  :alt: Example of artificial neural networks neuron, with inputs, parameters, and activations.
 
 Python-FHEz
 ===========
 
 Python-FHEz is a privacy-preserving |fhe| (FHE) and deep learning library.
 
-|neuron-cg-fig|
+|fhe|:
+
+|fhe-fig|
+
+Deep Learning:
+
+|dl-fig|
 
 This library is capable of both fully homomorphically encrypting data and processing encrypted cyphertexts without the private keys, thus completely privately.
 
