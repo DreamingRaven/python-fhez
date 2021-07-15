@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-15T12:56:14+00:00
+# @Last modified time: 2021-07-15T15:14:30+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -13,8 +13,8 @@ import unittest
 from tqdm import tqdm
 
 import seal
-from fhe.rearray import ReArray
-from fhe.nn.layer.layer import Layer
+from fhez.rearray import ReArray
+from fhez.nn.layer.layer import Layer
 
 
 class Layer_ANN(Layer):

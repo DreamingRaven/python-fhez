@@ -115,5 +115,5 @@ CNN API
 
   |api-build-note|
 
-.. autoclass:: fhe.nn.layer.cnn.Layer_CNN
+.. autoclass:: fhez.nn.layer.cnn.Layer_CNN
   :members:

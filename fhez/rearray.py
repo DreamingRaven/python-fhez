@@ -3,12 +3,12 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-09T14:31:52+00:00
+# @Last modified time: 2021-07-15T15:14:10+01:00
 # @License: please see LICENSE file in project root
 import unittest
 import numpy as np
 
-from fhe.reseal import ReSeal
+from fhez.reseal import ReSeal
 
 
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):

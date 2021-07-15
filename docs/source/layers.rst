@@ -12,5 +12,5 @@ Layers
 Layers
 ++++++
 
-.. autoclass:: fhe.nn.layer.layer.Layer
+.. autoclass:: fhez.nn.layer.layer.Layer
   :members:

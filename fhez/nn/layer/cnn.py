@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-15T14:39:01+00:00
+# @Last modified time: 2021-07-15T15:17:52+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -14,8 +14,8 @@ import copy
 from tqdm import tqdm
 
 import seal
-from fhe.rearray import ReArray
-from fhe.nn.layer.layer import Layer
+from fhez.rearray import ReArray
+from fhez.nn.layer.layer import Layer
 
 
 class Layer_CNN(Layer):
@@ -242,7 +242,7 @@ class cnn_tests(unittest.TestCase):
         print('%s: %.3f' % (self.id(), t))
 
     def test_cnn_whole(self):
-        from fhe.nn.layer.ann import Layer_ANN
+        from fhez.nn.layer.ann import Layer_ANN
 
         # CREATE IDENTICAL CNN LAYERS
         cnn = Layer_CNN(weights=self.weights,

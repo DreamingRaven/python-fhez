@@ -82,7 +82,6 @@ Or if you do not have @online support:
   dll
   node
   building-blocks
-  blocks
   layers
   activations
   optimizers

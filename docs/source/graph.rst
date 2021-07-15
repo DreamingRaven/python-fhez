@@ -3,5 +3,5 @@
 Computational Graph
 ===================
 
-.. autoclass:: fhe.nn.graph.net.Net
+.. autoclass:: fhez.nn.nn.NN
   :members:

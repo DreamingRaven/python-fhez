@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T11:53:30+00:00
+# @Last modified time: 2021-07-15T15:13:53+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -16,8 +16,8 @@ import logging as logger
 import seal
 
 # backward compatibility
-from fhe.recache import ReCache
-from fhe.rescheme import ReScheme
+from fhez.recache import ReCache
+from fhez.rescheme import ReScheme
 
 # pyseal does not at this point support pickling, so what you see here is a
 # workaround using seals save and load function to tempfiles so that we can

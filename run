@@ -3,18 +3,15 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-05-22T10:08:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-14T21:50:02+01:00
+# @Last modified time: 2021-07-15T22:20:57+01:00
 # @License: please see LICENSE file in project root
 
-sudo docker build -t archer/fhe -f Dockerfile_archlinux .  || exit 1 # this uses our docker
+sudo docker build -t archer/fhez -f Dockerfile_archlinux .  || exit 1 # this uses our docker
 # sudo docker build -t archer/fhe -f Dockerfile_archlinux --no-cache . || exit 1
 
 # test each component library
-sudo docker run --cpus=2 --memory 8G -it archer/fhe ./fhe/reseal.py
-sudo docker run --cpus=2 --memory 8G -it archer/fhe ./fhe/rearray.py
-sudo docker run --cpus=2 --memory 24G -it archer/fhe ./fhe/nn/layer/cnn.py
-sudo docker run --cpus=2 --memory 24G -it archer/fhe ./fhe/nn/layer/ann.py
+sudo docker run --cpus=2 --memory 8G -it archer/fhez ./fhez/reseal.py
+sudo docker run --cpus=2 --memory 8G -it archer/fhez ./fhez/rearray.py
 
-# test graph components
-sudo docker run --cpus=2 --memory 2G -it archer/fhe ./fhe/nn/graph/dll.py
-sudo docker run --cpus=2 -v ${PWD}/plots:/plots --memory 24G -it archer/fhe ./fhe/nn/graph/net.py
+# test computational graph and components
+sudo docker run --cpus=2 --memory 24G -it archer/fhez ./fhez/nn/nn.py

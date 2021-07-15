@@ -3,5 +3,5 @@
 Doubly Linked List
 ==================
 
-.. autoclass:: fhe.nn.graph.dll.DLL
+.. autoclass:: fhez.nn.graph.dll.DLL
   :members:

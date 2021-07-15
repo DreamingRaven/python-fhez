@@ -3,12 +3,12 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-04-15T14:24:29+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-04-16T13:49:39+01:00
+# @Last modified time: 2021-07-15T15:14:54+01:00
 # @License: please see LICENSE file in project root
 
 import unittest
 import logging as logger
-from fhe.nn.graph.node import Node
+from fhez.nn.graph.node import Node
 
 
 class DLL(object):

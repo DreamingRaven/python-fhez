@@ -3,10 +3,10 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-13T20:42:25+00:00
+# @Last modified time: 2021-07-15T15:15:29+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
-from fhe.nn.activation.activation import Activation
+from fhez.nn.activation.activation import Activation
 import logging as logger
 from tqdm import tqdm
 import unittest

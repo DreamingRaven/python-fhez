@@ -3,5 +3,5 @@
 Node
 ====
 
-.. autoclass:: fhe.nn.graph.node.Node
+.. autoclass:: fhez.nn.graph.node.Node
   :members:

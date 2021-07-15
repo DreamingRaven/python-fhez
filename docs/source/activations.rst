@@ -12,5 +12,5 @@ Activations
 Activations
 +++++++++++
 
-.. autoclass:: fhe.nn.activation.activation.Activation
+.. autoclass:: fhez.nn.activation.activation.Activation
   :members:

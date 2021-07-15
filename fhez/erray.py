@@ -9,7 +9,7 @@ uniform a format as possible.
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-06-04T13:45:57+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-02-11T11:53:30+00:00
+# @Last modified time: 2021-07-15T15:14:17+01:00
 # @License: please see LICENSE file in project root
 
 import os
@@ -20,8 +20,8 @@ import numpy as np
 import logging as logger
 
 # backward compatibility
-from fhe.recache import ReCache
-from fhe.rescheme import ReScheme
+from fhez.recache import ReCache
+from fhez.rescheme import ReScheme
 
 
 class Erray(np.lib.mixins.NDArrayOperatorsMixin):

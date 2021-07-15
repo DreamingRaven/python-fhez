@@ -3,12 +3,12 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-03-11T12:55:56+00:00
+# @Last modified time: 2021-07-15T15:14:41+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
-from fhe.nn.activation.sigmoid import Sigmoid_Approximation
-from fhe.nn.block.block import Block
+from fhez.nn.activation.sigmoid import Sigmoid_Approximation
+from fhez.nn.block.block import Block
 
 
 class Layer(Block):
