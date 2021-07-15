@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-15T15:57:22+01:00
+# @Last modified time: 2021-07-16T00:59:28+01:00
 
 import time
 import unittest
@@ -155,8 +155,10 @@ class NNTest(unittest.TestCase):
         graph.add_node("input", node=IO())
         graph.add_node("ReLU", node=RELU())
         graph.add_node("output", node=IO())
-        graph.add_edge("input", "ReLU")
-        graph.add_edge("ReLU", "output")
+        graph.add_edge("input", "ReLU",
+                       cost=4)  # graph.nodes["ReLU"]["node"].cost)
+        graph.add_edge("ReLU", "output",
+                       cost=graph.nodes["output"]["node"].cost)
         self.nn = NN(graph=graph)
 
     def tearDown(self):
@@ -176,6 +178,13 @@ class NNTest(unittest.TestCase):
         array = np.random.rand(2, 32, 32, 3)
         return array
 
+    def test_cost(self):
+        """Test that we can get the cost of an edge properly."""
+        from fhez.nn.activation.relu import RELU
+
+        self.assertEqual(self.nn.g.edges["input", "ReLU", 0]["cost"],
+                         RELU().cost)
+
     def test_init(self):
         """Test that object is initialised properly."""
         self.assertIsInstance(self.nn, NN)
@@ -184,6 +193,7 @@ class NNTest(unittest.TestCase):
         """Testing single input/ example forward pass."""
         a = self.nn.forward(x=self.data, current_node="input",
                             end_node="output")
+        print(self.nn.g.edges["input", "ReLU", 0])
 
     def test_forwards(self):
         """Testing multi-input/ examples forward pass."""

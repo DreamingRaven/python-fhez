@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-15T15:43:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-15T15:51:29+01:00
+# @Last modified time: 2021-07-16T00:41:55+01:00
 
 import abc
 from collections import deque
@@ -121,6 +121,11 @@ class Node(abc.ABC):
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
 
+    @property
+    @abc.abstractmethod
+    def cost(self):
+        """Get the computational cost per forward example of the node."""
+
 
 class IO(Node):
     """An input output node that is primarily used to link and join nodes."""
@@ -138,3 +143,7 @@ class IO(Node):
 
     def updates(self):
         """Do nothing."""
+
+    @property
+    def cost(self):
+        """Get no cost of a this transitional node."""

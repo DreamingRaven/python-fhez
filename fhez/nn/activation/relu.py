@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-15T15:55:11+01:00
+# @Last modified time: 2021-07-16T00:45:47+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -30,6 +30,12 @@ class RELU(Node):
     def q(self, q):
         """Set the current ReLU approximation range."""
         self._q = q
+
+    @property
+    def cost(self):
+        """Get the computational cost of traversing to this RELU node."""
+        # \frac{4}{3 \pi q}x^2 + \frac{1}{2}x + \frac{q}{3 \pi}
+        return 4
 
     def forward(self, x):
         """Calculate forward pass for singular example."""
