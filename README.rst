@@ -64,7 +64,7 @@ Cypherpunks, read the docs:
     * - Dev
       - |rtd|_
       - |rtd-dev|
-    * - Dev (Autodoc)
+    * - Staging (Autodoc)
       - `GitLab Pages <https://docs.gitlab.com/ee/user/project/pages/>`_
       - |pages-latest|
 

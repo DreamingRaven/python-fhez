@@ -1,7 +1,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-10-20T23:58:25+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-15T11:43:27+01:00
+# @Last modified time: 2021-07-15T11:52:15+01:00
 # @License: please see LICENSE file in project root
 
 stages:
@@ -35,7 +35,7 @@ pages:
   services:
     - docker:dind
   only:
-    - dev
+    - staging
   script:
     # set variables like source code version
     - export SRC_VER="$(set -o pipefail && git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' || printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")"
