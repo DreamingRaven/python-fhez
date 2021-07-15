@@ -67,6 +67,7 @@ Or if you do not have @online support:
   :caption: Table of Contents
   :numbered:
 
+  documentation
   license
   fhe
   install

@@ -1,29 +1,17 @@
-Python-FHEz
-===========
+.. include:: substitutions
 
-.. |fhez-logo| image:: docs/source/fhez.svg
-  :width: 200
-  :alt: FHEz fun computational graph snake logo
+.. _section_docs:
 
+Documentation Variations
+========================
 
-(Formerly Python-ReSeal)
+This documentation is hosted using different branches/ versions, and to different extents depending on the provider, to ensure maximum availability, and specificity so you are never left without documentation.
 
-|fhez-logo|
+.. note::
 
-Python-FHEz is a fully-homomorphically-encrypted deep-learning library, made with love, and tears.
+  We use sphinx autodoc to document our API, however because some base libraries are still new and are only really available in dockerland this auto-documentation is not easily implementable on all providers. If you would like to have this auto-documentation please choose a version of the docs with **autodoc**.
 
-Cypherpunks write code.
-
-Docs
-++++
-
-Cypherpunks, read the docs:
-
-.. _docker: https://www.docker.com/
-.. |docker| replace:: Docker
-
-.. _rtd: https://readthedocs.org/
-.. |rtd| replace:: RTD
+The current variations of the documentation are as follows:
 
 .. |pages-latest| image:: https://readthedocs.org/projects/python-fhez/badge/?version=latest
   :target: https://deepcypher.gitlab.io/python-fhez
@@ -45,6 +33,18 @@ Cypherpunks, read the docs:
   :target: https://python-fhez.readthedocs.io/en/dev/?badge=dev
   :alt: RTD Documentation Status (Staging)
 
+.. _latest: https://gitlab.com/deepcypher/python-fhez
+.. |latest| replace:: Master
+
+.. _staging: https://gitlab.com/deepcypher/python-fhez/-/tree/staging
+.. |staging| replace:: Staging
+
+.. _dev: https://gitlab.com/deepcypher/python-fhez/-/tree/dev
+.. |dev| replace:: Dev
+
+.. _stable: https://gitlab.com/deepcypher/python-fhez/-/tags
+.. |stable| replace:: Stable
+
 .. list-table::
     :widths: 25 25 30
     :header-rows: 1
@@ -52,45 +52,18 @@ Cypherpunks, read the docs:
     * - Version
       - Provider
       - Link to Documentation
-    * - Master
+    * - |latest|_
       - |rtd|_
       - |rtd-latest|
-    * - Stable
+    * - |stable|_
       - |rtd|_
       - |rtd-stable|
-    * - Staging
+    * - |staging|_
       - |rtd|_
       - |rtd-stable|
-    * - Dev
+    * - |dev|_
       - |rtd|_
       - |rtd-dev|
-    * - Staging (Full Autodoc)
+    * - |staging|_ (Autodoc)
       - `GitLab Pages <https://docs.gitlab.com/ee/user/project/pages/>`_
       - |pages-latest|
-
-Cite
-++++
-
-Either:
-
-.. code-block:: latex
-
-  @online{reseal,
-    author = {George Onoufriou},
-    title = {Python-FHEz Source Repository},
-    howpublished = {GitLab},
-    year = {2021},
-    url = {https://gitlab.com/DeepCypher/python-fhez},
-  }
-
-Or if you do not have @online support:
-
-.. code-block:: latex
-
-  @misc{reseal,
-    author = {George Onoufriou},
-    title = {Python-FHEz Source Repository},
-    howpublished = {GitLab},
-    year = {2021},
-    note = {\url{https://gitlab.com/DeepCypher/python-fhez}},
-  }

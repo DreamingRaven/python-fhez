@@ -23,6 +23,8 @@
 .. |section_fhe| replace:: :ref:`section_fhe`
 .. |fhe| replace:: :ref:`section_fhe`
 
+.. |section_docs| replace:: :ref:`section_docs`
+
 .. |section_optimizers| replace:: :ref:`section_optimizers`
 .. |section_activations| replace:: :ref:`section_activations`
 .. |section_layers| replace:: :ref:`section_layers`
@@ -46,4 +48,4 @@
 
 .. |section_docker_build| replace:: :ref:`section_docker_build`
 
-.. |api-build-note| replace:: You may see some or no content at all on this page that documents the API. If that is the case please build the documentation locally (|section_docker_build|), as we have yet to find a good way to build these complex libraries on RTDs servers.
+.. |api-build-note| replace:: You may see some or no content at all on this page that documents the API. If that is the case please build the documentation locally (|section_docker_build|), or view this documentation using a "autodoc"-ed version of this documentation (see: |section_docs|).
