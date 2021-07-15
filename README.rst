@@ -52,9 +52,6 @@ Cypherpunks, read the docs:
     * - Version
       - Provider
       - Link to Documentation
-    * - Master (Mirror)
-      - `GitLab Pages <https://docs.gitlab.com/ee/user/project/pages/>`_
-      - |pages-latest|
     * - Master
       - |rtd|_
       - |rtd-latest|
@@ -67,6 +64,9 @@ Cypherpunks, read the docs:
     * - Dev
       - |rtd|_
       - |rtd-dev|
+    * - Dev (Autodoc)
+      - `GitLab Pages <https://docs.gitlab.com/ee/user/project/pages/>`_
+      - |pages-latest|
 
 Cite
 ++++
