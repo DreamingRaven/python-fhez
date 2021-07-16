@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-16T00:59:28+01:00
+# @Last modified time: 2021-07-16T01:01:59+01:00
 
 import time
 import unittest
@@ -178,16 +178,16 @@ class NNTest(unittest.TestCase):
         array = np.random.rand(2, 32, 32, 3)
         return array
 
+    def test_init(self):
+        """Test that object is initialised properly."""
+        self.assertIsInstance(self.nn, NN)
+
     def test_cost(self):
         """Test that we can get the cost of an edge properly."""
         from fhez.nn.activation.relu import RELU
 
         self.assertEqual(self.nn.g.edges["input", "ReLU", 0]["cost"],
                          RELU().cost)
-
-    def test_init(self):
-        """Test that object is initialised properly."""
-        self.assertIsInstance(self.nn, NN)
 
     def test_forward(self):
         """Testing single input/ example forward pass."""
