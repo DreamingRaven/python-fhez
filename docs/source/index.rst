@@ -30,10 +30,10 @@ This library is capable of both fully homomorphically encrypting data and proces
 
 This library also supports:
 
-- advanced serialization of cyphertext objects, for transmission over networks
-- The |section_masquerade|
-- The |section_commuted_sum|
-- Single-cyphertext-multiple-values en-mass/ simultaneous processing via |section_hadmard_product|
+* advanced serialization of cyphertext objects, for transmission over networks using marshmallow
+* |section_masquerade|\ ing
+* |section_commuted_sum|\ ing
+* |section_hadmard_product| cyphertext branching
 
 Cite
 ++++

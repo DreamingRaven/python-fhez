@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-15T15:14:30+01:00
+# @Last modified time: 2021-07-17T01:03:35+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -15,6 +15,12 @@ from tqdm import tqdm
 import seal
 from fhez.rearray import ReArray
 from fhez.nn.layer.layer import Layer
+
+from fhez.nn.graph.node import Node
+
+
+class ANN(Node):
+    """Dense neural network as computational graph."""
 
 
 class Layer_ANN(Layer):
