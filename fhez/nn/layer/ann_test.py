@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:33:14+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T15:35:55+01:00
+# @Last modified time: 2021-07-24T16:43:56+01:00
 import unittest
 import logging as logger
 import numpy as np
@@ -56,12 +56,11 @@ class Ann_Tests(unittest.TestCase):
 
     def test_test(self):
         """Check our testing values meet requirements."""
+        ann = ANN(weights=self.weights, bias=self.bias)
         # check data is the shape we desire/ gave it to generate
         self.assertEqual(self.data.shape, self.data_shape)
         # check weights length matches first dim of data
-        self.assertEqual(len(self.weights), self.data_shape[0])
-        # check data is between 0-1
-        self.assertLessEqual(self.data[0], 1)
+        self.assertEqual(len(ann.weights), self.data_shape[0])
 
     def test_init(self):
         """Check object initialisation works."""
