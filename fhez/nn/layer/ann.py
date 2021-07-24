@@ -3,107 +3,102 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-17T01:03:35+01:00
+# @Last modified time: 2021-07-23T16:16:50+01:00
 # @License: please see LICENSE file in project root
 
+import unittest
 import logging as logger
 import numpy as np
-import unittest
 
 from tqdm import tqdm
-
-import seal
 from fhez.rearray import ReArray
 from fhez.nn.layer.layer import Layer
-
 from fhez.nn.graph.node import Node
 
 
 class ANN(Node):
-    """Dense neural network as computational graph."""
+    """Dense artificial neural network as computational graph."""
 
+    def __init__(self, weights: np.array = None, bias: int = None):
+        """Initialise dense net."""
+        if weights:
+            self.weights = weights
+        if bias:
+            self.bias = bias
 
-class Layer_ANN(Layer):
+    @property
+    def weights(self):
+        """Get the current weights."""
+        if self.__dict__.get("_weights") is None:
+            self._weights = np.array([])
+        return self._weights
 
-    @Layer.fwd
-    def forward(self, x: (np.array, ReArray)):
-        """Take numpy array of objects or ReArray object to calculate y_hat."""
+    @weights.setter
+    def weights(self, weights: np.ndarray):
+        """Set the NN weights or let it self initialise."""
+        if isinstance(weights, tuple):
+            # if given a tuple will self initialise weights
+            # for now this is done at random
+            weights = np.random.rand(*weights)
+        self._weights = weights
+
+    @property
+    def bias(self):
+        """Get ANN sum of products bias."""
+        pass
+
+    @bias.setter
+    def bias(self):
+        """Set ANN sum of products bias."""
+        pass
+
+    def forward(self, x):
+        """Compute forward pass of neural network."""
         # check that first dim matches so they can loop together
         if len(x) != len(self.weights):
             raise ValueError("Mismatched shapes {}, {}".format(
                 len(x),
                 self.weights[0]))
+        # map - product of weight
+        weighted = x * self.weights
+        # reduce - sum of products
+        sum = np.sum(weighted, axis=0)  # sum over only first axis
+        self.inputs.append(x)
+        return sum
 
-        sum = None
-        for i in tqdm(range(len(x)), desc="{}.{}".format(
-            self.__class__.__name__, "forward"),
-            ncols=80, colour="blue"
-        ):
-            t = x[i] * self.weights[i]
-            if sum is None:
-                sum = t
-            else:
-                sum = sum + t
-        # sum is not a single number, it is a multidimensional array
-        # if you just add to this values will be broadcast and added to each
-        # element individually, which makes the maths wrong I.E
-        # 2 + (1+2+3) == (1+2/3) + (2+2/3) + (3+2/3) == 8 != (1+2)+(2+2)+(3+2)
-        # we must divide by the number of elements in ONE batch
-        # or else sum explodes
-        elements_in_batch = sum.size/len(sum)
-        sum += self.bias/elements_in_batch
-        return self.activation_function.forward(sum)
+    def backward(self, gradient):
+        """Compute backward pass of neural network."""
+        return gradient
 
-    @Layer.bwd
-    def backward(self, gradient, x):
-        """Calculate the local gradient of this CNN.
+    def update(self):
+        """Update weights and bias of the network stocastically."""
 
-        Given the gradient that precedes us,
-        what is the local gradient after us.
-        """
-        # activation gradient already calculated for us
-        ag = gradient
-        # iterate over inputs and batches to get per-input-per-batch sums
-        x = np.array(x)
-        per_input_batch_sums = []
-        for i in tqdm(range(len(x)), desc="{}.{}".format(
-                self.__class__.__name__, "backward"),
-            ncols=80, colour="blue"
-        ):
-            batch_sums = []
-            for j in range(len(x[i])):
-                sum = np.sum(x[i][j])
-                batch_sums.append(sum)
-            per_input_batch_sums.append(batch_sums)
-        x = np.array(per_input_batch_sums)
+    def updates(self):
+        """Update weights and bias as one batch all together."""
 
-        # save gradients of parameters with respect to output
-        self.bias_gradient = 1 * ag
-        self.weights_gradients = x * ag
-        # calculate the average of these gradient between batches
-        self.bias_gradient = np.sum(
-            self.bias_gradient, axis=1)/self.bias_gradient.shape[1]
-        self.weights_gradients = np.sum(
-            self.weights_gradients, axis=1)/self.weights_gradients.shape[1]
-
-        # calculate gradient with respect to fully connected ANN
-        df_dx = np.array(list(map(lambda a: a * np.squeeze(ag, axis=0),
-                                  self.weights)))
-        return df_dx
+    @property
+    def cost(self):
+        """Get no cost of a this node."""
+        return 2
 
 
-class ann_tests(unittest.TestCase):
-    """Unit test class aggregating all tests for the cnn class"""
+class Ann_Tests(unittest.TestCase):
+
+    @property
+    def data_shape(self):
+        return (3, 32, 32, 3)
 
     @property
     def data(self):
+        """Get some generated data."""
         # array = np.arange(1*32*32*3)
         # array.shape = (1, 32, 32, 3)
-        array = np.random.rand(2, 3, 4)
+        array = np.random.rand(*self.data_shape)
         return array
 
     @property
     def reseal_args(self):
+        """Get some reseal arguments for encryption."""
         return {
             "scheme": seal.scheme_type.CKKS,
             "poly_modulus_degree": 8192*2,  # 438
@@ -115,95 +110,49 @@ class ann_tests(unittest.TestCase):
         }
 
     def setUp(self):
+        """Start timer and init variables."""
         import time
 
-        self.weights = (1, 3, 3, 3)  # if tuple allows cnn to initialise itself
+        self.weights = (3,)  # if tuple allows cnn to initialise itself
         self.stride = [1, 3, 3, 3]  # stride list per-dimension
         self.bias = 0  # assume no bias at first
 
         self.startTime = time.time()
 
     def tearDown(self):
+        """Calculate and print time delta."""
         import time  # dont want time to be imported unless testing as unused
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
-    def test_ann_shapes(self):
-        """Test both numpy and ReArray input result in desired ann output."""
-        import copy
+    def test_test(self):
+        """Check our testing values meet requirements."""
+        # check data is the shape we desire/ gave it to generate
+        self.assertEqual(self.data.shape, self.data_shape)
+        # check weights length matches first dim of data
+        self.assertEqual(len(self.weights), self.data_shape[0])
+        # check data is between 0-1
+        self.assertLessEqual(self.data[0], 1)
 
-        x_dummy = ReArray(self.data, **self.reseal_args)
-        x = []
-        num_inputs = 5
-        for i in range(num_inputs):
-            r = ReArray(clone=x_dummy, plaintext=self.data)
-            x.append(r)
-        self.assertIsInstance(x[i], ReArray)
+    def test_init(self):
+        """Check object initialisation works."""
+        ANN(weights=self.weights, bias=self.bias)
 
-        ann = Layer_ANN(weights=(num_inputs,),
-                        bias=self.bias)
-        np_ann = copy.deepcopy(ann)
-        previous_activation = None
+    def test_forward(self, data=None):
+        """Check forward pass works as expected."""
+        ann = ANN(weights=self.weights, bias=self.bias)
+        data = self.data if data is None else data
+        acti = ann.forward(x=data)
+        return acti
 
-        for i in range(10):
-            debug = {}
-            print("ANN ITERATION:", i)
-            debug["iteration"] = i
-            # FORWARD PASS TEST
-            activations = ann.forward(x)
-            np_activations = np_ann.forward(np.array(x))
-            # check that output is equal in shape to any single input ndarray
-            # also check that ReArray and numpy produce the same results
-            self.assertEqual(activations.shape, x_dummy.shape)
-            self.assertEqual(np_activations.shape, x_dummy.shape)
-            # self.assertListEqual(
-            #     np.around(np.array(activations),
-            #               decimals=2).flatten().tolist(),
-            #     np.around(np.array(np_activations),
-            #               decimals=2).flatten().tolist(),
-            # )
-            a = np.array(np_activations)
-            # print(a, "\n", a.shape)
-            for _ in range(1, a.ndim):
-                a = a.sum(axis=-1)
-                # print(a, "\n", a.shape)
-            a = np.around(a.mean(axis=0), decimals=5)
-            debug["activation-np"] = a
-
-            # CHECK IF MORE ACCURATE PREDICTION
-            # print(a)
-            current_loss = 1-a
-            debug["target"] = 1
-            debug["loss-np"] = current_loss
-            if previous_activation is not None:
-                previous_loss = 1-previous_activation
-                txt = "loss somehow more inacurate activations".format()
-                # print("current:", abs(current_loss),
-                #       "previous:", abs(previous_loss))
-                # self.assertLess(abs(current_loss), abs(previous_loss), txt)
-            previous_activation = a
-
-            # BACKWARD PASS TEST
-            gradient = ann.backward(1-a)
-            # print("GRADIENT", gradient)
-            np_gradient = np_ann.backward(1-a)
-            debug["gradient-np"] = np_gradient
-            print(debug)
-            # we desire the resultant gradient to be of shape
-            # (num_inputs, num_batches)
-            desired_shape = (num_inputs,) + (len(x_dummy),)
-            self.assertEqual(gradient.shape, desired_shape)
-            self.assertEqual(np_gradient.shape, desired_shape)
-            # self.assertListEqual(
-            #     np.around(np.array(gradient),
-            #               decimals=2).flatten().tolist(),
-            #     np.around(np.array(np_gradient),
-            #               decimals=2).flatten().tolist(),
-            # )
-
-            # UPDATE ANN
-            ann.update()
-            np_ann.update()
+    def test_forward_enc(self):
+        """Check encrypted forward pass works as expected."""
+        data = ReArray(self.data, **self.reseal_args)
+        self.assertIsInstance(data, ReArray)
+        acti = self.test_forward(data=data)
+        self.assertIsInstance(acti, ReArray)
+        plain = np.array(acti)
+        self.assertIsInstance(plain, np.ndarray)
 
 
 if __name__ == "__main__":

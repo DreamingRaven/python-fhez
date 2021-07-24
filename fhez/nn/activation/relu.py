@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-16T00:45:47+01:00
+# @Last modified time: 2021-07-22T18:06:38+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -22,7 +22,7 @@ class RELU(Node):
     @property
     def q(self):
         """Get the current ReLU approximation range."""
-        if self.__dict__.get("q") is None:
+        if self.__dict__.get("_q") is None:
             self._q = 1
         return self._q
 
