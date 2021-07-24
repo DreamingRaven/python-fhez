@@ -1,10 +1,11 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:33:14+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T16:43:56+01:00
+# @Last modified time: 2021-07-24T18:04:56+01:00
 import unittest
 import logging as logger
 import numpy as np
+import time
 
 import seal
 from fhez.rearray import ReArray
@@ -40,8 +41,6 @@ class Ann_Tests(unittest.TestCase):
 
     def setUp(self):
         """Start timer and init variables."""
-        import time
-
         self.weights = (3,)  # if tuple allows cnn to initialise itself
         self.stride = [1, 3, 3, 3]  # stride list per-dimension
         self.bias = 0  # assume no bias at first
