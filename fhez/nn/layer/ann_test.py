@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:33:14+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T18:04:56+01:00
+# @Last modified time: 2021-07-25T15:46:15+01:00
 import unittest
 import logging as logger
 import numpy as np
@@ -49,7 +49,6 @@ class Ann_Tests(unittest.TestCase):
 
     def tearDown(self):
         """Calculate and print time delta."""
-        import time  # dont want time to be imported unless testing as unused
         t = time.time() - self.startTime
         print('%s: %.3f' % (self.id(), t))
 
