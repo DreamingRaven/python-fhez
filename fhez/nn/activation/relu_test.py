@@ -1,13 +1,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-25T16:39:29+01:00
+# @Last modified time: 2021-07-25T18:36:57+01:00
 import time
 import unittest
 import numpy as np
 
-import seal
 from fhez.nn.activation.relu import RELU
+from fhez.rearray import ReArray as Erray  # aliasing for later adjust
 
 
 class Relu_Test(unittest.TestCase):
@@ -28,7 +28,7 @@ class Relu_Test(unittest.TestCase):
     def reseal_args(self):
         """Get some reseal arguments for encryption."""
         return {
-            "scheme": seal.scheme_type.CKKS,
+            "scheme": 2,  # seal.scheme_type.CKK,
             "poly_modulus_degree": 8192*2,  # 438
             # "coefficient_modulus": [60, 40, 40, 60],
             "coefficient_modulus":
@@ -89,3 +89,8 @@ class Relu_Test(unittest.TestCase):
         np.testing.assert_array_almost_equal(acti, truth,
                                              decimal=1,
                                              verbose=True)
+
+    def test_forward_ndarray_encrypted(self, x=None, q=None):
+        """Check Encrypted cyphertext passess through RELU forward."""
+        x = x if x is not None else Erray(self.data[0], **self.reseal_args)
+        print(x)
