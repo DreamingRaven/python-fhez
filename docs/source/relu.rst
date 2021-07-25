@@ -106,7 +106,11 @@ where q is 2
 |relu-approx-derivative-fig|
 
 ReLU Approximate API
---------------------
+++++++++++++++++++++
+
+.. note::
+
+  |api-build-note|
 
 .. autoclass:: fhez.nn.activation.relu.RELU
   :members:

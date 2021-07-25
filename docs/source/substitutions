@@ -28,7 +28,6 @@
 .. |section_optimizers| replace:: :ref:`section_optimizers`
 .. |section_activations| replace:: :ref:`section_activations`
 .. |section_layers| replace:: :ref:`section_layers`
-.. |section_blocks| replace:: :ref:`section_blocks`
 
 .. |section_cnn| replace:: :ref:`section_cnn`
 .. |section_cnn_equations| replace:: :ref:`section_cnn_equations`
