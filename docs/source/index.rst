@@ -79,9 +79,7 @@ Or if you do not have @online support:
   reseal
   rearray
   graph
-  dll
   node
-  building-blocks
   layers
   activations
   optimizers

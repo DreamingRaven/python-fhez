@@ -104,3 +104,9 @@ where q is 2
   \frac{dR(x)}{dx} \approx \frac{dR_a(x)}{dx} = \frac{8}{3\pi q}x + \frac{1}{2}, where\ x \in \{q > x > -q \subset \R \}
 
 |relu-approx-derivative-fig|
+
+ReLU Approximate API
+--------------------
+
+.. autoclass:: fhez.nn.activation.relu.RELU
+  :members:

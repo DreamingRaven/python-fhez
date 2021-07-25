@@ -97,5 +97,5 @@ The derivative of a ANN (:math:`f`) with respect to the input :math:`x`:
 ANN API
 -------
 
-.. autoclass:: fhez.nn.layer.ann.Layer_ANN
+.. autoclass:: fhez.nn.layer.ann.ANN
   :members:
