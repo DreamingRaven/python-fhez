@@ -3,10 +3,12 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T15:43:03+01:00
+# @Last modified time: 2021-07-26T15:28:09+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
+import logging as logger
 from fhez.reseal import ReSeal
+import functools
 
 
 class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
@@ -166,6 +168,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         """numpy element wise universal functions."""
+        # print("ufunc: {}, method: {}".format(ufunc, method))
         if len(inputs) > 2:
             raise ValueError("More inputs than expected 2 in ufunc")
         # if inputs are wrong way around flip and call again
@@ -206,7 +209,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             return func
         return decorator
 
-    @ implements(remap, np.multiply, "__call__")
+    @implements(remap, np.multiply, "__call__")
     def multiply(self, other):
         """Multiplicative Hadmard Product (element-wise multiplication)."""
         other = self._pre_process_other(other)
@@ -219,7 +222,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             accumulator.append(t)
         return ReArray(clone=self, cyphertext=accumulator)
 
-    @ implements(remap, np.add, "__call__")
+    @implements(remap, np.add, "__call__")
     def add(self, other):
         """Additive Hadmard Product (element-wise addition)"""
         other = self._pre_process_other(other)
@@ -235,3 +238,21 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         #     print(row_s, type(row_s), row_o, type(row_o))
         #     accumulator.append(row_s + row_o)
         # return accumulator
+
+    # @implements(remap, np.add, "reduce")
+    # def sum(self, axis=None, out=None):
+    #     """Reduce sum of cyphertext."""
+    #     if axis == 0:
+    #         print("origin", np.array(self), self.shape)
+    #         cyphertext = functools.reduce(lambda x, y: x+y, self.cyphertext)
+    #         print("summation", cyphertext,
+    #               np.array(cyphertext.plaintext).shape)
+    #         print("preview", np.array(cyphertext.plaintext))
+    #         result = ReArray(cyphertext=cyphertext, clone=self)
+    #         print(result.shape)
+    #         return result
+    #     else:
+    #         # we CANNOT fold a single cyphertext, can only sum between
+    #         # cyphertests which for us is axis 0 since we store cyphertexts
+    #         # as a list anything else is impossible
+    #         return NotImplemented

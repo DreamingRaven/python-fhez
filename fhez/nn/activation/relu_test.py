@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-25T18:36:57+01:00
+# @Last modified time: 2021-07-26T15:46:03+01:00
 import time
 import unittest
 import numpy as np
@@ -90,7 +90,63 @@ class Relu_Test(unittest.TestCase):
                                              decimal=1,
                                              verbose=True)
 
-    def test_forward_ndarray_encrypted(self, x=None, q=None):
+    # def test_forward_ndarray_encrypted(self, x=None, q=None):
+    #     """Check Encrypted cyphertext passess through RELU forward."""
+    #     # this is hella slow since the features are independent cyphertexts
+    #     data = self.data[0]
+    #     x = x if x is not None else Erray(data, **self.reseal_args)
+    #     relu = RELU()
+    #     acti = np.array(relu.forward(x))  # forward and decrypt
+    #     truth = data * (data > 0)  # manual RELU calculation on original data
+    #     # print("acti", acti)
+    #     # print("truth", acti)
+    #     # confirm if they are about the same
+    #     np.testing.assert_array_almost_equal(acti, truth,
+    #                                          decimal=1,
+    #                                          verbose=True)
+
+    def test_forwards_ndarray_encrypted(self, x=None, q=None):
         """Check Encrypted cyphertext passess through RELU forward."""
-        x = x if x is not None else Erray(self.data[0], **self.reseal_args)
-        print(x)
+        # ok so it looks like we have a quirk in rearray since its treating
+        # each cyphertext independentley, while the result is the same,
+        # the compute time is orders of magnitude higher. from 4->42 seconds
+        data = self.data
+        data_sum = np.sum(data)
+        x = x if x is not None else Erray(data, **self.reseal_args)
+        relu = RELU(q=q)
+        acti = relu.forward(x)  # forward and decrypt
+        non_commuted_acti = relu.forward(data_sum)
+        np.testing.assert_array_almost_equal(
+            np.sum(np.array(acti)),
+            non_commuted_acti,
+            decimal=1,
+            verbose=True)
+        truth = data * (data > 0)  # manual RELU calculation on original data
+        # print("acti", acti)
+        # print("truth", acti)
+        # confirm if they are about the same
+        np.testing.assert_array_almost_equal(np.array(acti), truth,
+                                             decimal=1,
+                                             verbose=True)
+
+    def test_backward_encrypted(self, x=None, q=None):
+        """Check backward pass working properly calculating gradients."""
+        data = self.data
+        # data = np.array([1.0, 1.0, 0.0])
+        x = x if x is not None else Erray(data, **self.reseal_args)
+        relu = RELU(q=q)
+        acti = relu.forward(x)  # forward and decrypt
+        acti_truth = data * (data > 0)
+        plain_acti = np.array(acti)
+        plain_acti_sum = np.sum(plain_acti)
+        acti_truth_sum = np.sum(acti_truth)
+        # manually calculate true RELU gradient
+        dfdx_truth = 1 if (0.5-acti_truth_sum) > 0 else 0
+        # calculate backward approximation gradient
+        dfdx = relu.backward(0.5 - plain_acti_sum)  # predicting exactly 0.5
+        self.assertEqual(len(relu.gradients), 1)  # check is only set of grads
+        self.assertIsInstance(relu.gradients[0], dict)
+        # assert these two gradients match
+        np.testing.assert_array_almost_equal(dfdx, dfdx_truth,
+                                             decimal=0, verbose=True)
+        # self.assertEqual(dfdx, dfdx_truth)
