@@ -1,13 +1,16 @@
 .. include:: substitutions
 
-.. _section_optimizers:
+.. _section_optimisers:
 
-Optimizers
+Optimisers
 ===============
 
 .. note::
 
   |api-build-note|
 
-Optimizers
+Optimisers
 ++++++++++
+
+.. autoclass:: fhez.nn.optimiser.adam.Adam
+  :members:
