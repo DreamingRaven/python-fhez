@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T15:59:57+01:00
+# @Last modified time: 2021-07-27T16:49:40+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
@@ -24,13 +24,24 @@ class Adam():
     - https://keras.io/api/optimizers/adam/
     """
 
+    def __init__(self,
+                 alpha: float = 0.001,
+                 beta_1: float = 0.9,
+                 beta_2: float = 0.999,
+                 epsilon: float = 1e-8):
+        """Create Adam object with defaults."""
+        self.alpha = alpha
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
+        self.epsilon = epsilon
+
     # HYPERPARAMETERS
 
     @property
     def alpha(self):
-        """Get learning rate hyperparameter.
+        r"""Get learning rate hyperparameter.
 
-        :returns: alpha ($\alpha$)
+        :returns: alpha :math:`\alpha`, defaults to :math:`0.001`
         :rtype: float
         """
         if self.__dict__.get("_alpha") is None:
@@ -44,7 +55,11 @@ class Adam():
 
     @property
     def beta_1(self):
-        """Get first order moment exponential decay rate."""
+        r"""Get first order moment exponential decay rate.
+
+        :returns: beta_1 :math:`\beta_1`, defaults to :math:`0.9`
+        :rtype: float
+        """
         if self.__dict__.get("_beta_1") is None:
             self._beta_1 = 0.9  # standard beta_1 default
         return self._beta_1
@@ -56,7 +71,11 @@ class Adam():
 
     @property
     def beta_2(self):
-        """Get second order moment exponential decay rate."""
+        r"""Get second order moment exponential decay rate.
+
+        :returns: beta_2 :math:`\beta_2`, defaults to :math:`0.999`
+        :rtype: float
+        """
         if self.__dict__.get("_beta_2") is None:
             self._beta_2 = 0.999  # standard beta_2 default
         return self._beta_2
@@ -68,9 +87,17 @@ class Adam():
 
     @property
     def epsilon(self):
-        """Get learning rate hyperparameter."""
+        r"""Get learning rate hyperparameter.
+
+        :returns:
+
+            epsilon :math:`\epsilon` (not :math:`\varepsilon`), defaults to
+            :math:`1e^{-8}`
+
+        :rtype: float
+        """
         if self.__dict__.get("_epsilon") is None:
-            self._epsilon = 1e-08  # standard epsilon default
+            self._epsilon = 1e-8  # standard epsilon default
         return self._epsilon
 
     @epsilon.setter
@@ -117,5 +144,5 @@ class Adam():
         :rtype: dict[str, float]
         """
         for key, value in parms.items():
-            print(grads.get(key))
+            print(grads.get("dfd{}".format(key)))
         return parms
