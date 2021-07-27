@@ -2,10 +2,11 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-15T15:43:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-16T00:41:55+01:00
+# @Last modified time: 2021-07-27T05:07:47+01:00
 
 import abc
 from collections import deque
+from fhez.nn.optimiser.optimiser import DefaultOptimiser
 
 
 class Node(abc.ABC):
@@ -86,6 +87,17 @@ class Node(abc.ABC):
             return self.cache["_gradients"]
         # if cache disabled return dud que
         return deque()
+
+    @property
+    def optimiser(self):
+        """Get optimiser object, E.G Stocastic Gradient Descent."""
+        if self.__dict__.get("_optimiser") is None:
+            self._optimiser = DefaultOptimiser()  # let defaults default
+        return self._optimiser
+
+    @optimiser.setter
+    def optimiser(self, optimiser):
+        self._optimiser = optimiser
 
     # # # Abstract Methods
     # These abstract methods are intended to notify node implementers of any

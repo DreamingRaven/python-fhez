@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T03:41:59+01:00
+# @Last modified time: 2021-07-27T04:26:55+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -89,13 +89,13 @@ class RELU(Node):
     def update(self):
         """Update node state/ weights for a single example."""
         dfd_ = self.gradients.pop()
-        print(dfd_)
+        # print(dfd_)
 
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
         for _ in range(len(self.gradients)):
             dfd_ = self.gradients.pop()
-            print(dfd_)
+            # print(dfd_)
 
 
 if __name__ == "__main__":

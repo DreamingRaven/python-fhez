@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T04:20:35+01:00
+# @Last modified time: 2021-07-27T04:25:31+01:00
 import time
 import unittest
 import numpy as np
@@ -158,3 +158,15 @@ class Relu_Test(unittest.TestCase):
         dfdq_truth = -2.546
         np.testing.assert_array_almost_equal(dfdq, dfdq_truth, decimal=3,
                                              verbose=True)
+
+    def test_updates(self):
+        """Check that updates are atleast happening.
+
+        Tests for the optimizer are part of the respective optimizer not us.
+        """
+        node = RELU()
+        acti = node.forward(self.data)
+        node.backward(0.5 - acti)
+        q_original = node.q
+        node.updates()
+        self.assertNotEqual(q_original, node.q)
