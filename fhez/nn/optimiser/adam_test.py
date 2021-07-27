@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T15:23:00+01:00
+# @Last modified time: 2021-07-27T16:00:16+01:00
 
 import time
 import unittest
@@ -31,8 +31,8 @@ class AdamTest(unittest.TestCase):
         """Check Adam can be initialised using defaults."""
         optimiser = Adam()
         self.assertIsInstance(optimiser, Adam)
-        self.assertIsInstance(optimiser.S_d, np.array)
-        self.assertIsInstance(optimiser.V_d, np.array)
+        self.assertIsInstance(optimiser.S_d, np.ndarray)
+        self.assertIsInstance(optimiser.V_d, np.ndarray)
         optimiser.alpha
         optimiser.beta_1
         optimiser.beta_2

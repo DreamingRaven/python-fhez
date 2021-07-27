@@ -2,13 +2,15 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T14:37:22+01:00
+# @Last modified time: 2021-07-27T15:59:57+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
 # https://openreview.net/pdf?id=ryQu7f-RZ
 # https://www.youtube.com/watch?v=JXQT_vxqwIs&t=276s
 # https://keras.io/api/optimizers/adam/
+
+import numpy as np
 
 
 class Adam():
@@ -82,7 +84,7 @@ class Adam():
     def V_d(self):
         """Get array of parameters."""
         if self.__dict__.get("_V_d") is None:
-            self._V_d = []
+            self._V_d = np.array([])
         return self._V_d
 
     @V_d.setter
@@ -94,7 +96,7 @@ class Adam():
     def S_d(self):
         """Get array of parameters."""
         if self.__dict__.get("_S_d") is None:
-            self._S_d = []
+            self._S_d = np.array([])
         return self._S_d
 
     @S_d.setter
