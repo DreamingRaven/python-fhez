@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T03:52:04+01:00
+# @Last modified time: 2021-07-27T04:20:35+01:00
 import time
 import unittest
 import numpy as np
@@ -128,29 +128,32 @@ class Relu_Test(unittest.TestCase):
         # data = np.array([1.0, 1.0, 0.0])
         x = x if x is not None else Erray(data, **self.reseal_args)
         relu = RELU(q=q)
-        acti = relu.forward(x)  # forward and decrypt
+        relu.forward(np.array(x).flat[0])  # second forward for second backward
+        acti = relu.forward(x)  # forward
         acti_truth = data * (data > 0)
+        self.assertEqual(acti_truth.shape, acti.shape)  # check shape unchanged
         plain_acti = np.array(acti)
-        plain_acti_sum = np.sum(plain_acti)
-        acti_truth_sum = np.sum(acti_truth)
-        # manually calculate true RELU gradient
-        dfdx_truth = 1 if (0.5-acti_truth_sum) > 0 else 0
-        # calculate backward approximation gradient
-        dfdx = relu.backward(0.5 - plain_acti_sum)  # predicting exactly 0.5
-        self.assertEqual(len(relu.gradients), 1)  # check is only set of grads
+
+        dfdx = relu.backward(0.5 - plain_acti)
+        dfdx_single = relu.backward(0.5 - plain_acti.flat[0])
+        self.assertEqual(dfdx.shape, plain_acti.shape)  # check shape unchanged
+        self.assertEqual(dfdx.flat[0].shape, tuple())
+        self.assertEqual(dfdx_single.shape, tuple())
+        self.assertEqual(dfdx.flat[0],
+                         dfdx_single)
+
+        self.assertEqual(len(relu.gradients), 2)  # check is only set of grads
         self.assertIsInstance(relu.gradients[0], dict)
-        # assert these two gradients match
-        np.testing.assert_array_almost_equal(dfdx, dfdx_truth,
-                                             decimal=0, verbose=True)
-        # self.assertEqual(dfdx, dfdx_truth)
 
     def test_gradients(self):
         """Check gradients are calculated properly to known correct."""
         node = RELU()
+        # dfdx check
         dfdx = node.local_dfdx(x=5, q=2)
         dfdx_truth = 2.622  # from manual calculation
         np.testing.assert_array_almost_equal(dfdx, dfdx_truth, decimal=3,
                                              verbose=True)
+        # dfxq check
         dfdq = node.local_dfdq(x=5, q=2)
         dfdq_truth = -2.546
         np.testing.assert_array_almost_equal(dfdq, dfdq_truth, decimal=3,
