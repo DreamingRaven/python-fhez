@@ -32,7 +32,6 @@ This library also supports:
 
 * advanced serialization of cyphertext objects, for transmission over networks using marshmallow
 * |section_masquerade|\ ing
-* |section_commuted_sum|\ ing
 * |section_hadmard_product| cyphertext branching
 
 Cite
