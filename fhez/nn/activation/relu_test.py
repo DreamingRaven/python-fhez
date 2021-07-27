@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T02:48:55+01:00
+# @Last modified time: 2021-07-27T03:52:04+01:00
 import time
 import unittest
 import numpy as np
@@ -143,3 +143,15 @@ class Relu_Test(unittest.TestCase):
         np.testing.assert_array_almost_equal(dfdx, dfdx_truth,
                                              decimal=0, verbose=True)
         # self.assertEqual(dfdx, dfdx_truth)
+
+    def test_gradients(self):
+        """Check gradients are calculated properly to known correct."""
+        node = RELU()
+        dfdx = node.local_dfdx(x=5, q=2)
+        dfdx_truth = 2.622  # from manual calculation
+        np.testing.assert_array_almost_equal(dfdx, dfdx_truth, decimal=3,
+                                             verbose=True)
+        dfdq = node.local_dfdq(x=5, q=2)
+        dfdq_truth = -2.546
+        np.testing.assert_array_almost_equal(dfdq, dfdq_truth, decimal=3,
+                                             verbose=True)

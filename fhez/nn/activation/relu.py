@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T03:38:54+01:00
+# @Last modified time: 2021-07-27T03:41:59+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -60,9 +60,9 @@ class RELU(Node):
         x = np.array(self.inputs.pop())  # TODO not always summed
 
         # df/dx
-        dfdx = self.local_dfdx(x) * gradient
+        dfdx = self.local_dfdx(x, self.q) * gradient
         # df/dq
-        dfdq = self.local_dfdq(x) * gradient
+        dfdq = self.local_dfdq(x, self.q) * gradient
 
         # this function was called using a FILO popped queue
         # so we maintain the order of inputs by flipping again using a FILO que
@@ -73,17 +73,17 @@ class RELU(Node):
         self.gradients.append({"dfdq": dfdq, "dfdx": dfdx})
         return dfdx
 
-    def local_dfdx(self, x):
+    def local_dfdx(self, x, q):
         """Calculate local derivative dfdx."""
         zeroth = 0.5
-        first = 8 / (3 * np.pi * self.q)
+        first = 8 / (3 * np.pi * q)
         return zeroth + first * x
 
-    def local_dfdq(self, x):
+    def local_dfdq(self, x, q):
         """Calculate local derivative dfdq."""
         # \frac{1}{3 pi} - \frac{4x ^ 2}{3 pi q ^ 2}
         zeroth = 1/(3*np.pi)
-        second = (4 * (x**2))/(3 * np.pi * (self.q**2))
+        second = (4 * (x**2))/(3 * np.pi * (q**2))
         return zeroth - second
 
     def update(self):
