@@ -12,5 +12,8 @@ Activations
 Activations
 +++++++++++
 
-.. autoclass:: fhez.nn.activation.activation.Activation
-  :members:
+We currentley support several activation functions that can be found in fhez/nn/activations:
+
+- Linear
+- Sigmoid
+- Relu
