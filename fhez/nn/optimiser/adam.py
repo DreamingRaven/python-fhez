@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T11:44:31+01:00
+# @Last modified time: 2021-07-27T14:37:22+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
@@ -26,7 +26,11 @@ class Adam():
 
     @property
     def alpha(self):
-        """Get learning rate hyperparameter."""
+        """Get learning rate hyperparameter.
+
+        :returns: alpha ($\alpha$)
+        :rtype: float
+        """
         if self.__dict__.get("_alpha") is None:
             self._alpha = 0.001  # SHOULD BE TUNED BY USER
         return self._alpha
@@ -38,14 +42,14 @@ class Adam():
 
     @property
     def beta_1(self):
-        """Set first order moment exponential decay rate."""
+        """Get first order moment exponential decay rate."""
         if self.__dict__.get("_beta_1") is None:
             self._beta_1 = 0.9  # standard beta_1 default
         return self._beta_1
 
     @beta_1.setter
     def beta_1(self, beta_1: float):
-        """Get first order moment exponential decay rate."""
+        """Set first order moment exponential decay rate."""
         self._beta_1 = beta_1
 
     @property
@@ -100,8 +104,16 @@ class Adam():
 
     # CALCULATIONS
 
-    def update(self):
-        pass
+    def optimise(self, parms: dict, grads: dict):
+        """Update given params based on gradients using Adam.
 
-    def updates(self):
-        pass
+        :arg parms: Dictionary of keys (param name), values (param value)
+        :type parms: dict[str, float]
+        :arg grads: Dictionary of keys (param name), values (param gradient)
+        :type grads: dict[str, float]
+        :return: Dictionary of keys (param name), values (proposed new value)
+        :rtype: dict[str, float]
+        """
+        for key, value in parms.items():
+            print(grads.get(key))
+        return parms
