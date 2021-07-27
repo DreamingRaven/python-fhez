@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-26T15:46:03+01:00
+# @Last modified time: 2021-07-27T02:48:55+01:00
 import time
 import unittest
 import numpy as np
@@ -111,16 +111,9 @@ class Relu_Test(unittest.TestCase):
         # each cyphertext independentley, while the result is the same,
         # the compute time is orders of magnitude higher. from 4->42 seconds
         data = self.data
-        data_sum = np.sum(data)
         x = x if x is not None else Erray(data, **self.reseal_args)
         relu = RELU(q=q)
         acti = relu.forward(x)  # forward and decrypt
-        non_commuted_acti = relu.forward(data_sum)
-        np.testing.assert_array_almost_equal(
-            np.sum(np.array(acti)),
-            non_commuted_acti,
-            decimal=1,
-            verbose=True)
         truth = data * (data > 0)  # manual RELU calculation on original data
         # print("acti", acti)
         # print("truth", acti)
