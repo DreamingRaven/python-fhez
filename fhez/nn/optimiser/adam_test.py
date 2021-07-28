@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T16:00:16+01:00
+# @Last modified time: 2021-07-28T21:45:56+01:00
 
 import time
 import unittest
@@ -42,29 +42,34 @@ class AdamTest(unittest.TestCase):
         optimiser = Adam()
         x = 1
         parameters = {
-            "m": 2,
-            "c": 3,
+            # "m": 2,
+            # "c": 3,
+            "m": 0.2,
+            "c": 0.5,
         }
         truth = {
-            "m": 6,
-            "c": 7,
+            "m": 0.9,
+            "c": 0.1,
         }
-        # calculate linear result
-        y_hat = self.linear(x=x, m=parameters["m"], c=parameters["c"])
-        # calculate desired result
-        y = self.linear(x=x, m=truth["m"], c=truth["c"])
-        loss = y - y_hat
-        gradients = {
-            "dfdm": x * loss,
-            "dfdc": 1 * loss,
-        }
-        update = optimiser.optimise(parms=parameters, grads=gradients)
-        self.assertIsInstance(update, dict)
-        print(update)
-        # check keys all still exist
-        self.assertEqual(update.keys(), parameters.keys())
-        # check there has been some update/ change that they are different
-        self.assertNotEqual(update, parameters)
+        for _ in range(20):
+            # calculate linear result
+            y_hat = self.linear(x=x, m=parameters["m"], c=parameters["c"])
+            # calculate desired result
+            y = self.linear(x=x, m=truth["m"], c=truth["c"])
+            loss = np.absolute(y - y_hat)
+            print(loss)
+            gradients = {
+                "dfdm": x * loss,
+                "dfdc": 1 * loss,
+            }
+            update = optimiser.optimise(parms=parameters, grads=gradients)
+            self.assertIsInstance(update, dict)
+            # check keys all still exist
+            self.assertEqual(update.keys(), parameters.keys())
+            # check there has been some update/ change that they are different
+            self.assertNotEqual(update, parameters)
+            parameters = update
+            print(parameters)
 
     def test_momentum(self):
         """Check Adam 1st moment operating properly, and updating vars."""

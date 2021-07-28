@@ -127,30 +127,6 @@ class Adam():
     def cache(self, cache):
         self._cache = cache
 
-    @property
-    def m_t(self):
-        """Biased first moment vector."""
-        if self.__dict__.get("_m_t") is None:
-            self._m_t = {}
-        return self._m_t
-
-    @m_t.setter
-    def m_t(self, m_t):
-        """."""
-        self._m_t = m_t
-
-    @property
-    def v_t(self):
-        """Biased second raw moment vector."""
-        if self.__dict__.get("_v_t") is None:
-            self._v_t = {}
-        return self._v_t
-
-    @v_t.setter
-    def v_t(self, v_t):
-        """."""
-        self._v_t = v_t
-
     # CALCULATIONS
 
     def momentum(self, gradient: float, param_name: str, ord: int = 1):
@@ -240,6 +216,14 @@ class Adam():
         :rtype: dict[str, float]
         :example: Adam().optimise({"b": 1},{"dfdb": 200})
         """
+        out = {}
         for key, value in parms.items():
-            print(grads.get("dfd{}".format(key)))
-        return parms
+            m_hat = self.momentum(
+                param_name=key,
+                gradient=grads.get("dfd{}".format(key)))
+            v_hat = self.rmsprop(
+                param_name=key,
+                gradient=grads.get("dfd{}".format(key)))
+            out[key] = value - ((self.alpha * m_hat)/(np.sqrt(v_hat) +
+                                                      self.epsilon))
+        return out
