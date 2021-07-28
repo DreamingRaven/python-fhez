@@ -108,9 +108,10 @@ class AdamTest(unittest.TestCase):
         """Check Adam 2nd moment operating properly, and updating vars."""
         # expresley setting variables so we can KNOW and answer to verify out
         beta_1 = 0.9
+        beta_2 = 0.999
         optimiser = Adam(alpha=0.001,
                          beta_1=beta_1,
-                         beta_2=0.999,
+                         beta_2=beta_2,
                          epsilon=1e-8)
         x = 1
         parameters = {
@@ -136,8 +137,9 @@ class AdamTest(unittest.TestCase):
 
         # check that internal state has been modified properly
         self.assertEqual(optimiser.cache[name]["t_v"], 2)
-        m_true = (beta_1 * 0) + (1 - beta_1) * gradients["dfd{}".format(name)]
+        m_true = (beta_1 * 0) + (1 - beta_2) * \
+            gradients["dfd{}".format(name)] ** 2
         self.assertEqual(optimiser.cache[name]["v"], m_true)
         # check it has returned a correct value
-        m_hat_true = m_true / (1 - beta_1**1)
+        m_hat_true = m_true / (1 - beta_2**1)
         self.assertEqual(v_hat, m_hat_true)

@@ -153,77 +153,78 @@ class Adam():
 
     # CALCULATIONS
 
-    def momentum(self, gradient: float, param_name: str):
+    def momentum(self, gradient: float, param_name: str, ord: int = 1):
         r"""Calculate momentum, of a single parameter-category/ name.
+
+        This function can calculate either 1st order momentum or 2nd order
+        momentum (rmsprop) since they are both almost identical.
+
+        where moment is 1 (I.E first order):
+
+        - current moment :math:`m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t`
+
+        - decayed moment :math:`\hat{m_t} = \frac{m_t}{1 – \beta_1^t}`
+
+        where moment is 2 (I.E second order/ RMSprop):
+
+        - current moment :math:`v_t = \beta_2 * v_{t-1} + (1-\beta_2) * g_t**2`
+
+        - decayed moment :math:`\hat{v_t} = \frac{v_t}{1 – \beta_2^t}`
+
+        Steps taken:
 
         - retrieve previous momentum from cache dictionary using key
           (param_name) and number of iterations
 
-        - calculate current momentum using previous:
-          :math:`m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t`
+        - calculate current momentum using previous momentum:
 
         - Save current momentum into cache dictionary using key
 
         - calculate current momentum correction/ decay:
-          :math:`\hat{m_t} = \frac{m_t}{1 – \beta_1^t}`
+
+        - return decayed momentum
 
         :arg gradient: gradient at current timestep, usually minibatch
         :arg param_name: key used to look up parameters in m_t dictionary
-        :arg t: current iteration
+        :arg ord: the order of momentum to calculate defaults to 1
         :type gradient: float
         :type param_name: str
-        :return: :math:`\hat{m_t}` corrected/ averaged momentum
+        :type ord: int
+        :return: :math:`\hat{m_t}` corrected/ averaged momentum of order ord
         :rtype: float
-        :example: Adam().momentum(gradient=100, param_name="w")
+        :example: Adam().momentum(gradient=100, param_name="w", ord=1)
         """
         # sanity check to ensure key in dictionary
         if self.cache.get(param_name) is None:
             self.cache[param_name] = {}
         # retrieve number of iterations
-        i = self.cache[param_name].get("t_m")
+        i = self.cache[param_name].get("t_m") if ord == 1 else \
+            self.cache[param_name].get("t_v")
         i = i if i is not None else 1  # starts from 1
         # retrieve previous momentum m_{t-1}
-        m_prev = self.cache[param_name].get("m")
+        m_prev = self.cache[param_name].get("m") if ord == 1 else \
+            self.cache[param_name].get("v")
         m_prev = m_prev if m_prev is not None else 0
+        # get beta we are using here
+        beta = self.beta_1 if ord == 1 else self.beta_2
+        # multiply gradient if ord = 2
+        gradient = gradient if ord == 1 else (gradient * gradient)
 
         # calculate momentum
-        m_t = (self.beta_1 * m_prev) + ((1-self.beta_1) * gradient)
+        m_t = (beta * m_prev) + ((1-beta) * gradient)
         # calculate momentum-correction
-        m_hat = m_t/(1 - self.beta_1**i)
+        m_hat = m_t/(1 - beta**i)
 
         # save non corrected current momentum back
-        self.cache[param_name]["m"] = m_t
+        self.cache[param_name]["m" if ord == 1 else "v"] = m_t
         # increment number of specific iterations of this function
-        self.cache[param_name]["t_m"] = i + 1
+        self.cache[param_name]["t_m" if ord == 1 else "t_v"] = i + 1
         # return \hat{m_t} corrected/ averaged momentum
         return m_hat
 
     def rmsprop(self, gradient: float, param_name: str):
-        r"""Calculate momentum, of a single parameter-category/ name.
-
-        - retrieve previous momentum from cache dictionary using key
-          (param_name) and number of iterations
-
-        - calculate current momentum using previous:
-          :math:`m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t`
-
-        - Save current momentum into cache dictionary using key
-
-        - calculate current momentum correction/ decay:
-          :math:`\hat{m_t} = \frac{m_t}{1 – \beta_1^t}`
-
-        :arg gradient: gradient at current timestep, usually minibatch
-        :arg param_name: key used to look up parameters in m_t dictionary
-        :arg t: current iteration
-        :type gradient: float
-        :type param_name: str
-        :return: :math:`\hat{m_t}` corrected/ averaged momentum
-        :rtype: float
-        :example: Adam().momentum(gradient=100, param_name="w")
-        """
-        # calculate rmsprop
-        # calculate rmsprop correction
-        return None
+        """Get second order momentum."""
+        return self.momentum(gradient=gradient, param_name=param_name, ord=2)
 
     def optimise(self, parms: dict, grads: dict):
         """Update given params based on gradients using Adam.
