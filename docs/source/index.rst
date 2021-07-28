@@ -81,4 +81,5 @@ Or if you do not have @online support:
   node
   layers
   activations
-  optimizers
+  optimisers
+  loss
