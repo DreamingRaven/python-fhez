@@ -2,14 +2,14 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-28T21:43:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-28T22:36:00+01:00
+# @Last modified time: 2021-07-28T22:46:28+01:00
 
 
 import time
 import unittest
 import numpy as np
 
-from fhez.nn.loss.loss import mae
+from fhez.nn.loss.loss import mae, mse
 
 
 class LossTest(unittest.TestCase):
@@ -55,5 +55,12 @@ class LossTest(unittest.TestCase):
         """Check MAE loss function working properly."""
         loss = mae(y=self.y, y_hat=self.y_hat)
         loss_truth = np.mean(np.abs(self.y - self.y_hat))
-        self.assertEqual(loss_truth, 2)
+        # self.assertEqual(loss_truth, 2)
+        self.assertEqual(loss, loss_truth)
+
+    def test_mse(self):
+        """Check MSE loss function working properly."""
+        loss = mse(y=self.y, y_hat=self.y_hat)
+        loss_truth = np.mean(np.square(self.y - self.y_hat))
+        # np.testing.assert_almost_equal(loss_truth, 6.666, decimal=3)
         self.assertEqual(loss, loss_truth)
