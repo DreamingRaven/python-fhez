@@ -22,7 +22,6 @@ class Adam():
     - https://openreview.net/pdf?id=ryQu7f-RZ
     - https://www.youtube.com/watch?v=JXQT_vxqwIs&t=276s
     - https://keras.io/api/optimizers/adam/
-    - https://machinelearningjourney.com/index.php/2021/01/09/adam-optimizer/
     - https://www.geeksforgeeks.org/intuition-of-adam-optimizer/
     """
 
@@ -104,7 +103,7 @@ class Adam():
 
     @epsilon.setter
     def epsilon(self, epsilon: float):
-        r"""epsilon :math:`\epsilon` smoothing term.
+        r"""Epsilon :math:`\epsilon` smoothing term.
 
         :math:`\epsilon` is meant to smooth and prevent division by zero.
         """
@@ -113,55 +112,118 @@ class Adam():
     # Other Properties
 
     @property
-    def V_d(self):
-        """Get dictionary key (name), value (array) of parameters."""
-        if self.__dict__.get("_V_d") is None:
-            self._V_d = {}
-        return self._V_d
+    def cache(self):
+        """Cache of iteration specific values.
 
-    @V_d.setter
-    def V_d(self, V_d):
-        """."""
-        self._V_d = V_d
+        This cache is a dictionary of keys (the parameter name) and values
+        (the parameter specific variables). For example in this cache you can
+        expect to get the previous iterations moment, and number of iterations.
+        """
+        if self.__dict__.get("_cache") is None:
+            self._cache = {}
+        return self._cache
+
+    @cache.setter
+    def cache(self, cache):
+        self._cache = cache
 
     @property
-    def S_d(self):
-        """Get dictionary key (name), value (array) of parameters."""
-        if self.__dict__.get("_S_d") is None:
-            self._S_d = {}
-        return self._S_d
+    def m_t(self):
+        """Biased first moment vector."""
+        if self.__dict__.get("_m_t") is None:
+            self._m_t = {}
+        return self._m_t
 
-    @S_d.setter
-    def S_d(self, S_d):
+    @m_t.setter
+    def m_t(self, m_t):
         """."""
-        self._S_d = S_d
+        self._m_t = m_t
+
+    @property
+    def v_t(self):
+        """Biased second raw moment vector."""
+        if self.__dict__.get("_v_t") is None:
+            self._v_t = {}
+        return self._v_t
+
+    @v_t.setter
+    def v_t(self, v_t):
+        """."""
+        self._v_t = v_t
 
     # CALCULATIONS
 
-    def momentum(self):
-        r"""Calculate momentum, and correction.
+    def momentum(self, gradient: float, param_name: str):
+        r"""Calculate momentum, of a single parameter-category/ name.
 
-        calculate momentum
-        :math:`m = \beta_1m \; – (1-\beta_1) \nabla_\theta J(\theta)`
+        - retrieve previous momentum from cache dictionary using key
+          (param_name) and number of iterations
 
-        calculate momentum correction/ decay
-        :math:`\hat{m} = \frac{m}{1 – \beta_1^t}`
+        - calculate current momentum using previous:
+          :math:`m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t`
+
+        - Save current momentum into cache dictionary using key
+
+        - calculate current momentum correction/ decay:
+          :math:`\hat{m_t} = \frac{m_t}{1 – \beta_1^t}`
+
+        :arg gradient: gradient at current timestep, usually minibatch
+        :arg param_name: key used to look up parameters in m_t dictionary
+        :arg t: current iteration
+        :type gradient: float
+        :type param_name: str
+        :return: :math:`\hat{m_t}` corrected/ averaged momentum
+        :rtype: float
+        :example: Adam().momentum(gradient=100, param_name="w")
         """
+        # sanity check to ensure key in dictionary
+        if self.cache.get(param_name) is None:
+            self.cache[param_name] = {}
+        # retrieve number of iterations
+        i = self.cache[param_name].get("t_m")
+        i = i if i is not None else 1  # starts from 1
+        # retrieve previous momentum m_{t-1}
+        m_prev = self.cache[param_name].get("m")
+        m_prev = m_prev if m_prev is not None else 0
+
         # calculate momentum
-        # calculate momentum correction
+        m_t = (self.beta_1 * m_prev) + ((1-self.beta_1) * gradient)
+        # calculate momentum-correction
+        m_hat = m_t/(1 - self.beta_1**i)
 
-    def rmsprop(self):
-        r"""Calculate rmsprop, and correction.
+        # save non corrected current momentum back
+        self.cache[param_name]["m"] = m_t
+        # increment number of specific iterations of this function
+        self.cache[param_name]["t_m"] = i + 1
+        # return \hat{m_t} corrected/ averaged momentum
+        return m_hat
 
-        calculate rmsprop
-        :math:`s = \beta_2 s + (1-\beta_2)
-        \nabla_\theta J(\theta) \odot \nabla_\theta J(\theta)`
+    def rmsprop(self, gradient: float, param_name: str):
+        r"""Calculate momentum, of a single parameter-category/ name.
 
-        calculate rmsprop correction/ decay
-        :math:`\hat{s} = \frac{s}{1 – \beta_2^t}`
+        - retrieve previous momentum from cache dictionary using key
+          (param_name) and number of iterations
+
+        - calculate current momentum using previous:
+          :math:`m_t = \beta_1 * m_{t-1} + (1-\beta_1) * g_t`
+
+        - Save current momentum into cache dictionary using key
+
+        - calculate current momentum correction/ decay:
+          :math:`\hat{m_t} = \frac{m_t}{1 – \beta_1^t}`
+
+        :arg gradient: gradient at current timestep, usually minibatch
+        :arg param_name: key used to look up parameters in m_t dictionary
+        :arg t: current iteration
+        :type gradient: float
+        :type param_name: str
+        :return: :math:`\hat{m_t}` corrected/ averaged momentum
+        :rtype: float
+        :example: Adam().momentum(gradient=100, param_name="w")
         """
         # calculate rmsprop
         # calculate rmsprop correction
+        return None
 
     def optimise(self, parms: dict, grads: dict):
         """Update given params based on gradients using Adam.

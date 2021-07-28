@@ -31,8 +31,7 @@ class AdamTest(unittest.TestCase):
         """Check Adam can be initialised using defaults."""
         optimiser = Adam()
         self.assertIsInstance(optimiser, Adam)
-        self.assertIsInstance(optimiser.S_d, dict)
-        self.assertIsInstance(optimiser.V_d, dict)
+        self.assertIsInstance(optimiser.cache, dict)
         self.assertIsInstance(optimiser.alpha, float)
         self.assertIsInstance(optimiser.beta_1, float)
         self.assertIsInstance(optimiser.beta_2, float)
@@ -66,3 +65,79 @@ class AdamTest(unittest.TestCase):
         self.assertEqual(update.keys(), parameters.keys())
         # check there has been some update/ change that they are different
         self.assertNotEqual(update, parameters)
+
+    def test_momentum(self):
+        """Check Adam 1st moment operating properly, and updating vars."""
+        # expresley setting variables so we can KNOW and answer to verify out
+        beta_1 = 0.9
+        optimiser = Adam(alpha=0.001,
+                         beta_1=beta_1,
+                         beta_2=0.999,
+                         epsilon=1e-8)
+        x = 1
+        parameters = {
+            "m": 2,
+            "c": 3,
+        }
+        truth = {
+            "m": 6,
+            "c": 7,
+        }
+        # calculate linear result
+        y_hat = self.linear(x=x, m=parameters["m"], c=parameters["c"])
+        # calculate desired result
+        y = self.linear(x=x, m=truth["m"], c=truth["c"])
+        loss = y - y_hat
+        gradients = {
+            "dfdm": x * loss,
+            "dfdc": 1 * loss,
+        }
+        name = "m"
+        m_hat = optimiser.momentum(gradient=gradients["dfd{}".format(name)],
+                                   param_name=name)
+
+        # check that internal state has been modified properly
+        self.assertEqual(optimiser.cache[name]["t_m"], 2)
+        m_true = (beta_1 * 0) + (1 - beta_1) * gradients["dfd{}".format(name)]
+        self.assertEqual(optimiser.cache[name]["m"], m_true)
+        # check it has returned a correct value
+        m_hat_true = m_true / (1 - beta_1**1)
+        self.assertEqual(m_hat, m_hat_true)
+
+    def test_rmsprop(self):
+        """Check Adam 2nd moment operating properly, and updating vars."""
+        # expresley setting variables so we can KNOW and answer to verify out
+        beta_1 = 0.9
+        optimiser = Adam(alpha=0.001,
+                         beta_1=beta_1,
+                         beta_2=0.999,
+                         epsilon=1e-8)
+        x = 1
+        parameters = {
+            "m": 2,
+            "c": 3,
+        }
+        truth = {
+            "m": 6,
+            "c": 7,
+        }
+        # calculate linear result
+        y_hat = self.linear(x=x, m=parameters["m"], c=parameters["c"])
+        # calculate desired result
+        y = self.linear(x=x, m=truth["m"], c=truth["c"])
+        loss = y - y_hat
+        gradients = {
+            "dfdm": x * loss,
+            "dfdc": 1 * loss,
+        }
+        name = "m"
+        v_hat = optimiser.rmsprop(gradient=gradients["dfd{}".format(name)],
+                                  param_name=name)
+
+        # check that internal state has been modified properly
+        self.assertEqual(optimiser.cache[name]["t_v"], 2)
+        m_true = (beta_1 * 0) + (1 - beta_1) * gradients["dfd{}".format(name)]
+        self.assertEqual(optimiser.cache[name]["v"], m_true)
+        # check it has returned a correct value
+        m_hat_true = m_true / (1 - beta_1**1)
+        self.assertEqual(v_hat, m_hat_true)
