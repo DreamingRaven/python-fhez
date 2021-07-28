@@ -167,7 +167,7 @@ class Adam():
 
         where moment is 2 (I.E second order/ RMSprop):
 
-        - current moment :math:`v_t = \beta_2 * v_{t-1} + (1-\beta_2) * g_t**2`
+        - current moment :math:`v_t = \beta_2 * v_{t-1} + (1-\beta_2) * g_t^2`
 
         - decayed moment :math:`\hat{v_t} = \frac{v_t}{1 – \beta_2^t}`
 
