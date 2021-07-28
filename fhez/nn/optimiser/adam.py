@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T16:49:40+01:00
+# @Last modified time: 2021-07-27T16:54:57+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
@@ -87,7 +87,7 @@ class Adam():
 
     @property
     def epsilon(self):
-        r"""Get learning rate hyperparameter.
+        r"""Get epsilon.
 
         :returns:
 

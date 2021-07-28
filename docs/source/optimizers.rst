@@ -9,8 +9,14 @@ Optimisers
 
   |api-build-note|
 
-Optimisers
-++++++++++
+Adam
+++++
 
 .. autoclass:: fhez.nn.optimiser.adam.Adam
+  :members:
+
+Gradient Descent
+++++++++++++++++
+
+.. autoclass:: fhez.nn.optimiser.gd.GD
   :members:
