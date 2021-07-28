@@ -8,6 +8,11 @@
  *
  * Modified by Aloïs Dreyfus: 20190726-1417
  */
+
+html{
+	background-color:  #3c3c3c;
+}
+
 a:visited {
 	color: #bf84d8;
 }
