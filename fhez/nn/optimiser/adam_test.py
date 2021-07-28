@@ -24,19 +24,19 @@ class AdamTest(unittest.TestCase):
         print('%s: %.3f' % (self.id(), t))
 
     def linear(self, x, m, c):
-        """Standard linear function for testing against."""
+        """Calculate standard linear function for testing against."""
         return (m * x) + c
 
     def test_init(self):
         """Check Adam can be initialised using defaults."""
         optimiser = Adam()
         self.assertIsInstance(optimiser, Adam)
-        self.assertIsInstance(optimiser.S_d, np.ndarray)
-        self.assertIsInstance(optimiser.V_d, np.ndarray)
-        optimiser.alpha
-        optimiser.beta_1
-        optimiser.beta_2
-        optimiser.epsilon
+        self.assertIsInstance(optimiser.S_d, dict)
+        self.assertIsInstance(optimiser.V_d, dict)
+        self.assertIsInstance(optimiser.alpha, float)
+        self.assertIsInstance(optimiser.beta_1, float)
+        self.assertIsInstance(optimiser.beta_2, float)
+        self.assertIsInstance(optimiser.epsilon, float)
 
     def test_update_linear(self):
         """Check adam update/ optimisation."""
@@ -47,8 +47,8 @@ class AdamTest(unittest.TestCase):
             "c": 3,
         }
         truth = {
-            "m": 2,
-            "c": 3,
+            "m": 6,
+            "c": 7,
         }
         # calculate linear result
         y_hat = self.linear(x=x, m=parameters["m"], c=parameters["c"])
@@ -62,3 +62,7 @@ class AdamTest(unittest.TestCase):
         update = optimiser.optimise(parms=parameters, grads=gradients)
         self.assertIsInstance(update, dict)
         print(update)
+        # check keys all still exist
+        self.assertEqual(update.keys(), parameters.keys())
+        # check there has been some update/ change that they are different
+        self.assertNotEqual(update, parameters)

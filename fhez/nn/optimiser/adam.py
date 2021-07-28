@@ -22,6 +22,8 @@ class Adam():
     - https://openreview.net/pdf?id=ryQu7f-RZ
     - https://www.youtube.com/watch?v=JXQT_vxqwIs&t=276s
     - https://keras.io/api/optimizers/adam/
+    - https://machinelearningjourney.com/index.php/2021/01/09/adam-optimizer/
+    - https://www.geeksforgeeks.org/intuition-of-adam-optimizer/
     """
 
     def __init__(self,
@@ -102,16 +104,19 @@ class Adam():
 
     @epsilon.setter
     def epsilon(self, epsilon: float):
-        """Set learning rate hyperparameter."""
+        r"""epsilon :math:`\epsilon` smoothing term.
+
+        :math:`\epsilon` is meant to smooth and prevent division by zero.
+        """
         self._epsilon = epsilon
 
     # Other Properties
 
     @property
     def V_d(self):
-        """Get array of parameters."""
+        """Get dictionary key (name), value (array) of parameters."""
         if self.__dict__.get("_V_d") is None:
-            self._V_d = np.array([])
+            self._V_d = {}
         return self._V_d
 
     @V_d.setter
@@ -121,9 +126,9 @@ class Adam():
 
     @property
     def S_d(self):
-        """Get array of parameters."""
+        """Get dictionary key (name), value (array) of parameters."""
         if self.__dict__.get("_S_d") is None:
-            self._S_d = np.array([])
+            self._S_d = {}
         return self._S_d
 
     @S_d.setter
@@ -133,15 +138,44 @@ class Adam():
 
     # CALCULATIONS
 
+    def momentum(self):
+        r"""Calculate momentum, and correction.
+
+        calculate momentum
+        :math:`m = \beta_1m \; – (1-\beta_1) \nabla_\theta J(\theta)`
+
+        calculate momentum correction/ decay
+        :math:`\hat{m} = \frac{m}{1 – \beta_1^t}`
+        """
+        # calculate momentum
+        # calculate momentum correction
+
+    def rmsprop(self):
+        r"""Calculate rmsprop, and correction.
+
+        calculate rmsprop
+        :math:`s = \beta_2 s + (1-\beta_2)
+        \nabla_\theta J(\theta) \odot \nabla_\theta J(\theta)`
+
+        calculate rmsprop correction/ decay
+        :math:`\hat{s} = \frac{s}{1 – \beta_2^t}`
+        """
+        # calculate rmsprop
+        # calculate rmsprop correction
+
     def optimise(self, parms: dict, grads: dict):
         """Update given params based on gradients using Adam.
 
+        Params and grads keys are expected to be `x` and `dfdx` respectiveley.
+        They should match although the x in this case should re replaced by
+        any uniquely identifying string sequence.
         :arg parms: Dictionary of keys (param name), values (param value)
         :type parms: dict[str, float]
         :arg grads: Dictionary of keys (param name), values (param gradient)
         :type grads: dict[str, float]
         :return: Dictionary of keys (param name), values (proposed new value)
         :rtype: dict[str, float]
+        :example: Adam().optimise({"b": 1},{"dfdb": 200})
         """
         for key, value in parms.items():
             print(grads.get("dfd{}".format(key)))
