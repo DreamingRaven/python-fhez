@@ -2,14 +2,14 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-28T21:43:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-28T22:46:28+01:00
+# @Last modified time: 2021-07-29T10:51:38+01:00
 
 
 import time
 import unittest
 import numpy as np
 
-from fhez.nn.loss.loss import mae, mse
+from fhez.nn.loss.loss import mae, mse, rmse
 
 
 class LossTest(unittest.TestCase):
@@ -63,4 +63,12 @@ class LossTest(unittest.TestCase):
         loss = mse(y=self.y, y_hat=self.y_hat)
         loss_truth = np.mean(np.square(self.y - self.y_hat))
         # np.testing.assert_almost_equal(loss_truth, 6.666, decimal=3)
+        self.assertEqual(loss, loss_truth)
+        return loss
+
+    def test_rmse(self):
+        """Check RMSE loss function working properly."""
+        loss = rmse(y=self.y, y_hat=self.y_hat)
+        loss_truth = np.sqrt(self.test_mse())
+        # np.testing.assert_almost_equal(loss_truth, 2.581, decimal=3)
         self.assertEqual(loss, loss_truth)
