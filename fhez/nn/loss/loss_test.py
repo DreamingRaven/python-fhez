@@ -2,14 +2,12 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-28T21:43:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T12:14:08+01:00
+# @Last modified time: 2021-07-30T17:33:53+01:00
 
 
 import time
 import unittest
 import numpy as np
-
-from fhez.nn.loss.loss import mae, mse, rmse
 
 
 class LossTest(unittest.TestCase):
@@ -50,25 +48,3 @@ class LossTest(unittest.TestCase):
     def test_test(self):
         """Check this test is being called."""
         self.assertEqual(self.y.shape, self.y_hat.shape)
-
-    def test_mae(self):
-        """Check MAE loss function working properly."""
-        loss = mae(y=self.y, y_hat=self.y_hat)
-        loss_truth = np.mean(np.abs(self.y - self.y_hat))
-        # self.assertEqual(loss_truth, 2)
-        self.assertEqual(loss, loss_truth)
-
-    def test_mse(self):
-        """Check MSE loss function working properly."""
-        loss = mse(y=self.y, y_hat=self.y_hat)
-        loss_truth = np.mean(np.square(self.y - self.y_hat))
-        # np.testing.assert_almost_equal(loss_truth, 6.666, decimal=3)
-        self.assertEqual(loss, loss_truth)
-        return loss
-
-    def test_rmse(self):
-        """Check RMSE loss function working properly."""
-        loss = rmse(y=self.y, y_hat=self.y_hat)
-        loss_truth = np.sqrt(self.test_mse())
-        # np.testing.assert_almost_equal(loss_truth, 2.581, decimal=3)
-        self.assertEqual(loss, loss_truth)
