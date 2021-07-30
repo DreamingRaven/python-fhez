@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-30T11:52:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T16:42:17+01:00
+# @Last modified time: 2021-07-30T17:31:15+01:00
 import numpy as np
 from fhez.nn.loss.loss import Loss
 
