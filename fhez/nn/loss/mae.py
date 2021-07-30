@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-30T11:52:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T11:53:12+01:00
+# @Last modified time: 2021-07-30T14:33:55+01:00
 import numpy as np
 from fhez.nn.loss.loss import Loss
 
@@ -10,22 +10,34 @@ class MAE(Loss):
     """Loss function to node wrapper."""
 
     def forward(self, y: np.ndarray, y_hat: np.ndarray):
-        """Calculate the loss of the output given the ground truth."""
+        r"""Calculate the loss of the output given the ground truth.
+
+        This will take multiple values for both :math:`y` and :math:`\hat{y}`,
+        and return a
+        single value that is the mean of their absolute difference.
+        """
         self.inputs.append({"y": y, "y_hat": y_hat})
         return np.mean(np.absolute(y - y_hat))
 
     def backward(self, gradient):
-        r"""Calculate MAE gradient with respect to :math:`\hat{y}`."""
+        r"""Calculate MAE gradient with respect to :math:`\hat{y}`.
+
+        This will take a single gradient value, and return the average gradient
+        with respect to :math:`\hat{y}`
+        """
         inp = self.inputs.pop()
         y = inp["y"]
         y_hat = inp["y_hat"]
-        # if y_hat = y then we want the grad to be 0 as its exactly right
-        local_grad = 0
-        if y_hat > y:
-            local_grad = 1
-        elif y_hat < y:
-            local_grad = -1
-        return local_grad * gradient
+        # create an array by element wise comparison against the two inputs
+        # if y==y_hat, then grad=0
+        # if y_hat>y, then grad=1
+        # if y_hat<y, then grad=-1
+        local_grads = (1 * (y_hat > y)) + (-1 * (y_hat < y))
+        # check if we need to give a multidimensional output if each y item
+        # is itself another dimension
+        if len(y_hat.shape) > 1:
+            return np.mean(local_grads, axis=0) * gradient
+        return np.mean(local_grads) * gradient
 
     def update(self):
         """Do nothing as there are no parameters to update."""
