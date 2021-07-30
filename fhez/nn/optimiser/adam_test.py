@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T12:17:01+01:00
+# @Last modified time: 2021-07-30T16:03:22+01:00
 
 import time
 import unittest
@@ -9,7 +9,7 @@ import numpy as np
 
 from fhez.nn.optimiser.adam import Adam
 from fhez.nn.activation.linear import Linear
-from fhez.nn.loss.mae import MAE
+from fhez.nn.loss.mae import MSE
 import copy
 
 
@@ -85,7 +85,7 @@ class AdamTest(unittest.TestCase):
 
     @property
     def lossfunc(self):
-        return MAE
+        return MSE
 
     def test_optimise(self):
         optimiser = self.optimiser

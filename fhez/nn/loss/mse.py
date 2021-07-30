@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-30T14:52:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T15:04:41+01:00
+# @Last modified time: 2021-07-30T16:31:06+01:00
 
 import numpy as np
 from fhez.nn.loss.loss import Loss
@@ -16,6 +16,8 @@ class MSE(Loss):
         This will take multiple values for both :math:`y` and :math:`\hat{y}`,
         and return a
         single value that is the mean of their absolute difference.
+
+        :math:`\text{MSE}=\frac{\sum_{i=0}^{N-1} (y-\hat{y})^2 }{N}`
         """
         self.inputs.append({"y": y, "y_hat": y_hat})
         return np.mean((y - y_hat)**2)
@@ -27,6 +29,8 @@ class MSE(Loss):
         with respect to :math:`\hat{y}`. If :math:`\hat{y}` is more than 1 dim
         it will return a multidimensional array of values which are the
         average gradients in those dims.
+
+        :math:`\frac{d}{d\hat{y}}(\text{MSE})=\sum_{i=0}^{N-1} -2(y-\hat{y})`
         """
         inp = self.inputs.pop()
         y = inp["y"]

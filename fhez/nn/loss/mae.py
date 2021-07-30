@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-30T11:52:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T14:33:55+01:00
+# @Last modified time: 2021-07-30T16:42:17+01:00
 import numpy as np
 from fhez.nn.loss.loss import Loss
 
@@ -15,6 +15,8 @@ class MAE(Loss):
         This will take multiple values for both :math:`y` and :math:`\hat{y}`,
         and return a
         single value that is the mean of their absolute difference.
+
+        :math:`\text{MAE}=\frac{\sum_{i=0}^{N-1} \left\|y-\hat{y}\right\| }{N}`
         """
         self.inputs.append({"y": y, "y_hat": y_hat})
         return np.mean(np.absolute(y - y_hat))
@@ -24,6 +26,8 @@ class MAE(Loss):
 
         This will take a single gradient value, and return the average gradient
         with respect to :math:`\hat{y}`
+
+        :math:`\dfrac{d}{d\hat{y}}(\text{MAE}) = \begin{cases} +1,\quad \hat{y}>y\\ \ \ \ 0,\quad \hat{y}=y\\-1,\quad \hat{y}<y \end{cases}`
         """
         inp = self.inputs.pop()
         y = inp["y"]
