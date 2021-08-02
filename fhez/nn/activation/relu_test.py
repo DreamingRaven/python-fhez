@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-25T15:40:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T04:25:31+01:00
+# @Last modified time: 2021-08-02T16:23:48+01:00
 import time
 import unittest
 import numpy as np
@@ -169,4 +169,8 @@ class Relu_Test(unittest.TestCase):
         node.backward(0.5 - acti)
         q_original = node.q
         node.updates()
-        self.assertNotEqual(q_original, node.q)
+        # checking if weight has been changed we dont care if correct as
+        # that is a test for the optimiser itself
+        # NOTE: since the data is multidimensional Q will also have
+        # become multidimensional unless there is a savetey guard on the setter
+        self.assertNotEqual(q_original, node.q.flatten()[0])
