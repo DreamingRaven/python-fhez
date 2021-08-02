@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T12:47:05+01:00
+# @Last modified time: 2021-08-02T14:33:44+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
@@ -208,6 +208,7 @@ class Adam():
         Params and grads keys are expected to be `x` and `dfdx` respectiveley.
         They should match although the x in this case should re replaced by
         any uniquely identifying string sequence.
+
         :arg parms: Dictionary of keys (param name), values (param value)
         :type parms: dict[str, float]
         :arg grads: Dictionary of keys (param name), values (param gradient)
