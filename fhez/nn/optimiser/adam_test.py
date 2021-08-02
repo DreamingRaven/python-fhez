@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T17:42:41+01:00
+# @Last modified time: 2021-08-02T14:28:46+01:00
 
 import time
 import unittest
@@ -45,7 +45,7 @@ class AdamTest(unittest.TestCase):
 
     @property
     def x(self):
-        return 2
+        return np.array([2])
 
     @property
     def nn(self):
@@ -64,23 +64,25 @@ class AdamTest(unittest.TestCase):
             "c": 0.5
         }
         truth = {
-            "m": 0.9,
-            "c": 0.1,
+            "m": 0.402,
+            "c": 0.5,
         }
-        nn = self.nn(**parameters)
-        nn_optimal = self.nn(**truth)
-
-        # get predicted and optimal output
-        y_hat = nn.forward(x)
+        nn = self.nn(**parameters, optimiser=optimiser)
+        nn_optimal = self.nn(**truth, optimiser=optimiser)
         y = nn_optimal.forward(x)
 
-        # calculate the loss and gradient with respect to y_hat
-        loss = lossfunc.forward(y=y, y_hat=y_hat)
-        dloss_y_hat = lossfunc.backward(loss)
-        # TODO: calculate backprop of loss function
-        # TODO apply chain rule to loss function backprop to update wieghts
-        raise NotImplementedError("This function is not complete.")
-        # chain rule effect of parameters on y_hat
+        for i in range(100):
+            # get predicted and optimal output
+            y_hat = nn.forward(x)
+            # calculate the loss and gradient with respect to y_hat
+            loss = lossfunc.forward(y=y, y_hat=y_hat)
+            if i == 0:
+                original_loss = loss
+            dloss_y_hat = lossfunc.backward(loss)
+            nn.backward(dloss_y_hat)
+            nn.updates()  # this will now call adam to update its weights
+        print("Adam loss {}, originally {}".format(loss, original_loss))
+        self.assertLess(loss, original_loss)
 
     def test_momentum(self):
         """Check Adam 1st moment operating properly, and updating vars."""
