@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-15T15:43:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-27T05:07:47+01:00
+# @Last modified time: 2021-08-02T16:08:32+01:00
 
 import abc
 from collections import deque
@@ -98,6 +98,55 @@ class Node(abc.ABC):
     @optimiser.setter
     def optimiser(self, optimiser):
         self._optimiser = optimiser
+
+    def updater(self, parm_names: list, it=None):
+        """Private function to universaly update any Node instance.
+
+        To simplify the process of updating so and to reduce code duplication,
+        this function serves to derive all the important information given
+        a parameter dictionary. It will then infer from the dictionary the
+        attributes with which to modify.
+        """
+        it = it if it is not None else len(self.gradients)
+        # we store our gradients with names, this is because we want to be
+        # able to identify, hold, or modify individual gradients easier
+        # than say if they were stored in an array.
+
+        # cumulate like gradients into sums
+        batch_sums = {}
+        grad_count = {}  # in case some gradients have been held
+        # for however many gradients we are told to iterate
+        for _ in range(it):
+            # for each examples gradient
+            gradient_dict = self.gradients.pop()
+            for key, value in gradient_dict.items():
+                # if no sum already start at 0
+                if batch_sums.get(key) is None:
+                    batch_sums[key] = 0
+                if grad_count.get(key) is None:
+                    grad_count[key] = 0
+                # add gradient to sum of gradients
+                batch_sums[key] += value
+                # iterate gradient specific counter by one to keep track
+                grad_count[key] += 1
+
+        # now get the average of what we have counted and summed
+        avg_gradients = {}
+        for key, value in batch_sums.items():
+            avg_gradients[key] = value / grad_count[key]
+        # here only for compatibility but still wanted to be explicit they are
+        # averages
+        gradients = avg_gradients
+
+        # get data based on name thanks to the magic of getattr
+        parameters = {}
+        for i in parm_names:
+            parameters[i] = getattr(self, i)
+        # call optimiser to calculate probably better weights
+        update = self.optimiser.optimise(parms=parameters, grads=gradients)
+        # use update dictionary to grab the new weights and set what we want
+        for key, value in update.items():
+            setattr(self, key, value)
 
     # # # Abstract Methods
     # These abstract methods are intended to notify node implementers of any
