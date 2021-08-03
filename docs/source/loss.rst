@@ -1,20 +1,17 @@
 Loss Functions
 ==============
 
+Loss functions are responsible for calculating some measure of wrongness. We usually use these to inform the neural network and us, just how good or bad our predictions :math:`\hat{y}` are compared to the ground truth :math:`y`.
+
+.. toctree::
+  :glob:
+  :maxdepth: 3
+  :caption: Loss Functions
+
+  /losses/*
+
 Loss Abstraction
-++++++++++++++++
+################
 
 .. automodule:: fhez.nn.loss.loss
-  :members:
-
-Mean Squared Error (MSE)
-++++++++++++++++++++++++
-
-.. automodule:: fhez.nn.loss.mse
-  :members:
-
-Mean Absolute Error (MAE)
-+++++++++++++++++++++++++
-
-.. automodule:: fhez.nn.loss.mae
   :members:
