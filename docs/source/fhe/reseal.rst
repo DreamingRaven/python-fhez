@@ -1,4 +1,4 @@
-.. include:: substitutions
+.. include:: /substitutions
 
 ReSeal
 ######
