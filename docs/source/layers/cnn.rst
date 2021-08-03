@@ -1,18 +1,18 @@
-.. include:: substitutions
+.. include:: /substitutions
 
-.. |hadmard-fig| image:: img/hadmard-product.svg
+.. |hadmard-fig| image:: /img/hadmard-product.svg
   :width: 400
   :alt: Hadmard product of two 2D matrices
 
-.. |cnn-fig| image:: img/cnn.svg
+.. |cnn-fig| image:: /img/cnn.svg
   :width: 700
   :alt: Full CNN computational graph
 
-.. |cnn-ann-loss-fig| image:: img/cnn-ann-loss.svg
+.. |cnn-ann-loss-fig| image:: /img/cnn-ann-loss.svg
   :width: 700
   :alt: Full end-to-end cnn-ann-loss computational graph
 
-.. |kernel-masquerade-fig| image:: img/kernel-masquerade.svg
+.. |kernel-masquerade-fig| image:: /img/kernel-masquerade.svg
   :width: 700
   :alt: Kernel masquerading as a mask.
 

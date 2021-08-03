@@ -3,14 +3,11 @@
 .. _section_layers:
 
 Layers
-===============
+======
 
-.. note::
+.. toctree::
+  :glob:
+  :maxdepth: 3
+  :caption: Neural Network Layers
 
-  |api-build-note|
-
-Layers
-++++++
-
-.. autoclass:: fhez.nn.layer.layer.Layer
-  :members:
+  /layers/*

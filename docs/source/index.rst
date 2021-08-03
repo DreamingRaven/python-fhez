@@ -71,8 +71,6 @@ Or if you do not have @online support:
   fhe
   install
   examples
-  ann
-  cnn
   reseal
   rearray
   graph
