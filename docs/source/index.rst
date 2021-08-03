@@ -73,8 +73,6 @@ Or if you do not have @online support:
   examples
   ann
   cnn
-  sigmoid
-  relu
   reseal
   rearray
   graph

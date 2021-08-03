@@ -1,18 +1,18 @@
-.. include:: substitutions
+.. include:: /substitutions
 
-.. |sigmoid-fig| image:: img/sigmoid.png
+.. |sigmoid-fig| image:: /img/sigmoid.png
   :width: 400
   :alt: Graph of sigmoid plotted on 2d axes
 
-.. |sigmoid-approx-fig| image:: img/sigmoid-approx.png
+.. |sigmoid-approx-fig| image:: /img/sigmoid-approx.png
   :width: 400
   :alt: Graph of sigmoid-approximation plotted on 2d axes, where there is overlap between the range -4 and 4 but significant divergence outside this range
 
-.. |sigmoid-derivative-fig| image:: img/sigmoid-derivative.png
+.. |sigmoid-derivative-fig| image:: /img/sigmoid-derivative.png
   :width: 400
   :alt: Graph of sigmoids derivative plotted on 2d axes, showing a flat line at y=0 with a slight bump near x=0
 
-.. |sigmoid-approx-derivative-fig| image:: img/sigmoid-approx-derivative.png
+.. |sigmoid-approx-derivative-fig| image:: /img/sigmoid-approx-derivative.png
   :width: 400
   :alt: Graph of sigmoid-apprximation derivative plotted on 2d axes showing significant overlap with the normal sigmoid derivative, within the range -4 to 4 =x where the normal derivative "bumps", but this extends down to negative infinity quickly after on both sides
 
@@ -94,3 +94,13 @@ Sigmoid-Approximation :math:`\sigma_a(x)`
   \frac{d\sigma(x)}{dx} \approx \frac{d\sigma_a(x)}{dx} = 0.0 + 0.197 + (-0.004*3)x^2 = 0.197 + -0.012x^2, where\ x \in \{4 > x > -4 \subset \R \}
 
 |sigmoid-approx-derivative-fig|
+
+Sigmoid API
++++++++++++
+
+.. note::
+
+  |api-build-note|
+
+.. autoclass:: fhez.nn.activation.sigmoid.Sigmoid
+  :members:

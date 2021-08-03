@@ -1,22 +1,22 @@
-.. include:: substitutions
+.. include:: /substitutions
 
-.. |relu-fig| image:: img/relu.png
+.. |relu-fig| image:: /img/relu.png
   :width: 400
   :alt: Graph of relu plotted on 2d axes
 
-.. |relu-approx-fig| image:: img/relu-approx.png
+.. |relu-approx-fig| image:: /img/relu-approx.png
   :width: 400
   :alt: Graph of relu-approximation plotted on 2d axes, where the approximation range is -1,1
 
-.. |relu-approx-2-fig| image:: img/relu-approx-2.png
+.. |relu-approx-2-fig| image:: /img/relu-approx-2.png
   :width: 400
   :alt: Graph of relu-approximation plotted on 2d axes, where the approximation range is -2,2
 
-.. |relu-derivative-fig| image:: img/relu-derivative.png
+.. |relu-derivative-fig| image:: /img/relu-derivative.png
   :width: 400
   :alt: Graph of relus derivative plotted on 2d axes, showing a flat line at y=0 with a slight bump near x=0
 
-.. |relu-approx-derivative-fig| image:: img/relu-approx-derivative.png
+.. |relu-approx-derivative-fig| image:: /img/relu-approx-derivative.png
   :width: 400
   :alt: Graph of relu-apprximation derivative plotted on 2d axes showing significant overlap with the normal relu derivative, within the range -4 to 4 =x where the normal derivative "bumps", but this extends down to negative infinity quickly after on both sides
 
