@@ -74,7 +74,6 @@ Or if you do not have @online support:
   reseal
   rearray
   graph
-  node
   layers
   activations
   optimisers
