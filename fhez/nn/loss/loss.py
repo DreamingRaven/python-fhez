@@ -3,13 +3,14 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-28T21:37:24+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-30T17:31:24+01:00
+# @Last modified time: 2021-08-03T11:15:14+01:00
 
+import abc
 from collections import deque
 import numpy as np
 
 
-class Loss():
+class Loss(abc.ABC):
     """Abstract loss class to unify loss function format."""
 
     @property
@@ -61,3 +62,13 @@ class Loss():
             return self.cache["_inputs"]
         # if cache disabled return dud que
         return deque()
+
+    # ABSTRACT METHODS
+
+    @abc.abstractmethod
+    def forward(self, y: np.ndarray, y_hat: np.ndarray):
+        """Calculate loss(es) given one or more truths."""
+
+    @abc.abstractmethod
+    def backward(self, gradient: np.ndarray):
+        r"""Calculate gradient of loss with respect to :math:`\hat{y}`."""

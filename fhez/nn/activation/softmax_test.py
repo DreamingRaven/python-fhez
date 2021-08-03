@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:01:04+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T22:04:07+01:00
+# @Last modified time: 2021-08-03T14:47:50+01:00
 
 import time
 import unittest
@@ -27,5 +27,17 @@ class SoftmaxTest(unittest.TestCase):
         activation = Softmax()
         self.assertIsInstance(activation, Softmax)
 
-    def test_completed_softmax(self):
-        raise NotImplementedError("Softmax has not been completed.")
+    def test_backward(self):
+        x = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0]
+        softmax = Softmax()
+        a = softmax.forward(x)
+        truth = [0.024, 0.064, 0.175, 0.475, 0.024, 0.064, 0.175]
+        softmax.backward(gradient=np.array([0, 0, 0, 1, 0, 0, 0]))
+
+    def test_forward(self):
+        x = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0]
+        softmax = Softmax()
+        a = softmax.forward(x)
+        truth = [0.024, 0.064, 0.175, 0.475, 0.024, 0.064, 0.175]
+        np.testing.assert_array_almost_equal(a, truth,
+                                             decimal=3, verbose=True)
