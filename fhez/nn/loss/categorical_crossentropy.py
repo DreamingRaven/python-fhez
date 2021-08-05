@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T17:26:18+01:00
+# @Last modified time: 2021-08-05T23:11:59+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -19,6 +19,8 @@ class CategoricalCrossentropy(Loss):
 
         :math:`-\sum_{c=0}^{C-1} y_c * \log_e(\hat{y_c})`
         """
+        assert np.sum(y) == 1.0, "sum of y should equal exactly 1"
+        assert np.sum(y_hat) == 1.0, "sum of y_hat should equal exactly 1"
         return -np.sum(y * np.log(y_hat))
 
     def backward(self, gradient: np.ndarray):
