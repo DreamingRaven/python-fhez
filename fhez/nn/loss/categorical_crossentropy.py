@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T12:37:47+01:00
+# @Last modified time: 2021-08-05T17:26:18+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -19,22 +19,16 @@ class CategoricalCrossentropy(Loss):
 
         :math:`-\sum_{c=0}^{C-1} y_c * \log_e(\hat{y_c})`
         """
-        return -1 * np.sum(y * np.log(y_hat))
+        return -np.sum(y * np.log(y_hat))
 
     def backward(self, gradient: np.ndarray):
         r"""Calculate gradient of loss with respect to :math:`\hat{y}`."""
-        x = self.inputs.pop()  # get original potentially encrypted values
-        for key, value in x.items():
+        inp = self.inputs.pop()  # get original potentially encrypted values
+        for key, value in inp.items():
             # for each value in dictionary ensure it is a numpy array
             # which also means decrypting if possible
-            x[key] = np.array(value)
+            inp[key] = np.array(value)
 
-        # use these values to recalculate the loss as we will need this
-        loss = self.loss(**x)
-
-        # get the maximum gradient index so we know which gradients go where
-        # as one gradient is different to all the others if it is the correct
-        # output
-        i = np.argmax(gradient)
-        print("x: {}, loss: {}, i: {}".format(x, loss, i))
-        raise NotImplementedError("This function is incomplete.")
+        dfdpy = -1 / (inp["y_hat"])  # calculate local gradient
+        dfdpy = dfdpy * inp["y"]  # multiply each by actual probability
+        return dfdpy * gradient
