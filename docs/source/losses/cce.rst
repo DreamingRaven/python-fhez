@@ -1,10 +1,7 @@
-.. include:: /substitutions
 
-Softmax
-#######
+Categorical Cross Entropy (CCE)
+###############################
 
-Softmax API
-+++++++++++
 
 .. |classification-network-fig| image:: /img/classification_network.svg
   :width: 800
@@ -12,5 +9,5 @@ Softmax API
 
 |classification-network-fig|
 
-.. autoclass:: fhez.nn.activation.softmax.Softmax
+.. autoclass:: fhez.nn.loss.categorical_crossentropy.CategoricalCrossentropy
   :members:

@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:00:06+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-03T14:52:04+01:00
+# @Last modified time: 2021-08-05T13:44:01+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -14,16 +14,28 @@ class Softmax(Node):
     def forward(self, x: np.ndarray):
         r"""Calculate the soft maximum of some input :math:`x`.
 
-        :math:`\sigma(x) = \frac{e^{x_i}}{\sum_{i=0}^{C-1}y_i\log\hat{y}}`
+        :math:`\hat{p(y_i)} = \frac{e^{a_i}}{\sum_{j=0}^{C-1}e^{a_j}}`
 
-        where: :math:`C` is the number of classes
+        where: :math:`C` is the number of classes, and :math:`i` is the current
+        class being processed.
         """
-        return np.exp(x)/np.sum(np.exp(x))
+        # self.inputs.append(x)
+        out = np.exp(x)/np.sum(np.exp(x))
+        self.inputs.append(out)  # NOTE appending x_softmaxed not x
+        return out
 
     def backward(self, gradient: np.ndarray):
-        """Calculate backward pass for singular example."""
-        raise NotImplementedError
-        # return None
+        r"""Calculate the soft maximum derivative with respect to each input.
+
+        .. math::
+
+            \frac{d\textit{SMAX(a)}}{da_i} = \begin{cases} \hat{p(y_i)} (1 - \hat{p(y_i)}), & \text{if}\ c=i \\ -\hat{p(y_c)} * \hat{p(y_i)}, & \text{otherwise} \end{cases}
+
+        where: :math:`c` is the one hot encoded index of the correct/ true classification, and :math:`i` is the current index for the current classification.
+        """
+        # softmax derivative does not need x it needs the x_softmaxed
+        x = np.array(self.inputs.pop())  # note this is x_softmaxed
+        return None
 
     @property
     def cost(self):
