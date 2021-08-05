@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-04T16:13:51+01:00
+# @Last modified time: 2021-08-05T23:29:47+01:00
 
 import time
 import unittest
@@ -51,9 +51,18 @@ class SoftmaxTest(unittest.TestCase):
         return t
 
     def test_forward(self):
+        """Check generic CCE forward pass and results."""
         loss_func = CategoricalCrossentropy()
         loss = loss_func.forward(y=self.y, y_hat=self.y_hat)
         print("CC LOSS:", loss)
+
+    def test_forward_exact(self):
+        """Check perfect CCE forward pass is 0."""
+        loss_func = CategoricalCrossentropy()
+        y = np.array([1, 0, 0])
+        loss = loss_func.forward(y=y, y_hat=y)
+        # if 0 is not handled properly it causes infinite and nans
+        self.assertEqual(loss, 0)  # check no loss as perfect
 
     def test_backward(self):
         loss_func = CategoricalCrossentropy()

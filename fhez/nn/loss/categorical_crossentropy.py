@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T23:11:59+01:00
+# @Last modified time: 2021-08-05T23:19:39+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -17,7 +17,16 @@ class CategoricalCrossentropy(Loss):
     def loss(self, y: np.ndarray, y_hat: np.ndarray):
         r"""Calculate the categorical cross entryopy statelessley.
 
-        :math:`-\sum_{c=0}^{C-1} y_c * \log_e(\hat{y_c})`
+        .. math::
+
+            -\sum_{i=0}^{C-1} y_i * \log_e(\hat{y_i})
+
+        where:
+
+        .. math::
+
+            \sum_{i=0}^{C-1} \hat{p(y_i)} = 1
+            \sum_{i=0}^{C-1} p(y_i) = 1
         """
         assert np.sum(y) == 1.0, "sum of y should equal exactly 1"
         assert np.sum(y_hat) == 1.0, "sum of y_hat should equal exactly 1"
