@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:00:06+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T13:44:01+01:00
+# @Last modified time: 2021-08-05T15:04:19+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -9,7 +9,7 @@ from fhez.nn.optimiser.adam import Adam
 
 
 class Softmax(Node):
-    """."""
+    """Softmax activation, normalising sum of inputs to 1, as probability."""
 
     def forward(self, x: np.ndarray):
         r"""Calculate the soft maximum of some input :math:`x`.
@@ -29,9 +29,13 @@ class Softmax(Node):
 
         .. math::
 
-            \frac{d\textit{SMAX(a)}}{da_i} = \begin{cases} \hat{p(y_i)} (1 - \hat{p(y_i)}), & \text{if}\ c=i \\ -\hat{p(y_c)} * \hat{p(y_i)}, & \text{otherwise} \end{cases}
+            \frac{d\textit{SMAX(a)}}{da_i} = \begin{cases} \hat{p(y_i)}
+            (1 - \hat{p(y_i)}), & \text{if}\ c=i \\ -\hat{p(y_c)} *
+            \hat{p(y_i)}, & \text{otherwise} \end{cases}
 
-        where: :math:`c` is the one hot encoded index of the correct/ true classification, and :math:`i` is the current index for the current classification.
+        where: :math:`c` is the one hot encoded index of the correct/ true
+        classification, and :math:`i` is the current index for the current
+        classification.
         """
         # softmax derivative does not need x it needs the x_softmaxed
         x = np.array(self.inputs.pop())  # note this is x_softmaxed
