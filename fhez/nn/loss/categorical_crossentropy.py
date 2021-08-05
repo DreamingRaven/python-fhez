@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T23:19:39+01:00
+# @Last modified time: 2021-08-05T23:41:05+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -30,7 +30,11 @@ class CategoricalCrossentropy(Loss):
         """
         assert np.sum(y) == 1.0, "sum of y should equal exactly 1"
         assert np.sum(y_hat) == 1.0, "sum of y_hat should equal exactly 1"
-        return -np.sum(y * np.log(y_hat))
+        # CLIP values so we never get log(0) = infinity!
+        # also clipping the maximum to reduce bias!
+        # e.g clip([0, 1, 0]) = [1e-07, 0.9999999, 1e-07]
+        y_hat_clipped = np.clip(y_hat, 1e-07, 1-1e-07)
+        return -np.sum(y * np.log(y_hat_clipped))
 
     def backward(self, gradient: np.ndarray):
         r"""Calculate gradient of loss with respect to :math:`\hat{y}`."""
