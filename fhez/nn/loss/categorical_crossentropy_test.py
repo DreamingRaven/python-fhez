@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-06T15:19:06+01:00
+# @Last modified time: 2021-08-06T19:41:52+01:00
 
 import time
 import unittest
@@ -54,12 +54,14 @@ class CrossEntropyTest(unittest.TestCase):
     def test_forward(self):
         """Check generic CCE forward pass and results."""
         loss_func = CategoricalCrossentropy()
-        loss = loss_func.forward(y=self.y, y_hat=self.y_hat)
-        loss_true = 1.20397
+        y = np.array([0.99])
+        y_hat = np.array([0.82])
+        loss = loss_func.forward(y=y, y_hat=y_hat, check=False)
+        loss_true = 0.196
         # loss_ski = log_loss(y_true=self.y,
         # y_pred=self.y_hat, normalize=False)
         np.testing.assert_array_almost_equal(loss, loss_true,
-                                             decimal=5,
+                                             decimal=3,
                                              verbose=True)
         print("CC LOSS:", loss)
 
@@ -76,9 +78,16 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_backward(self):
         loss_func = CategoricalCrossentropy()
-        loss = loss_func.forward(y=self.y, y_hat=self.y_hat)
+        y = np.array([1])
+        y_hat = np.array([0.82])
+        loss = loss_func.forward(y=y, y_hat=y_hat, check=False)
         class_grads = loss_func.backward(loss)
-        self.assertEqual(len(class_grads), len(self.y_hat))
+        self.assertEqual(len(class_grads), len(y_hat))
+        # CCE Graph: https://www.desmos.com/calculator/jt6sgcg0to
+        np.testing.assert_array_almost_equal(class_grads, np.array([]),
+                                             decimal=4,
+                                             verbose=True)
+        # self.assertEqual(class_grads, np.array([0.3969]))
 
     def test_backward_exact(self):
         loss_func = CategoricalCrossentropy()

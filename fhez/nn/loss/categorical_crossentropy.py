@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-06T17:04:32+01:00
+# @Last modified time: 2021-08-06T17:50:17+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -16,12 +16,15 @@ class CategoricalCrossentropy(Loss):
     instead
     for multi-label classification, and is instead used with the sigmoid
     activation function.
+
+    CCE Graph: https://www.desmos.com/calculator/jt6sgcg0to
     """
 
-    def forward(self, y: np.ndarray, y_hat: np.ndarray):
+    def forward(self, y: np.ndarray, y_hat: np.ndarray, check=True):
         """Calculate cross entropy and save its state for backprop."""
-        assert np.sum(y) == 1.0, "sum of y should equal exactly 1"
-        assert np.sum(y_hat) == 1.0, "sum of y_hat should equal exactly 1"
+        if check:
+            assert np.sum(y) == 1.0, "sum of y should equal exactly 1"
+            assert np.sum(y_hat) == 1.0, "sum of y_hat should equal exactly 1"
         # CLIP values so we never get log(0) = infinity!
         # also clipping the maximum to reduce bias!
         # e.g clip([0, 1, 0]) = [1e-07, 0.9999999, 1e-07]
