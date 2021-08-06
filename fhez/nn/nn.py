@@ -3,13 +3,14 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-11T14:35:36+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T15:03:59+01:00
+# @Last modified time: 2021-08-06T11:20:27+01:00
 
 import logging as logger
 
 
 # graphing libs
-from networkx import nx
+# from networkx import nx
+import networkx as nx
 # import igraph
 
 
