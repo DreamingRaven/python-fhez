@@ -2,12 +2,12 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:01:00+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T15:06:45+01:00
+# @Last modified time: 2021-08-06T15:11:07+01:00
 
 import time
 import unittest
 import numpy as np
-from networkx import nx
+import networkx as nx
 from fhez.nn.nn import NN
 from fhez.nn.graph.node import IO
 from fhez.nn.activation.relu import RELU
