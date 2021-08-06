@@ -27,6 +27,6 @@ This project in is active development, and will shortly be approaching version 1
 
 The following table is a visual guide to and outlines our projects implementation progress, FHE compatibility, and to what extent.
 
-.. csv-table:: Project Progress / Component Status
-  :file: /progress.csv
+.. csv-table:: Activations Status
+  :file: /activations/activations.csv
   :header-rows: 1
