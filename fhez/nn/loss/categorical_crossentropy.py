@@ -1,13 +1,22 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T23:41:05+01:00
+# @Last modified time: 2021-08-06T11:01:36+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
 
 class CategoricalCrossentropy(Loss):
-    """Categorical Cross Entropy for Multi-Class Multi-Label problems."""
+    """*Categorical* cross entropy for **multi-class** classification.
+
+    This is also known as **softmax loss**, since it is mostly used with
+    softmax activation function.
+
+    **Not to be confused with binary cross-entropy/ log loss**, which is
+    instead
+    for multi-label classification, and is instead used with the sigmoid
+    activation function.
+    """
 
     def forward(self, y: np.ndarray, y_hat: np.ndarray):
         """Calculate cross entropy and save its state for backprop."""
@@ -33,7 +42,7 @@ class CategoricalCrossentropy(Loss):
         # CLIP values so we never get log(0) = infinity!
         # also clipping the maximum to reduce bias!
         # e.g clip([0, 1, 0]) = [1e-07, 0.9999999, 1e-07]
-        y_hat_clipped = np.clip(y_hat, 1e-07, 1-1e-07)
+        y_hat_clipped = np.clip(y_hat, 1e-15, 1-1e-15)
         return -np.sum(y * np.log(y_hat_clipped))
 
     def backward(self, gradient: np.ndarray):

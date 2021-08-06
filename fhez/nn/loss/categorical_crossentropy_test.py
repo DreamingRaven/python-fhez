@@ -1,17 +1,18 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T23:29:47+01:00
+# @Last modified time: 2021-08-06T13:35:20+01:00
 
 import time
 import unittest
 import numpy as np
 
 from fhez.nn.loss.categorical_crossentropy import CategoricalCrossentropy
+# from sklearn.metrics import log_loss
 
 
-class SoftmaxTest(unittest.TestCase):
-    """Test Softmax."""
+class CrossEntropyTest(unittest.TestCase):
+    """Test Categorical Cross Entropy."""
 
     def setUp(self):
         """Start timer and init variables."""
@@ -23,7 +24,7 @@ class SoftmaxTest(unittest.TestCase):
         print('%s: %.3f' % (self.id(), t))
 
     def test_init(self):
-        """Check SGD can be initialised using defaults."""
+        """Check CCE can be initialised using defaults."""
         loss = CategoricalCrossentropy()
         self.assertIsInstance(loss, CategoricalCrossentropy)
 
@@ -54,6 +55,11 @@ class SoftmaxTest(unittest.TestCase):
         """Check generic CCE forward pass and results."""
         loss_func = CategoricalCrossentropy()
         loss = loss_func.forward(y=self.y, y_hat=self.y_hat)
+        loss_true = 1.11111
+        # loss_ski = log_loss(y_true=self.y, y_pred=self.y_hat, normalize=False)
+        np.testing.assert_array_almost_equal(loss, loss_true,
+                                             decimal=5,
+                                             verbose=True)
         print("CC LOSS:", loss)
 
     def test_forward_exact(self):
@@ -61,8 +67,11 @@ class SoftmaxTest(unittest.TestCase):
         loss_func = CategoricalCrossentropy()
         y = np.array([1, 0, 0])
         loss = loss_func.forward(y=y, y_hat=y)
-        # if 0 is not handled properly it causes infinite and nans
-        self.assertEqual(loss, 0)  # check no loss as perfect
+        loss_true = 1.11111
+        # loss_ski = log_loss(y_true=y, y_pred=y, normalize=False)
+        np.testing.assert_array_almost_equal(loss, loss_true,
+                                             decimal=5,
+                                             verbose=True)
 
     def test_backward(self):
         loss_func = CategoricalCrossentropy()
