@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-06T13:35:20+01:00
+# @Last modified time: 2021-08-06T15:19:06+01:00
 
 import time
 import unittest
@@ -55,8 +55,9 @@ class CrossEntropyTest(unittest.TestCase):
         """Check generic CCE forward pass and results."""
         loss_func = CategoricalCrossentropy()
         loss = loss_func.forward(y=self.y, y_hat=self.y_hat)
-        loss_true = 1.11111
-        # loss_ski = log_loss(y_true=self.y, y_pred=self.y_hat, normalize=False)
+        loss_true = 1.20397
+        # loss_ski = log_loss(y_true=self.y,
+        # y_pred=self.y_hat, normalize=False)
         np.testing.assert_array_almost_equal(loss, loss_true,
                                              decimal=5,
                                              verbose=True)
@@ -67,7 +68,7 @@ class CrossEntropyTest(unittest.TestCase):
         loss_func = CategoricalCrossentropy()
         y = np.array([1, 0, 0])
         loss = loss_func.forward(y=y, y_hat=y)
-        loss_true = 1.11111
+        loss_true = 0
         # loss_ski = log_loss(y_true=y, y_pred=y, normalize=False)
         np.testing.assert_array_almost_equal(loss, loss_true,
                                              decimal=5,
@@ -78,6 +79,17 @@ class CrossEntropyTest(unittest.TestCase):
         loss = loss_func.forward(y=self.y, y_hat=self.y_hat)
         class_grads = loss_func.backward(loss)
         self.assertEqual(len(class_grads), len(self.y_hat))
+
+    def test_backward_exact(self):
+        loss_func = CategoricalCrossentropy()
+        y = np.array([1, 0, 0])
+        loss = loss_func.forward(y=y, y_hat=y)
+        class_grads = loss_func.backward(loss)
+        self.assertEqual(len(class_grads), len(y))
+        true_grad = np.array([0, 0, 0])
+        np.testing.assert_array_almost_equal(class_grads, true_grad,
+                                             decimal=5,
+                                             verbose=True)
 
     def test_completed_cce(self):
         raise NotImplementedError(
