@@ -1,0 +1,5 @@
+"Category","Name","Docs","Forward","Backward"
+"activation","Linear","|section_linear|","|blue|","|blue|"
+"activation","ReLU (Approx)","|section_relu_approx|","|blue|","|blue|"
+"activation","Sigmoid (Approx)","|section_sigmoid_approx|","|blue|","|blue|"
+"activation","Softmax","|section_softmax|","|gray|","|gray|"

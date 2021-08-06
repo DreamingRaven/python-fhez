@@ -1,5 +1,7 @@
 .. include:: /substitutions
 
+.. _section_softmax:
+
 Softmax
 #######
 
