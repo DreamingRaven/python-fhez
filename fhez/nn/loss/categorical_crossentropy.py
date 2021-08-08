@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-06T17:50:17+01:00
+# @Last modified time: 2021-08-07T19:34:58+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -37,7 +37,7 @@ class CategoricalCrossentropy(Loss):
 
         .. math::
 
-            -\sum_{i=0}^{C-1} y_i * \log_e(\hat{y_i})
+            CCE(\hat{p(y)}) = -\sum_{i=0}^{C-1} y_i * \log_e(\hat{y_i})
 
         where:
 
@@ -49,7 +49,13 @@ class CategoricalCrossentropy(Loss):
         return -np.sum(y * np.log(y_hat))
 
     def backward(self, gradient: np.ndarray):
-        r"""Calculate gradient of loss with respect to :math:`\hat{y}`."""
+        r"""Calculate gradient of loss with respect to :math:`\hat{y}`.
+
+        .. math::
+
+            \frac{d\textit{CCE}(\hat{p(y)})}{d\hat{p(y_i)}} =
+            \frac{-1}{\hat{p(y_i)}}p(y_i)
+        """
         inp = self.inputs.pop()  # get original potentially encrypted values
         for key, value in inp.items():
             # for each value in dictionary ensure it is a numpy array
