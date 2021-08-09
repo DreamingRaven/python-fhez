@@ -1,3 +1,6 @@
+.. include:: /substitutions
+
+.. _section_cce:
 
 Categorical Cross Entropy (CCE)
 ###############################

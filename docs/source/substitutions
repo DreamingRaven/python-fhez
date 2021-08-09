@@ -43,6 +43,10 @@
 .. |section_linear| replace:: :ref:`section_linear`
 .. |section_softmax| replace:: :ref:`section_softmax`
 
+.. |section_cce| replace:: :ref:`section_cce`
+.. |section_mae| replace:: :ref:`section_mae`
+.. |section_mse| replace:: :ref:`section_mse`
+
 .. |section_relu| replace:: :ref:`section_relu`
 .. |section_relu_approx| replace:: :ref:`section_relu_approximation`
 .. |section_relu_deriv| replace:: :ref:`section_relu_derivative`

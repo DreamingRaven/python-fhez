@@ -1,3 +1,6 @@
+.. include:: /substitutions
+
+.. _section_mae:
 
 Mean Absolute Error (MAE)
 #########################
