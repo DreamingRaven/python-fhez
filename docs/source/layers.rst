@@ -5,6 +5,10 @@
 Layers
 ======
 
+.. csv-table:: Layers Status
+  :file: /layers/status.csv
+  :header-rows: 1
+
 .. toctree::
   :glob:
   :maxdepth: 3

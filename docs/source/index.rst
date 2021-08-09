@@ -71,7 +71,6 @@ Or if you do not have @online support:
   fhe
   install
   examples
-  status
   graph
   layers
   activations

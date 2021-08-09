@@ -9,6 +9,10 @@ Neural network activation functions are the primary logic that dictates whether 
 
 In our case all activations are children of the Node abstraction to keep things consistent, and reduce the amount of redundant code.
 
+.. csv-table:: Activations Status
+  :file: /activations/status.csv
+  :header-rows: 1
+
 .. toctree::
   :glob:
   :maxdepth: 3
