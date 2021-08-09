@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T13:24:49+01:00
+# @Last modified time: 2021-08-09T17:00:02+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -57,7 +57,7 @@ class RELU(Node):
         """Calculate backward pass for singular example."""
         # make sure x is decrypted into a numpy array (implicitly), and summed
         # in case it is a commuted sum, but this wont make a difference if not
-        x = np.array(self.inputs.pop())  # TODO not always summed
+        x = np.array(self.inputs.pop())
 
         # df/dx
         dfdx = self.local_dfdx(x, self.q) * gradient
