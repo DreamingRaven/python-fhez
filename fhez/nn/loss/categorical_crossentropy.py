@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T11:47:36+01:00
+# @Last modified time: 2021-08-09T11:49:08+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -17,7 +17,7 @@ class CategoricalCrossentropy(Loss):
     for multi-label classification, and is instead used with the sigmoid
     activation function.
 
-    CCE Graph: https://www.desmos.com/calculator/v21chypcvv
+    CCE Graph: https://www.desmos.com/calculator/nlzkmxndgf
     """
 
     def forward(self, y: np.ndarray, y_hat: np.ndarray, check=True):
