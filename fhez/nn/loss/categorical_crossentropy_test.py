@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T11:39:50+01:00
+# @Last modified time: 2021-08-09T11:43:36+01:00
 
 import time
 import unittest
@@ -77,6 +77,7 @@ class CrossEntropyTest(unittest.TestCase):
                                              verbose=True)
 
     def test_backward(self):
+        """Check backward pass with known value."""
         loss_func = CategoricalCrossentropy()
         y = np.array([0.99])
         y_hat = np.array([0.82])
@@ -95,6 +96,7 @@ class CrossEntropyTest(unittest.TestCase):
         # self.assertEqual(class_grads, np.array([0.3969]))
 
     def test_backward_exact(self):
+        """Check backward pass when given perfect prediction."""
         loss_func = CategoricalCrossentropy()
         y = np.array([1, 0, 0])
         loss = loss_func.forward(y=y, y_hat=y)
