@@ -20,6 +20,8 @@
   :width: 700
   :alt: Full ANN computational graph
 
+.. _section_ann:
+
 Fully Connected Dense Net (ANN)
 ###############################
 

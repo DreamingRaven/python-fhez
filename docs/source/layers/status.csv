@@ -1,5 +1,4 @@
-"Category","Name","Docs","Forward","Backward"
-"activation","Linear","|section_linear|","|blue|","|blue|"
-"activation","ReLU (Approx)","|section_relu_approx|","|blue|","|blue|"
-"activation","Sigmoid (Approx)","|section_sigmoid_approx|","|blue|","|blue|"
-"activation","Softmax","|section_softmax|","|gray|","|gray|"
+Category,Name,Docs,Forward,Backward
+nn layer,Artificial (ANN),|section_ann|,|green|,|green|
+nn layer,Convolutional (CNN),|section_cnn|,|green|,|green|
+nn layer,Recurrent (RNN),|section_rnn|,|gray|,|gray|
