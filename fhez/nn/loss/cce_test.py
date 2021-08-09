@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T15:35:48+01:00
+# @Last modified time: 2021-08-09T15:45:26+01:00
 
 import time
 import unittest
@@ -64,7 +64,6 @@ class CrossEntropyTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(loss, loss_true,
                                              decimal=3,
                                              verbose=True)
-        print("CC LOSS:", loss)
 
     def test_forward_exact(self):
         """Check perfect CCE forward pass is 0."""

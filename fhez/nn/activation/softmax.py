@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:00:06+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T15:32:24+01:00
+# @Last modified time: 2021-08-09T15:50:12+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -39,7 +39,7 @@ class Softmax(Node):
         classification.
         """
         # softmax derivative does not need x it needs the x_softmaxed
-        x = np.array(self.inputs.pop())  # note this is x_softmaxed
+        x = np.array(self.inputs.pop())  # note this is softmaxed ie py_hat
         # calculate class specific gradient
         dfdx = (x * (1-x)) * gradient
         # calculate inter class gradient
@@ -47,7 +47,7 @@ class Softmax(Node):
             t = -x[i] * x * gradient[i]
             t[i] = 0  # already calc class specific grad differently above
             dfdx += t
-        return dfdx
+        return dfdx  # gradient with respect to all inputs
 
     @property
     def cost(self):
