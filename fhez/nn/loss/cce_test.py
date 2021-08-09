@@ -2,13 +2,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T15:28:21+01:00
+# @Last modified time: 2021-08-09T15:35:48+01:00
 
 import time
 import unittest
 import numpy as np
 
-from fhez.nn.loss.categorical_crossentropy import CategoricalCrossentropy
+from fhez.nn.loss.cce import CategoricalCrossEntropy
 # from sklearn.metrics import log_loss
 
 
@@ -26,8 +26,8 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_init(self):
         """Check CCE can be initialised using defaults."""
-        loss = CategoricalCrossentropy()
-        self.assertIsInstance(loss, CategoricalCrossentropy)
+        loss = CategoricalCrossEntropy()
+        self.assertIsInstance(loss, CategoricalCrossEntropy)
 
     @property
     def y(self):
@@ -54,7 +54,7 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_forward(self):
         """Check generic CCE forward pass and results."""
-        loss_func = CategoricalCrossentropy()
+        loss_func = CategoricalCrossEntropy()
         y = np.array([0.99])
         y_hat = np.array([0.82])
         loss = loss_func.forward(y=y, y_hat=y_hat, check=False)
@@ -68,7 +68,7 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_forward_exact(self):
         """Check perfect CCE forward pass is 0."""
-        loss_func = CategoricalCrossentropy()
+        loss_func = CategoricalCrossEntropy()
         y = np.array([1, 0, 0])
         loss = loss_func.forward(y=y, y_hat=y)
         loss_true = 0
@@ -79,7 +79,7 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_backward(self):
         """Check backward pass with known value."""
-        loss_func = CategoricalCrossentropy()
+        loss_func = CategoricalCrossEntropy()
         y = np.array([0.99])
         y_hat = np.array([0.82])
         loss = loss_func.forward(y=y, y_hat=y_hat, check=False)
@@ -98,7 +98,7 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_backward_exact(self):
         """Check backward pass when given perfect prediction."""
-        loss_func = CategoricalCrossentropy()
+        loss_func = CategoricalCrossEntropy()
         y = np.array([1, 0, 0])
         loss = loss_func.forward(y=y, y_hat=y)
         class_grads = loss_func.backward(loss)

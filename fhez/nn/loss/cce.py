@@ -1,13 +1,13 @@
-"""Categorical Cross Entropy (CCE) node abstraction."""
+"""Categorical Cross Entropy (CCE) as node abstraction."""
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T15:28:12+01:00
+# @Last modified time: 2021-08-09T15:35:09+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
 
-class CategoricalCrossentropy(Loss):
+class CCE(Loss):
     """*Categorical* cross entropy for **multi-class** classification.
 
     This is also known as **softmax loss**, since it is mostly used with
@@ -67,3 +67,6 @@ class CategoricalCrossentropy(Loss):
         dfdpy = -1 / (inp["y_hat"])  # calculate local gradient
         dfdpy = dfdpy * inp["y"]  # multiply each by actual probability
         return dfdpy * gradient
+
+
+CategoricalCrossEntropy = CCE

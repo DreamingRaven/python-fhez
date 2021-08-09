@@ -33,5 +33,5 @@ See  https://www.desmos.com/calculator/q2dwniwjsp for an interactive version.
 CCE API
 -------
 
-.. autoclass:: fhez.nn.loss.categorical_crossentropy.CategoricalCrossentropy
+.. automodule:: fhez.nn.loss.cce
   :members:
