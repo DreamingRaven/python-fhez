@@ -1,5 +1,3 @@
-"Category","Name","Docs","Forward","Backward"
-"activation","Linear","|section_linear|","|blue|","|blue|"
-"activation","ReLU (Approx)","|section_relu_approx|","|blue|","|blue|"
-"activation","Sigmoid (Approx)","|section_sigmoid_approx|","|blue|","|blue|"
-"activation","Softmax","|section_softmax|","|gray|","|gray|"
+Category,Name,Docs,Forward,Backward
+optimiser,Adam,|section_adam|,|red|,|red|
+optimiser,Gradient Descent,|section_gd|,|red|,|red|

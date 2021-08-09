@@ -43,6 +43,9 @@
 .. |section_linear| replace:: :ref:`section_linear`
 .. |section_softmax| replace:: :ref:`section_softmax`
 
+.. |section_adam| replace:: :ref:`section_adam`
+.. |section_gd| replace:: :ref:`section_gd`
+
 .. |section_cce| replace:: :ref:`section_cce`
 .. |section_mae| replace:: :ref:`section_mae`
 .. |section_mse| replace:: :ref:`section_mse`

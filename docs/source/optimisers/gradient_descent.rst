@@ -1,5 +1,7 @@
 .. include:: /substitutions
 
+.. _section_gd:
+
 Gradient Descent
 ################
 
