@@ -1,7 +1,8 @@
+"""Artificial Neural Network (ANN) tests."""
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:33:14+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-25T21:20:38+01:00
+# @Last modified time: 2021-08-09T20:56:07+01:00
 import unittest
 import logging as logger
 import numpy as np

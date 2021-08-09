@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
+"""Artificial Neural Network (ANN) as node abstraction."""
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T23:26:57+01:00
+# @Last modified time: 2021-08-09T21:08:36+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -54,7 +53,13 @@ class ANN(Node):
         self._bias = bias
 
     def forward(self, x):
-        """Compute forward pass of neural network."""
+        r"""Compute forward pass of neural network.
+
+        .. math::
+
+            a^{(i)} = \sum_{t=0}^{T_x-1}(w^{<t>}x^{(i)<t>})+b
+
+        """
         # check that first dim matches so they can loop together
         if len(x) != len(self.weights):
             raise ValueError("Mismatched shapes {}, {}".format(
@@ -69,7 +74,16 @@ class ANN(Node):
         return sum
 
     def backward(self, gradient):
-        """Compute backward pass of neural network."""
+        r"""Compute backward pass of neural network.
+
+        .. math::
+
+            \frac{df}{db} = 1 \frac{dg}{dx}
+
+            \frac{df}{dw^{<t>}} = x^{(i)<t>} \frac{dg}{dx}
+
+            \frac{df}{dx^{(i)<t>}} = w^{<t>} \frac{dg}{dx}
+        """
         # dfdx
         # dfdw
         # dfdb

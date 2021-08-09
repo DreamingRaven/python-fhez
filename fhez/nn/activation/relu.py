@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
+"""Rectified Linear Unit (ReLU) as node abstraction."""
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T17:00:02+01:00
+# @Last modified time: 2021-08-09T20:55:42+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
