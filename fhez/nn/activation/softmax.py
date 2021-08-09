@@ -1,7 +1,8 @@
+"""Softmax activation node abstraction."""
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:00:06+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-05T15:04:19+01:00
+# @Last modified time: 2021-08-09T15:28:06+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -39,7 +40,14 @@ class Softmax(Node):
         """
         # softmax derivative does not need x it needs the x_softmaxed
         x = np.array(self.inputs.pop())  # note this is x_softmaxed
-        return None
+        # calculate class specific gradient
+        dfdx = (x * (1-x)) * gradient
+        # calculate inter class gradient
+        for i in range(len(x)):
+            t = -x[i] * x * gradient[i]
+            t[i] = 0  # already calc class specific grad differently above
+            dfdx += t
+        return dfdx
 
     @property
     def cost(self):

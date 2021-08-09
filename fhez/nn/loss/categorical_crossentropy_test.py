@@ -1,7 +1,8 @@
+"""Categorical Cross Entropy (CCE) tests."""
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T11:43:36+01:00
+# @Last modified time: 2021-08-09T15:28:21+01:00
 
 import time
 import unittest

@@ -1,7 +1,8 @@
+"""Categorical Cross Entropy (CCE) node abstraction."""
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T11:56:12+01:00
+# @Last modified time: 2021-08-09T15:28:12+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
