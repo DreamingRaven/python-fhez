@@ -5,8 +5,10 @@
 Softmax
 #######
 
-Softmax API
-+++++++++++
+Example Architecture
+--------------------
+
+This figure shows a generic classification network, and how the softmax is likeley to be used.
 
 .. |classification-network-fig| image:: /img/classification_network.svg
   :width: 800
@@ -14,5 +16,8 @@ Softmax API
 
 |classification-network-fig|
 
-.. autoclass:: fhez.nn.activation.softmax.Softmax
+API
++++
+
+.. automodule:: fhez.nn.activation.softmax
   :members:

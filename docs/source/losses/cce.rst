@@ -30,8 +30,8 @@ See  https://www.desmos.com/calculator/q2dwniwjsp for an interactive version.
 
 |cce-graph-fig|
 
-CCE API
--------
+API
+---
 
 .. automodule:: fhez.nn.loss.cce
   :members:
