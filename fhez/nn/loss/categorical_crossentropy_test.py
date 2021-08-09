@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-06T19:41:52+01:00
+# @Last modified time: 2021-08-09T11:39:50+01:00
 
 import time
 import unittest
@@ -78,14 +78,19 @@ class CrossEntropyTest(unittest.TestCase):
 
     def test_backward(self):
         loss_func = CategoricalCrossentropy()
-        y = np.array([1])
+        y = np.array([0.99])
         y_hat = np.array([0.82])
         loss = loss_func.forward(y=y, y_hat=y_hat, check=False)
+        loss_true = 0.196
+        np.testing.assert_array_almost_equal(loss, loss_true,
+                                             decimal=3,
+                                             verbose=True)
         class_grads = loss_func.backward(loss)
+        class_grads_true = np.array([-1.22]) * y * loss_true
         self.assertEqual(len(class_grads), len(y_hat))
         # CCE Graph: https://www.desmos.com/calculator/jt6sgcg0to
-        np.testing.assert_array_almost_equal(class_grads, np.array([]),
-                                             decimal=4,
+        np.testing.assert_array_almost_equal(class_grads, class_grads_true,
+                                             decimal=2,
                                              verbose=True)
         # self.assertEqual(class_grads, np.array([0.3969]))
 
@@ -99,7 +104,3 @@ class CrossEntropyTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(class_grads, true_grad,
                                              decimal=5,
                                              verbose=True)
-
-    def test_completed_cce(self):
-        raise NotImplementedError(
-            "CategoricalCrossentropy has not been completed.")
