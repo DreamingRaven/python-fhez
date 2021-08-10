@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-10T12:28:42+01:00
+# @Last modified time: 2021-08-10T14:27:38+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -15,9 +15,9 @@ class ANN(Node):
 
     def __init__(self, weights: np.array = None, bias: int = None):
         """Initialise dense net."""
-        if weights:
+        if weights is not None:
             self.weights = weights
-        if bias:
+        if bias is not None:
             self.bias = bias
 
     @property
@@ -71,7 +71,7 @@ class ANN(Node):
         sum = np.sum(weighted, axis=0)  # sum over only first axis
         # now save the input we originally got since it has been processed
         self.inputs.append(x)
-        return sum
+        return sum + self.bias
 
     def backward(self, gradient):
         r"""Compute backward pass of neural network.
@@ -84,20 +84,23 @@ class ANN(Node):
 
             \frac{df}{dx^{(i)<t>}} = w^{<t>} \frac{dg}{dx}
         """
+        x = np.array(self.inputs.pop())
         # dfdx
+        dfdx = self.weights * gradient
         # dfdw
+        dfdw = x * gradient
         # dfdb
-        return gradient
+        dfdb = 1 * gradient
+        self.gradients.append({"dfdw": dfdw, "dfdb": dfdb, "dfdx": dfdx})
+        return dfdx
 
     def update(self):
         """Update weights and bias of the network stocastically."""
-        # dfdw
-        # dfdb
+        self.updater(parm_names=["w", "b"], it=1)
 
     def updates(self):
         """Update weights and bias as one batch all together."""
-        # dfdw
-        # dfdb
+        self.updater(parm_names=["w", "b"])
 
     @property
     def cost(self):
