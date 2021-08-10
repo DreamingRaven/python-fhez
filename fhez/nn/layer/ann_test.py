@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:33:14+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-10T14:31:40+01:00
+# @Last modified time: 2021-08-10T14:34:28+01:00
 import unittest
 import logging as logger
 import numpy as np
@@ -94,15 +94,16 @@ class Ann_Tests(unittest.TestCase):
         np.testing.assert_array_almost_equal(acti, acti_truth,
                                              decimal=1,
                                              verbose=True)
-        ann.backward(gradient=1)
+        grad = 0.5
+        ann.backward(gradient=grad)
         grads = ann.gradients.pop()
-        np.testing.assert_array_almost_equal(grads["dfdx"], weights,
+        np.testing.assert_array_almost_equal(grads["dfdx"], weights*grad,
                                              decimal=1,
                                              verbose=True)
-        np.testing.assert_array_almost_equal(grads["dfdb"], 1,
+        np.testing.assert_array_almost_equal(grads["dfdb"], 1*grad,
                                              decimal=1,
                                              verbose=True)
-        np.testing.assert_array_almost_equal(grads["dfdw"], data,
+        np.testing.assert_array_almost_equal(grads["dfdw"], data*grad,
                                              decimal=1,
                                              verbose=True)
 
