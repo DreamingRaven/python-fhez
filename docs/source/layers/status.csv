@@ -1,0 +1,4 @@
+Category,Name,Docs,Forward,Backward
+nn layer,Artificial (ANN),|section_ann|,|green|,|green|
+nn layer,Convolutional (CNN),|section_cnn|,|green|,|green|
+nn layer,Recurrent (RNN),|section_rnn|,|gray|,|gray|

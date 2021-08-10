@@ -5,12 +5,17 @@
 Activations
 ===============
 
-.. note::
+Neural network activation functions are the primary logic that dictates whether a given neuron should be activated or not, and by how much. Activation functions are best when they introduce some non-linearity to the neuron so that it can better model more complex behaviors.
 
-  |api-build-note|
+In our case all activations are children of the Node abstraction to keep things consistent, and reduce the amount of redundant code.
 
-Activations
-+++++++++++
+.. csv-table:: Activations Status
+  :file: /activations/status.csv
+  :header-rows: 1
 
-.. autoclass:: fhe.nn.activation.activation.Activation
-  :members:
+.. toctree::
+  :glob:
+  :maxdepth: 3
+  :caption: Activation Functions
+
+  /activations/*

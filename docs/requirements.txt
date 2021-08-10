@@ -5,3 +5,4 @@ ConfigArgParse>=0.14.0
 future>=0.17.1
 networkx>=2.5.1
 python-igraph>=0.9.1
+numpy>=1.18.5
