@@ -1,0 +1,3 @@
+Category,Name,Docs,Update
+optimiser,Adam,|section_adam|,|red|
+optimiser,Gradient Descent,|section_gd|,|red|

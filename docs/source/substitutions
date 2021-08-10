@@ -1,3 +1,23 @@
+.. |blue| image:: /img/blue.svg
+  :width: 17
+  :alt: Full FHE compatibility
+
+.. |green| image:: /img/green.svg
+  :width: 17
+  :alt: Whole-single-example-cyphertext compatibility
+
+.. |yellow| image:: /img/yellow.svg
+  :width: 17
+  :alt: Multi-cyphertexts per example compatibility
+
+.. |red| image:: /img/red.svg
+  :width: 17
+  :alt: FHE incompatibility
+
+.. |gray| image:: /img/gray.svg
+  :width: 17
+  :alt: Implementation in progress
+
 .. _docker: https://www.docker.com/
 .. |docker| replace:: Docker
 
@@ -25,10 +45,12 @@
 
 .. |section_docs| replace:: :ref:`section_docs`
 
-.. |section_optimizers| replace:: :ref:`section_optimizers`
+.. |section_optimisers| replace:: :ref:`section_optimisers`
 .. |section_activations| replace:: :ref:`section_activations`
 .. |section_layers| replace:: :ref:`section_layers`
-.. |section_blocks| replace:: :ref:`section_blocks`
+
+.. |section_ann| replace:: :ref:`section_ann`
+.. |section_rnn| replace:: :ref:`section_rnn`
 
 .. |section_cnn| replace:: :ref:`section_cnn`
 .. |section_cnn_equations| replace:: :ref:`section_cnn_equations`
@@ -40,6 +62,16 @@
 .. |section_sigmoid_approx| replace:: :ref:`section_sigmoid_approximation`
 .. |section_sigmoid_deriv| replace:: :ref:`section_sigmoid_derivative`
 .. |section_sigmoid_approx_deriv| replace:: :ref:`section_sigmoid_approximation_derivative`
+
+.. |section_linear| replace:: :ref:`section_linear`
+.. |section_softmax| replace:: :ref:`section_softmax`
+
+.. |section_adam| replace:: :ref:`section_adam`
+.. |section_gd| replace:: :ref:`section_gd`
+
+.. |section_cce| replace:: :ref:`section_cce`
+.. |section_mae| replace:: :ref:`section_mae`
+.. |section_mse| replace:: :ref:`section_mse`
 
 .. |section_relu| replace:: :ref:`section_relu`
 .. |section_relu_approx| replace:: :ref:`section_relu_approximation`

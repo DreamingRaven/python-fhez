@@ -3,14 +3,15 @@
 .. _section_layers:
 
 Layers
-===============
+======
 
-.. note::
+.. csv-table:: Layers Status
+  :file: /layers/status.csv
+  :header-rows: 1
 
-  |api-build-note|
+.. toctree::
+  :glob:
+  :maxdepth: 3
+  :caption: Neural Network Layers
 
-Layers
-++++++
-
-.. autoclass:: fhe.nn.layer.layer.Layer
-  :members:
+  /layers/*

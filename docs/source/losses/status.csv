@@ -1,0 +1,4 @@
+Category,Name,Docs,Forward,Backward
+loss,Categorical Cross Entropy (CCE),|section_cce|,|red|,|red|
+loss,Mean Absolute Error (MAE),|section_mae|,|red|,|red|
+loss,Mean Squared Error (MSE),|section_mse|,|red|,|red|
