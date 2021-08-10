@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:39:47+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-25T20:39:32+01:00
+# @Last modified time: 2021-08-10T13:32:49+01:00
 import time
 import unittest
 import numpy as np
@@ -297,15 +297,15 @@ class ReArray_tests(unittest.TestCase):
             re = np.array([2, 3, 4]) // re
 
     def test_sum(self):
-        data = [
-            [1, 2, 3],
-            [1, 2, 3]
-        ]
+        data = np.array([
+            [1.0, 2.0, 3.0],
+            [1.0, 2.0, 3.0]
+        ])
         re = ReArray(plaintext=data, **self.reseal_args)
         sum = np.sum(re, axis=0)  # can only sum first axis
         self.assertIsInstance(sum, ReArray)
         plain_sum = np.array(sum)
-        truth = [2, 4, 6]
+        truth = np.sum(data, axis=0)
         np.testing.assert_array_almost_equal(plain_sum, truth,
                                              decimal=1,
                                              verbose=True)

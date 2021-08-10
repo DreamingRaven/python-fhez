@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-26T15:28:09+01:00
+# @Last modified time: 2021-08-10T13:22:19+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
 import logging as logger
@@ -54,7 +54,11 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             d = {k: d[k] for k, v in d.items() if k not in ["_cyphertext"]}
             self.__dict__ = d
             if cyphertext is not None:
-                self._cyphertext = cyphertext
+                # check if cyphertext or cyphertexts iterable
+                if hasattr(cyphertext, "__iter__"):
+                    self._cyphertext = cyphertext
+                else:
+                    self._cyphertext = [cyphertext]
             else:
                 self.cyphertext = plaintext
 
@@ -127,9 +131,17 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def shape(self):
         return self.origin["shape"]
 
+    # @shape.setter
+    # def shape(self, shape):
+    #     return self.origin["shape"]
+
     @property
     def size(self):
         return self.origin["size"]
+
+    # @size.setter
+    # def size(self, size):
+    #     return self.origin["size"]
 
     def __repr__(self):
         d = self.__dict__
@@ -239,20 +251,27 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         #     accumulator.append(row_s + row_o)
         # return accumulator
 
-    # @implements(remap, np.add, "reduce")
-    # def sum(self, axis=None, out=None):
-    #     """Reduce sum of cyphertext."""
-    #     if axis == 0:
-    #         print("origin", np.array(self), self.shape)
-    #         cyphertext = functools.reduce(lambda x, y: x+y, self.cyphertext)
-    #         print("summation", cyphertext,
-    #               np.array(cyphertext.plaintext).shape)
-    #         print("preview", np.array(cyphertext.plaintext))
-    #         result = ReArray(cyphertext=cyphertext, clone=self)
-    #         print(result.shape)
-    #         return result
-    #     else:
-    #         # we CANNOT fold a single cyphertext, can only sum between
-    #         # cyphertests which for us is axis 0 since we store cyphertexts
-    #         # as a list anything else is impossible
-    #         return NotImplemented
+    @implements(remap, np.add, "reduce")
+    def sum(self, axis=None, out=None):
+        """Reduce sum of cyphertext."""
+        if axis == 0:
+            # print("origin", np.array(self), self.shape, self.size)
+            cyphertext = functools.reduce(lambda x, y: x+y, self.cyphertext)
+            # print("summation", cyphertext,
+            # np.array(cyphertext.plaintext).shape)
+            # print("preview", np.array(cyphertext.plaintext))
+            result = ReArray(cyphertext=cyphertext, clone=self)
+            # create a copy of shape, and change it to be summed version
+            shape = list(self.shape)
+            shape[0] = 1
+            shape = tuple(shape)
+            # modify origin of this new object as it is different
+            result.origin = {"shape": shape,
+                             "size": self.size//len(self.cyphertext)}
+            # print("out shape", result.shape, result.size)
+            return result
+        else:
+            # we CANNOT fold a single cyphertext, can only sum between
+            # cyphertests which for us is axis 0 since we store cyphertexts
+            # as a list anything else is impossible
+            return NotImplemented

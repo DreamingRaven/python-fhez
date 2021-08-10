@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T21:08:36+01:00
+# @Last modified time: 2021-08-10T12:28:42+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -64,7 +64,7 @@ class ANN(Node):
         if len(x) != len(self.weights):
             raise ValueError("Mismatched shapes {}, {}".format(
                 len(x),
-                self.weights[0]))
+                len(self.weights)))
         # map - product of weight
         weighted = x * self.weights
         # reduce - sum of products using dispatcher

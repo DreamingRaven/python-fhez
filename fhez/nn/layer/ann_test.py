@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:33:14+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T20:56:07+01:00
+# @Last modified time: 2021-08-10T12:43:06+01:00
 import unittest
 import logging as logger
 import numpy as np
@@ -17,7 +17,7 @@ class Ann_Tests(unittest.TestCase):
 
     @property
     def data_shape(self):
-        return (3, 32, 32, 3)
+        return (3,)
 
     @property
     def data(self):
@@ -74,7 +74,7 @@ class Ann_Tests(unittest.TestCase):
 
     def test_forward_enc(self):
         """Check encrypted forward pass works as expected."""
-        data = self.data[0]
+        data = self.data
         edata = ReArray(data, **self.reseal_args)
         self.assertTrue(np.array(edata).shape == data.shape)
         self.assertIsInstance(edata, ReArray)
