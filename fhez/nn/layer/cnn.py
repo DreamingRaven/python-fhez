@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-12T16:46:40+01:00
+# @Last modified time: 2021-08-13T13:14:13+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -37,9 +37,12 @@ class CNN(Node):
         """Compute convolutional filter forward pass and sums."""
         self.inputs.append(x)
         if self.windows is None:
-            self.windows = self.windex(data=x.shape[1:],
-                                       filter=self.weights.shape[1:],
-                                       stride=self.stride[1:])
+            # self.windows = self.windex(data=x.shape[1:],
+            #                            filter=self.weights.shape[1:],
+            #                            stride=self.stride[1:])
+            self.windows = self.windex(data=x.shape,
+                                       filter=self.weights.shape,
+                                       stride=self.stride)
             self.windows = list(map(self.windex_to_slice, self.windows))
         raise NotImplementedError("CNN forward not yet implemented.")
 
@@ -96,16 +99,18 @@ class CNN(Node):
     @property
     def stride(self):
         """Get stride over convolutions."""
-        if self.__dict__.get("_stride") is not None:
-            return self._stride
-        else:
-            self.stride = 1
+        if self.__dict__.get("_stride") is None:
+            self.stride = np.ones(len(self.weights), dtype=int)
             return self.stride
+        return self._stride
 
     @stride.setter
-    def stride(self, stride):
-        """Set stride over convolutions."""
-        self._stride = stride
+    def stride(self, stride: np.ndarray):
+        """Set stride over convolutions.
+
+        Note: Stride **MUST** be integers, we cannot have partial strides.
+        """
+        self._stride = stride.astype(int)
 
     @property
     def windows(self):
