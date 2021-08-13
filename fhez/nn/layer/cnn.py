@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-13T13:14:13+01:00
+# @Last modified time: 2021-08-13T15:30:04+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -44,6 +44,8 @@ class CNN(Node):
                                        filter=self.weights.shape,
                                        stride=self.stride)
             self.windows = list(map(self.windex_to_slice, self.windows))
+        print("CNN WINDOWS 0:", self.windows[0])
+        print("CNN WINDOWS 1:", self.windows[1])
         raise NotImplementedError("CNN forward not yet implemented.")
 
     def backward(self, gradient: np.ndarray):

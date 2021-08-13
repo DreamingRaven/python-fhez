@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-13T12:54:39+01:00
+# @Last modified time: 2021-08-13T15:45:49+01:00
 
 import time
 import unittest
@@ -16,13 +16,29 @@ class CNNTest(unittest.TestCase):
     @property
     def data_shape(self):
         """Define desired data shape."""
-        return (3, 32, 32, 3)
+        return (32, 32, 3)
+
+    @property
+    def filter_shape(self):
+        """Get a filter shape corresponding to data."""
+        return (3, 3, 3)
 
     @property
     def data(self):
         """Get some generated data."""
         array = np.random.rand(*self.data_shape)
         return array
+
+    @property
+    def filt(self):
+        """Generate some filter for the data."""
+        filt = np.ones(self.filter_shape)/2
+        return filt
+
+    @property
+    def bias(self):
+        """Get a bias term."""
+        return 0.5
 
     @property
     def reseal_args(self):
@@ -52,20 +68,26 @@ class CNNTest(unittest.TestCase):
         self.assertEqual(self.data.shape, self.data_shape)
 
     def test_init(self):
+        """Check that initialisation has occured properly."""
         cnn = CNN()
+        self.assertIsInstance(cnn, CNN)
 
     def test_forward(self):
         """Test CNN filter and sum applied correctly."""
-        weights = np.ones((3, 3, 3))/2
-        cnn = CNN(weights=weights)
-        a = cnn.forward(x=self.data)
+        weights = self.filt
+        data = self.data
+        bias = self.bias
+        cnn = CNN(weights=weights, bias=bias)
+        a = cnn.forward(x=data)
         print("cnn.forward", a)
 
     def test_backward(self):
         """Test CNN gradient calculated correctly."""
-        weights = np.ones((3, 3, 3))/2
-        cnn = CNN(weights=weights)
-        cnn.forward(x=self.data)
+        weights = self.filt
+        data = self.data
+        bias = self.bias
+        cnn = CNN(weights=weights, bias=bias)
+        cnn.forward(x=data)
         grad = cnn.backward(gradient=1)
         print("cnn.backward", grad)
 
