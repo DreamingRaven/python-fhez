@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-12T15:24:21+01:00
+# @Last modified time: 2021-08-13T12:54:39+01:00
 
 import time
 import unittest
@@ -39,8 +39,6 @@ class CNNTest(unittest.TestCase):
 
     def setUp(self):
         """Start timer and init variables."""
-        self.weights = (1,)  # if tuple allows cnn to initialise itself
-
         self.startTime = time.time()
 
     def tearDown(self):
@@ -58,13 +56,15 @@ class CNNTest(unittest.TestCase):
 
     def test_forward(self):
         """Test CNN filter and sum applied correctly."""
-        cnn = CNN()
+        weights = np.ones((3, 3, 3))/2
+        cnn = CNN(weights=weights)
         a = cnn.forward(x=self.data)
         print("cnn.forward", a)
 
     def test_backward(self):
         """Test CNN gradient calculated correctly."""
-        cnn = CNN()
+        weights = np.ones((3, 3, 3))/2
+        cnn = CNN(weights=weights)
         cnn.forward(x=self.data)
         grad = cnn.backward(gradient=1)
         print("cnn.backward", grad)
