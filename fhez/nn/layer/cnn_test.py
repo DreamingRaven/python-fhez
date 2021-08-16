@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-13T15:54:23+01:00
+# @Last modified time: 2021-08-16T13:37:56+01:00
 
 import time
 import unittest
@@ -80,7 +80,6 @@ class CNNTest(unittest.TestCase):
 
         cnn = CNN(weights=weights, bias=bias)
         a = cnn.forward(x=data)
-        print("ACTIVATION:", a)
 
     def test_backward(self):
         """Test CNN gradient calculated correctly."""
