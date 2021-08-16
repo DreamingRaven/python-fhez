@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T13:37:56+01:00
+# @Last modified time: 2021-08-16T15:03:37+01:00
 
 import time
 import unittest
@@ -80,6 +80,30 @@ class CNNTest(unittest.TestCase):
 
         cnn = CNN(weights=weights, bias=bias)
         a = cnn.forward(x=data)
+        # check that number of windows matches what we expect
+        self.assertEqual(len(cnn.windows), 4)
+        first = a[0]
+        second = a[1]
+        last = a[-1]
+
+        first_truth = np.ones(self.data_shape)/2
+        first_truth[0:3, 0:3, 0:3] = 1
+
+        second_truth = np.ones(self.data_shape)/2
+        second_truth[0:3, 1:4, 0:3] = 1
+
+        last_truth = np.ones(self.data_shape)/2
+        last_truth[1:4, 1:4, 0:3] = 1
+
+        np.testing.assert_array_almost_equal(first, first_truth,
+                                             decimal=1,
+                                             verbose=True)
+        np.testing.assert_array_almost_equal(second, second_truth,
+                                             decimal=1,
+                                             verbose=True)
+        np.testing.assert_array_almost_equal(last, last_truth,
+                                             decimal=1,
+                                             verbose=True)
 
     def test_backward(self):
         """Test CNN gradient calculated correctly."""

@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T13:35:02+01:00
+# @Last modified time: 2021-08-16T13:42:40+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -59,6 +59,7 @@ class CNN(Node):
             # now we have a sparse vectore that can be used to convolve
             cc_primer[self.windows[i]] = self.weights
             t = cc_primer * x
+            t += self.bias
             # t = t + (self.bias/(t.size/len(t)))  # commuted before sum
             activated.append(t)
         return np.array(activated)
