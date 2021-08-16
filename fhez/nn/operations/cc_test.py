@@ -1,13 +1,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T16:11:32+01:00
+# @Last modified time: 2021-08-16T16:33:43+01:00
 
 import time
 import unittest
 import numpy as np
 
-from fhez.nn.layer.cc import CNN as CC
+from fhez.nn.operations.cc import CC
 
 
 class CCTest(unittest.TestCase):

@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T13:42:40+01:00
+# @Last modified time: 2021-08-16T16:33:38+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -11,7 +11,7 @@ from fhez.nn.graph.node import Node
 from tqdm import tqdm
 
 
-class CNN(Node):
+class CC(Node):
     """Convolutional Neural Network."""
 
     def __init__(self,
