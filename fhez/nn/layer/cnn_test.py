@@ -1,17 +1,17 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T16:08:47+01:00
+# @Last modified time: 2021-08-16T16:11:32+01:00
 
 import time
 import unittest
 import numpy as np
 
-from fhez.nn.layer.cnn import CNN
+from fhez.nn.layer.cc import CNN as CC
 
 
-class CNNTest(unittest.TestCase):
-    """Test CNN node abstraction."""
+class CCTest(unittest.TestCase):
+    """Test CC node abstraction."""
 
     @property
     def data_shape(self):
@@ -69,19 +69,19 @@ class CNNTest(unittest.TestCase):
 
     def test_init(self):
         """Check that initialisation has occured properly."""
-        cnn = CNN()
-        self.assertIsInstance(cnn, CNN)
+        cc = CC()
+        self.assertIsInstance(cc, CC)
 
     def test_forward(self):
-        """Test CNN filter and sum applied correctly."""
+        """Test CC filter and sum applied correctly."""
         weights = self.filt
         data = self.data
         bias = self.bias
 
-        cnn = CNN(weights=weights, bias=bias)
-        a = cnn.forward(x=data)
+        cc = CC(weights=weights, bias=bias)
+        a = cc.forward(x=data)
         # check that number of windows matches what we expect
-        self.assertEqual(len(cnn.windows), 4)
+        self.assertEqual(len(cc.windows), 4)
         first = a[0]
         second = a[1]
         last = a[-1]
@@ -106,15 +106,15 @@ class CNNTest(unittest.TestCase):
                                              verbose=True)
 
     def test_backward(self):
-        """Test CNN gradient calculated correctly."""
+        """Test CC gradient calculated correctly."""
         weights = self.filt
         data = self.data
         bias = self.bias
 
-        cnn = CNN(weights=weights, bias=bias)
-        cnn.forward(x=data)
-        cnn.backward(gradient=1)
-        grads = cnn.gradients.pop()
+        cc = CC(weights=weights, bias=bias)
+        cc.forward(x=data)
+        cc.backward(gradient=1)
+        grads = cc.gradients.pop()
         # check bias gradient
         self.assertEqual(grads["dfdb"], self.filt.size*4)
         # check weights gradient
