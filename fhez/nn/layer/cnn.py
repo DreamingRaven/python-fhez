@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T11:02:04+01:00
+# @Last modified time: 2021-08-16T13:35:02+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -48,23 +48,39 @@ class CNN(Node):
 
         activated = []
         # apply each window and do it by index so can state progress
-        for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
-                self.__class__.__name__, "forward"),
-            ncols=80, colour="blue"
-        ):
+        # for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
+        #         self.__class__.__name__, "forward"),
+        #     ncols=80, colour="blue"
+        # ):
+        for i in range(len(self.windows)):
             # create a primer for application of window without having to
             # modify x but instead the filter itself
             cc_primer = np.zeros(x.shape)
             # now we have a sparse vectore that can be used to convolve
             cc_primer[self.windows[i]] = self.weights
             t = cc_primer * x
-            t = t + (self.bias/(t.size/len(t)))  # commute addition before sum
+            # t = t + (self.bias/(t.size/len(t)))  # commuted before sum
             activated.append(t)
         return np.array(activated)
 
     def backward(self, gradient: np.ndarray):
         """Compute computational filter gradient and input gradient."""
-        raise NotImplementedError("CNN backward not yet implemented.")
+        x = np.array(self.inputs.pop())
+        gradient_kernel = gradient * self.weights
+        # calculate the gradient of inputs by adding the kernel grads together
+        # in the positions those gradients were used.
+        dfdx = np.zeros(x.shape)
+        dfdw = np.zeros(self.weights.shape)
+        for i in range(len(self.windows)):
+            primer = np.zeros(x.shape)
+            primer[self.windows[i]] = gradient_kernel  # use precomputed kernel
+            dfdw += x[self.windows[i]] * gradient  # could commute mult later
+            dfdx += primer
+        # b is broadcast to the size of the kernel in forward and is also
+        # broadcast multiple times once for each window.
+        dfdb = self.weights.size * len(self.windows) * gradient
+        self.gradients.append({"dfdw": dfdw, "dfdx": dfdx, "dfdb": dfdb})
+        return dfdx
 
     def update(self):
         """Update node state/ weights for a single example."""
@@ -74,14 +90,14 @@ class CNN(Node):
         """Update node state/ weights for multiple examples simultaneously."""
         self.updater(parm_names=["w", "b"])
 
-    @property
+    @ property
     def weights(self):
         """Get cross convolved filter n-dimensional weights or error."""
         if self.__dict__.get("_w") is None:
             raise ValueError("No weight values have been given to this CNN.")
         return self._w
 
-    @weights.setter
+    @ weights.setter
     def weights(self, weights):
         """Set cross convolved filter n-dimensional weights."""
         # initialise weights from tuple dimensions
@@ -98,7 +114,7 @@ class CNN(Node):
         else:
             self._w = weights
 
-    @property
+    @ property
     def bias(self):
         """Get sum of products bias coefficient."""
         if self.__dict__.get("_b") is not None:
@@ -107,12 +123,12 @@ class CNN(Node):
             self.bias = np.array([0])
             return self.bias
 
-    @bias.setter
+    @ bias.setter
     def bias(self, bias: np.ndarray):
         """Set sum of products bias coefficient."""
         self._b = bias
 
-    @property
+    @ property
     def stride(self):
         """Get stride over convolutions."""
         if self.__dict__.get("_stride") is None:
@@ -120,7 +136,7 @@ class CNN(Node):
             return self.stride
         return self._stride
 
-    @stride.setter
+    @ stride.setter
     def stride(self, stride: np.ndarray):
         """Set stride over convolutions.
 
@@ -128,14 +144,14 @@ class CNN(Node):
         """
         self._stride = stride.astype(int)
 
-    @property
+    @ property
     def windows(self):
         """Get current list of windows for cross correlation."""
         if self.cache.get("windows") is not None:
             return self.cache["windows"]
         return None
 
-    @windows.setter
+    @ windows.setter
     def windows(self, windows):
         """Set current list of windows into the data."""
         self.cache["windows"] = windows
