@@ -94,7 +94,7 @@ The derivative of a ANN (:math:`f`) with respect to the input :math:`x`:
 
 .. note::
 
-  .. include:: variables
+  .. include:: /variables
 
 ANN API
 +++++++
