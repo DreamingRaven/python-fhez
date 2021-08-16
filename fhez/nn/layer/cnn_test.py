@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T15:03:37+01:00
+# @Last modified time: 2021-08-16T15:39:30+01:00
 
 import time
 import unittest
@@ -113,7 +113,17 @@ class CNNTest(unittest.TestCase):
 
         cnn = CNN(weights=weights, bias=bias)
         cnn.forward(x=data)
-        grad = cnn.backward(gradient=1)
+        cnn.backward(gradient=1)
+        grads = cnn.gradients.pop()
+        # check bias gradient
+        self.assertEqual(grads["dfdb"], self.filt.size*4)
+        # check weights gradient
+        np.testing.assert_array_almost_equal(grads["dfdw"],
+                                             np.ones(self.filt.shape)*4,
+                                             decimal=1,
+                                             verbose=True)
+        # check input gradient
+        print(grads)
 
 # class cnn_tests(unittest.TestCase):
 #     """Unit test class aggregating all tests for the cnn class"""
