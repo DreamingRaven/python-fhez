@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-13T15:45:49+01:00
+# @Last modified time: 2021-08-13T15:54:23+01:00
 
 import time
 import unittest
@@ -16,7 +16,7 @@ class CNNTest(unittest.TestCase):
     @property
     def data_shape(self):
         """Define desired data shape."""
-        return (32, 32, 3)
+        return (4, 4, 3)
 
     @property
     def filter_shape(self):
@@ -26,7 +26,7 @@ class CNNTest(unittest.TestCase):
     @property
     def data(self):
         """Get some generated data."""
-        array = np.random.rand(*self.data_shape)
+        array = np.ones(self.data_shape)
         return array
 
     @property
@@ -77,19 +77,20 @@ class CNNTest(unittest.TestCase):
         weights = self.filt
         data = self.data
         bias = self.bias
+
         cnn = CNN(weights=weights, bias=bias)
         a = cnn.forward(x=data)
-        print("cnn.forward", a)
+        print("ACTIVATION:", a)
 
     def test_backward(self):
         """Test CNN gradient calculated correctly."""
         weights = self.filt
         data = self.data
         bias = self.bias
+
         cnn = CNN(weights=weights, bias=bias)
         cnn.forward(x=data)
         grad = cnn.backward(gradient=1)
-        print("cnn.backward", grad)
 
 # class cnn_tests(unittest.TestCase):
 #     """Unit test class aggregating all tests for the cnn class"""

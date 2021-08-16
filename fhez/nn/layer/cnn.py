@@ -2,12 +2,13 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-13T15:30:04+01:00
+# @Last modified time: 2021-08-16T11:02:04+01:00
 # @License: please see LICENSE file in project root
 
 import copy
 import numpy as np
 from fhez.nn.graph.node import Node
+from tqdm import tqdm
 
 
 class CNN(Node):
@@ -44,9 +45,22 @@ class CNN(Node):
                                        filter=self.weights.shape,
                                        stride=self.stride)
             self.windows = list(map(self.windex_to_slice, self.windows))
-        print("CNN WINDOWS 0:", self.windows[0])
-        print("CNN WINDOWS 1:", self.windows[1])
-        raise NotImplementedError("CNN forward not yet implemented.")
+
+        activated = []
+        # apply each window and do it by index so can state progress
+        for i in tqdm(range(len(self.windows)), desc="{}.{}".format(
+                self.__class__.__name__, "forward"),
+            ncols=80, colour="blue"
+        ):
+            # create a primer for application of window without having to
+            # modify x but instead the filter itself
+            cc_primer = np.zeros(x.shape)
+            # now we have a sparse vectore that can be used to convolve
+            cc_primer[self.windows[i]] = self.weights
+            t = cc_primer * x
+            t = t + (self.bias/(t.size/len(t)))  # commute addition before sum
+            activated.append(t)
+        return np.array(activated)
 
     def backward(self, gradient: np.ndarray):
         """Compute computational filter gradient and input gradient."""
@@ -54,11 +68,11 @@ class CNN(Node):
 
     def update(self):
         """Update node state/ weights for a single example."""
-        self.updater(parm_names=[], it=1)
+        self.updater(parm_names=["w", "b"], it=1)
 
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
-        self.updater(parm_names=[])
+        self.updater(parm_names=["w", "b"])
 
     @property
     def weights(self):
