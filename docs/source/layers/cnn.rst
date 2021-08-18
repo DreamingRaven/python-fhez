@@ -71,7 +71,7 @@ The derivative of a CNN (:math:`f`) with respect to the input :math:`x`:
 
 .. note::
 
-  .. include:: variables
+  .. include:: /variables
 
 
 .. _section_masquerade:
@@ -115,5 +115,5 @@ CNN API
 
   |api-build-note|
 
-.. autoclass:: fhez.nn.layer.cnn.Layer_CNN
+.. automodule:: fhez.nn.layer.cnn
   :members:
