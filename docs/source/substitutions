@@ -74,8 +74,9 @@
 .. |section_mse| replace:: :ref:`section_mse`
 
 .. |section_cc| replace:: :ref:`section_cc`
-
 .. |section_sum| replace:: :ref:`section_sum`
+.. |section_enqueue| replace:: :ref:`section_enqueue`
+.. |section_dequeue| replace:: :ref:`section_dequeue`
 
 .. |section_relu| replace:: :ref:`section_relu`
 .. |section_relu_approx| replace:: :ref:`section_relu_approximation`

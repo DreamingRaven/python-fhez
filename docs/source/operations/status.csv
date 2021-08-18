@@ -1,3 +1,5 @@
 Category,Name,Docs,Forward,Backward
 operation,Cross Correlation,|section_cc|,|blue|,|red|
 operation,Sum,|section_sum|,|green|,|blue|
+operation,Enqueue,|section_enqueue|,|blue|,|green|
+operation,Dequeue,|section_dequeue|,|green|,|blue|
