@@ -1,19 +1,22 @@
 """Enqueue as computational node.
 
 Enqueueing is the process of taking two or more arrays and stacking them
-together using some meta container that encapsulates both arrays.
+together using some meta container that encapsulates both arrays, and
+enqueues->dequeue in first in first out manner (FIFO).
 
-While the queue is still being enqueued this node will block.
+While the queue is still being enqueued this node will return nothing.
 Once the queue has reached the desired length, it will return the queue as a
-list. This will map gradients.
+list. This will map gradients again in FIFO manner using a dequeue.
 
-Akin to: `numpy stacking
- <https://numpy.org/doc/stable/reference/generated/numpy.stack.html>`_
+Enqueue as a node, forward is enqueue, backward is dequeue, the exact inverse
+of the Dequeue node as we name it for the forward pass.
+
+See: `Comp-sci queues <https://computersciencewiki.org/index.php/Queue>`_
 """
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:01:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-18T13:03:38+01:00
+# @Last modified time: 2021-08-18T13:15:23+01:00
 
 from collections import deque
 import numpy as np
@@ -68,10 +71,11 @@ class Enqueue(Node):
 
         Effectiveley backward is a dequeue but for gradients.
 
-        .. note::
+        .. warning::
 
-            This **YIELDS** gradients so distribution can be done by network
-            traverser.
+            This **YIELDS** gradients unlike most nodes, requiring special
+            logic by a network traverser, only getting one input but
+            results in many outputs.
         """
         assert len(gradient) == self.length
         queue = deque(gradient)
