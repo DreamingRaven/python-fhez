@@ -13,8 +13,9 @@ Akin to: `numpy stacking
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:01:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-17T13:37:19+01:00
+# @Last modified time: 2021-08-18T01:39:38+01:00
 
+from collections import deque
 import numpy as np
 from fhez.nn.graph.node import Node
 
@@ -41,8 +42,12 @@ class Enqueue(Node):
     def queue(self):
         """Get the current queue."""
         if self.__dict__.get("_enqueue") is None:
-            self._queue = []
+            self._queue = deque()
         return self._queue
+
+    @queue.setter
+    def queue(self, queue):
+        self._queue = queue
 
     @property
     def cost(self):
@@ -50,7 +55,14 @@ class Enqueue(Node):
         return 0
 
     def forward(self, x):
-        pass
+        """Accumulate inputs into a single queue, then return when full."""
+        self.queue.append(x)
+        if len(self.queue) == self.length:
+            out = list(self.queue)
+            self.queue = None
+            print("DO I MAKE IT?")
+            return out
+        return None
 
     def backward(self, gradient):
         pass
