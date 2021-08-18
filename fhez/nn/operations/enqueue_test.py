@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:38:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-17T14:43:40+01:00
+# @Last modified time: 2021-08-18T12:59:46+01:00
 
 import time
 import unittest
@@ -59,7 +59,7 @@ class EnqueueTest(unittest.TestCase):
         for i in range(l):
             out = q.forward(np.array([i]))
         self.assertNotEqual(out, None)
-        truth = np.arange(l)
+        truth = np.reshape(np.arange(l), (l, 1))
         np.testing.assert_array_almost_equal(out, truth,
                                              decimal=1,
                                              verbose=True)
@@ -71,8 +71,8 @@ class EnqueueTest(unittest.TestCase):
         for i in range(l):
             out = q.forward(np.array([i]))
         self.assertNotEqual(out, None)
-        gradients = np.arange(l)
-        local_grad = q.backward(gradient=gradients)
+        gradients = np.reshape(np.arange(l), (l, 1))
+        local_grad = np.array(list(q.backward(gradient=gradients)))
         np.testing.assert_array_almost_equal(local_grad, gradients,
                                              decimal=1,
                                              verbose=True)
