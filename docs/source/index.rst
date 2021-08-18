@@ -76,3 +76,4 @@ Or if you do not have @online support:
   activations
   optimisers
   loss
+  operations
