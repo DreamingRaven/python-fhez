@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-17T00:32:11+01:00
+# @Last modified time: 2021-08-19T10:35:47+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -142,6 +142,7 @@ class CC(Node):
 
         Note: Stride **MUST** be integers, we cannot have partial strides.
         """
+        stride = np.array(stride)  # just ensuring is numpy
         self._stride = stride.astype(int)
 
     @ property
