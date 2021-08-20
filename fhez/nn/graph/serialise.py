@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-20T13:50:11+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T13:56:24+01:00
+# @Last modified time: 2021-08-20T14:31:14+01:00
 import abc
 import marshmallow as mar
 
@@ -32,3 +32,8 @@ class Serialise(abc.ABC):
         if self.__class__ != other.__class__:
             return False
         return self.__dict__ == other.__dict__
+
+    def __repr__(self):
+        """Get string unambiguous representation of object."""
+        schema = self.schema
+        return schema().dumps(self)
