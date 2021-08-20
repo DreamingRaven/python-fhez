@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:04:29+01:00
+# @Last modified time: 2021-08-20T14:17:48+01:00
 
 import time
 import unittest
@@ -174,11 +174,11 @@ class AdamTest(unittest.TestCase):
 
     def test_getstate_setstate(self):
         """Check setstate getstate functionality."""
-        thing = Adam(alpha=0.002,
-                     beta_1=0.8,
-                     beta_2=0.998,
-                     epsilon=1e-9)
-        thing2 = Adam()
-        d = thing.__getstate__()
-        thing2.__setstate__(d)
-        self.assertTrue(thing.__dict__ == thing2.__dict__)
+        obj_dump = Adam(alpha=0.002,
+                        beta_1=0.8,
+                        beta_2=0.998,
+                        epsilon=1e-9)
+        obj_load = Adam()
+        d = obj_dump.__getstate__()
+        obj_load.__setstate__(d)
+        self.assertTrue(obj_load.__dict__ == obj_dump.__dict__)
