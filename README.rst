@@ -5,10 +5,6 @@ Python-FHEz
   :width: 200
   :alt: FHEz fun computational graph snake logo
 
-.. |graph| raw:: html
-  :file: docs/source/img/graph.html
-
-
 (Formerly Python-ReSeal)
 
 |fhez-logo|
@@ -16,8 +12,6 @@ Python-FHEz
 Python-FHEz is a fully-homomorphically-encrypted deep-learning library, made with love, and tears.
 
 Cypherpunks write code.
-
-|graph|
 
 Docs
 ++++
