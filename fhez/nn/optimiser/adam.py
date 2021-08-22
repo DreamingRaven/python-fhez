@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:06:42+01:00
+# @Last modified time: 2021-08-20T14:45:20+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
@@ -40,7 +40,19 @@ class Adam(Serialise):
 
     @property
     def schema(self):
-        """Get Marshmallow schema representation of this class."""
+        """Get Marshmallow schema representation of this class.
+
+        Marshmallow schemas allow for easy and trustworthy serialisation
+        and deserialisation of arbitrary objects either to inbulit types or
+        json formats. This is an inherited member of the abstract class
+        Serialise.
+
+        .. note::
+
+            Anything not listed here will inevitably be lost, ensure anything
+            important is identified and expressley stated its type and
+            structure.
+        """
         schema_dict = {
             "_alpha": mar.fields.Float(),
             "_beta_1": mar.fields.Float(),

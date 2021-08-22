@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:17:48+01:00
+# @Last modified time: 2021-08-20T14:40:37+01:00
 
 import time
 import unittest
@@ -181,4 +181,5 @@ class AdamTest(unittest.TestCase):
         obj_load = Adam()
         d = obj_dump.__getstate__()
         obj_load.__setstate__(d)
+        repr(obj_dump)
         self.assertTrue(obj_load.__dict__ == obj_dump.__dict__)
