@@ -5,7 +5,6 @@ Python-FHEz
   :width: 200
   :alt: FHEz fun computational graph snake logo
 
-
 (Formerly Python-ReSeal)
 
 |fhez-logo|

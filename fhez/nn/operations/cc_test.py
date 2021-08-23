@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-16T16:33:43+01:00
+# @Last modified time: 2021-08-20T14:47:43+01:00
 
 import time
 import unittest
@@ -144,3 +144,15 @@ class CCTest(unittest.TestCase):
                                              dfdx_truth,
                                              decimal=1,
                                              verbose=True)
+
+    def test_getstate_setstate(self):
+        """Check setstate getstate functionality."""
+        weights = self.filt
+        bias = self.bias
+
+        obj_dump = CC(weights=weights, bias=bias)
+        obj_load = CC()
+        d = obj_dump.__getstate__()
+        obj_load.__setstate__(d)
+        repr(obj_dump)
+        self.assertTrue(obj_load.__dict__ == obj_dump.__dict__)

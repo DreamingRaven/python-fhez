@@ -1,0 +1,108 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+
+<style type="text/css">
+
+        #mynetwork {
+            width: 700px;
+            height: 700px;
+            background-color: #222222;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+
+        
+
+        
+
+        
+</style>
+
+</head>
+
+<body>
+<div id = "mynetwork"></div>
+
+
+<script type="text/javascript">
+
+    // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"font": {"color": "white"}, "group": 0, "id": "x", "label": "x", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 1, "id": "CNN-products", "label": "CNN-products", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 1, "id": "CNN-dequeue", "label": "CNN-dequeue", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 1, "id": "CNN-sum-of-products", "label": "CNN-sum-of-products", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 1, "id": "CNN-enqueue", "label": "CNN-enqueue", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 1, "id": "CNN-activation", "label": "CNN-activation", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-0", "label": "Dense-0", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-1", "label": "Dense-1", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-2", "label": "Dense-2", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-3", "label": "Dense-3", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-4", "label": "Dense-4", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-5", "label": "Dense-5", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-6", "label": "Dense-6", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-7", "label": "Dense-7", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-8", "label": "Dense-8", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-9", "label": "Dense-9", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-enqueue", "label": "Dense-enqueue", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 3, "id": "Softmax", "label": "Softmax", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 4, "id": "Argmax", "label": "Argmax", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-0", "label": "Dense-activation-0", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-1", "label": "Dense-activation-1", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-2", "label": "Dense-activation-2", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-3", "label": "Dense-activation-3", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-4", "label": "Dense-activation-4", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-5", "label": "Dense-activation-5", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-6", "label": "Dense-activation-6", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-7", "label": "Dense-activation-7", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-8", "label": "Dense-activation-8", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 2, "id": "Dense-activation-9", "label": "Dense-activation-9", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 3, "id": "Loss-CCE", "label": "Loss-CCE", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 0, "id": "One-hot-encoder", "label": "One-hot-encoder", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 0, "id": "y", "label": "y", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 4, "id": "One-hot-decoder", "label": "One-hot-decoder", "shape": "dot", "size": 10}, {"font": {"color": "white"}, "group": 4, "id": "y_hat", "label": "y_hat", "shape": "dot", "size": 10}]);
+        edges = new vis.DataSet([{"from": "x", "to": "CNN-products", "weight": 6}, {"from": "CNN-products", "to": "CNN-dequeue", "weight": 0}, {"from": "CNN-dequeue", "to": "CNN-sum-of-products", "weight": 0}, {"from": "CNN-sum-of-products", "to": "CNN-enqueue", "weight": 0}, {"from": "CNN-enqueue", "to": "CNN-activation", "weight": 4}, {"from": "CNN-activation", "to": "Dense-0", "weight": 2}, {"from": "CNN-activation", "to": "Dense-1", "weight": 2}, {"from": "CNN-activation", "to": "Dense-2", "weight": 2}, {"from": "CNN-activation", "to": "Dense-3", "weight": 2}, {"from": "CNN-activation", "to": "Dense-4", "weight": 2}, {"from": "CNN-activation", "to": "Dense-5", "weight": 2}, {"from": "CNN-activation", "to": "Dense-6", "weight": 2}, {"from": "CNN-activation", "to": "Dense-7", "weight": 2}, {"from": "CNN-activation", "to": "Dense-8", "weight": 2}, {"from": "CNN-activation", "to": "Dense-9", "weight": 2}, {"from": "Dense-enqueue", "to": "Softmax", "weight": 4}, {"from": "Dense-enqueue", "to": "Argmax", "weight": 2}, {"from": "Dense-0", "to": "Dense-activation-0", "weight": 4}, {"from": "Dense-activation-0", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-1", "to": "Dense-activation-1", "weight": 4}, {"from": "Dense-activation-1", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-2", "to": "Dense-activation-2", "weight": 4}, {"from": "Dense-activation-2", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-3", "to": "Dense-activation-3", "weight": 4}, {"from": "Dense-activation-3", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-4", "to": "Dense-activation-4", "weight": 4}, {"from": "Dense-activation-4", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-5", "to": "Dense-activation-5", "weight": 4}, {"from": "Dense-activation-5", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-6", "to": "Dense-activation-6", "weight": 4}, {"from": "Dense-activation-6", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-7", "to": "Dense-activation-7", "weight": 4}, {"from": "Dense-activation-7", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-8", "to": "Dense-activation-8", "weight": 4}, {"from": "Dense-activation-8", "to": "Dense-enqueue", "weight": 0}, {"from": "Dense-9", "to": "Dense-activation-9", "weight": 4}, {"from": "Dense-activation-9", "to": "Dense-enqueue", "weight": 0}, {"from": "Softmax", "to": "Loss-CCE", "weight": 3}, {"from": "One-hot-encoder", "to": "Loss-CCE", "weight": 0}, {"from": "y", "to": "One-hot-encoder", "weight": 0}, {"from": "Argmax", "to": "One-hot-decoder", "weight": 0}, {"from": "One-hot-decoder", "to": "y_hat", "weight": 0}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+
+        network = new vis.Network(container, data, options);
+	 
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+
+</script>
+</body>
+</html>
