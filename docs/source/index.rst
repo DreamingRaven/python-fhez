@@ -80,6 +80,7 @@ Or if you do not have @online support:
   install
   examples
   graph
+  traversers
   layers
   activations
   optimisers

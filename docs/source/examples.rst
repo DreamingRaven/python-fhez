@@ -16,6 +16,9 @@
   :width: 700
   :alt: Kernel masquerading as a mask.
 
+.. |mnist-nn| raw:: html
+  :file: img/mnist-nn-graph.html
+
 .. _section_examples:
 
 Examples
@@ -62,3 +65,15 @@ This doubles as an example and as reproducible code to get our results from one 
 .. warning:
 
   While we do our best to keep resource requirements low this Jupyter script is extremely RAM intensive, it will chew through less than 32GB of RAM like a meteor did to the dinosaurs.
+
+Interactive Graph
+-----------------
+
+The following **interactive graph** represents the neural network used for MNIST prediction to exemplify this library in use:
+
+|mnist-nn|
+
+Usage
+-----
+
+To run this example please use the generic docker script. Then the fashion-MNIST example is in the file fashion-mnist.ipynb which you can open in the browsers jupyter lab session (use the last of the three links).
