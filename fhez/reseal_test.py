@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:47:41+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-24T15:51:06+01:00
+# @Last modified time: 2021-08-23T15:25:12+01:00
 
 import unittest
 import time
@@ -146,8 +146,12 @@ class ReSeal_tests(unittest.TestCase):
         result = r.plaintext
         print("c*c:", data, " ^ 3 =", np.round(result[:data.shape[0]]))
         rounded_reshaped_result = np.round(result[:data.shape[0]])
-        self.assertEqual((data * data * data).tolist(),
-                         rounded_reshaped_result.tolist())
+        # self.assertEqual((data * data * data).tolist(),
+        #                  rounded_reshaped_result.tolist())
+        np.testing.assert_array_almost_equal(result[:data.shape[0]],
+                                             (data * data * data),
+                                             decimal=0,
+                                             verbose=True)
 
     def test_encrypt_decrypt(self):
         defaults = self.defaults_ckks()
@@ -172,8 +176,11 @@ class ReSeal_tests(unittest.TestCase):
         expected = ((data * 20) + data) * data
         result = r2.plaintext
         rounded_reshaped_result = np.round(result[:data.shape[0]])
-        self.assertEqual(expected.tolist(),
-                         rounded_reshaped_result.tolist())
+        # self.assertEqual(expected.tolist(),
+        #                  rounded_reshaped_result.tolist())
+        np.testing.assert_array_almost_equal(result[:data.shape[0]], expected,
+                                             decimal=0,
+                                             verbose=True)
 
     def test_pickle(self):
         import pickle
