@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-15T15:50:42+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:38:34+01:00
+# @Last modified time: 2021-08-23T10:12:36+01:00
 
 import marshmallow as mar
 from fhez.nn.graph.node import Node
@@ -31,3 +31,8 @@ class IO(Node, Serialise):
 
     def updates(self):
         """Do nothing."""
+
+    @property
+    def cost(self):
+        """Get no-cost of this node."""
+        return 0

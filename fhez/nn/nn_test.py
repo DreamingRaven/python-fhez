@@ -2,15 +2,16 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:01:00+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-06T15:11:07+01:00
+# @Last modified time: 2021-08-23T10:01:41+01:00
 
 import time
 import unittest
 import numpy as np
 import networkx as nx
 from fhez.nn.nn import NN
+
 from fhez.nn.graph.node import IO
-from fhez.nn.activation.relu import RELU
+from fhez.nn.activation.relu import RELU  # Rectified Linear Unit (approx)
 
 
 class NNTest(unittest.TestCase):
@@ -105,12 +106,5 @@ class NNTest(unittest.TestCase):
                           end_node="input")
         self.nn.updates(current_node="input", end_node="output")
 
-
-if __name__ == "__main__":
-    logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.INFO,
-        format="%(asctime)s %(levelname)s:%(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S")
-    # run all the unit-tests
-    print("now testing:", __file__, "...")
-    unittest.main()
+    def test_mnist(self):
+        """Testing against MNIST."""

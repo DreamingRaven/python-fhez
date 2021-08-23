@@ -1,13 +1,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-22T13:53:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-22T15:58:12+01:00
+# @Last modified time: 2021-08-23T09:55:16+01:00
 
 import time
 import unittest
 
 
-class FHEzTest(unittest.TestCase):
+class FHEz_Test(unittest.TestCase):
     """Test FHEZ top level package."""
 
     def setUp(self):
