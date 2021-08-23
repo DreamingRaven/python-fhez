@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T10:22:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T14:33:44+01:00
+# @Last modified time: 2021-08-20T14:45:20+01:00
 
 # SOURCES
 # https://arxiv.org/abs/1412.6980
@@ -11,9 +11,11 @@
 # https://keras.io/api/optimizers/adam/
 
 import numpy as np
+import marshmallow as mar
+from fhez.nn.graph.serialise import Serialise
 
 
-class Adam():
+class Adam(Serialise):
     """Adaptive moment optimiser abstraction.
 
     Sources:
@@ -35,6 +37,30 @@ class Adam():
         self.beta_1 = beta_1
         self.beta_2 = beta_2
         self.epsilon = epsilon
+
+    @property
+    def schema(self):
+        """Get Marshmallow schema representation of this class.
+
+        Marshmallow schemas allow for easy and trustworthy serialisation
+        and deserialisation of arbitrary objects either to inbulit types or
+        json formats. This is an inherited member of the abstract class
+        Serialise.
+
+        .. note::
+
+            Anything not listed here will inevitably be lost, ensure anything
+            important is identified and expressley stated its type and
+            structure.
+        """
+        schema_dict = {
+            "_alpha": mar.fields.Float(),
+            "_beta_1": mar.fields.Float(),
+            "_beta_2": mar.fields.Float(),
+            "_epsilon": mar.fields.Float(),
+            # "_cache": mar.fields.Dict(),
+        }
+        return mar.Schema.from_dict(schema_dict)
 
     # HYPERPARAMETERS
 

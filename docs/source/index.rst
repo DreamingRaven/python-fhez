@@ -13,10 +13,18 @@
   :width: 400
   :alt: Example of artificial neural networks neuron, with inputs, parameters, and activations.
 
+.. |graph| raw:: html
+  :file: img/graph.html
+
 Python-FHEz
 ===========
 
 Python-FHEz is a privacy-preserving |fhe| (FHE) and deep learning library.
+
+Interactive graph example of an FHE compatible neural network:
+
+|graph|
+
 
 |fhe|:
 

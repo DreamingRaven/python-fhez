@@ -1,16 +1,16 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T14:28:46+01:00
+# @Last modified time: 2021-08-20T14:40:37+01:00
 
 import time
 import unittest
 import numpy as np
+import marshmallow as mar
 
 from fhez.nn.optimiser.adam import Adam
 from fhez.nn.activation.linear import Linear
 from fhez.nn.loss.mse import MSE
-import copy
 
 
 class AdamTest(unittest.TestCase):
@@ -81,7 +81,7 @@ class AdamTest(unittest.TestCase):
             dloss_y_hat = lossfunc.backward(loss)
             nn.backward(dloss_y_hat)
             nn.updates()  # this will now call adam to update its weights
-        print("Adam loss {}, originally {}".format(loss, original_loss))
+        # print("Adam loss {}, originally {}".format(loss, original_loss))
         self.assertLess(loss, original_loss)
 
     def test_momentum(self):
@@ -161,3 +161,25 @@ class AdamTest(unittest.TestCase):
         # check it has returned a correct value
         m_hat_true = m_true / (1 - beta_2**1)
         self.assertEqual(v_hat, m_hat_true)
+
+    # def test_serialisation(self):
+    #     """Check marshmallow serialisation and set/getstate."""
+    #     thing = Adam(alpha=0.001,
+    #                  beta_1=0.9,
+    #                  beta_2=0.999,
+    #                  epsilon=1e-8)
+    #     schema = thing.schema
+    #     serial = schema().dump(thing)
+    #     print(serial)
+
+    def test_getstate_setstate(self):
+        """Check setstate getstate functionality."""
+        obj_dump = Adam(alpha=0.002,
+                        beta_1=0.8,
+                        beta_2=0.998,
+                        epsilon=1e-9)
+        obj_load = Adam()
+        d = obj_dump.__getstate__()
+        obj_load.__setstate__(d)
+        repr(obj_dump)
+        self.assertTrue(obj_load.__dict__ == obj_dump.__dict__)
