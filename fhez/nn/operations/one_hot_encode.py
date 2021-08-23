@@ -1,7 +1,8 @@
+"""One hot encoder as computational node."""
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T10:27:37+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-23T11:59:52+01:00
+# @Last modified time: 2021-08-23T12:19:26+01:00
 
 import numpy as np
 import marshmallow as mar
