@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T09:53:32+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-17T11:13:03+01:00
+# @Last modified time: 2021-08-24T13:24:09+01:00
 
 import time
 import unittest
@@ -62,7 +62,7 @@ class SumTest(unittest.TestCase):
         s = Sum()
         d = self.data
         a = s.forward(x=d)
-        truth = np.sum(d, axis=0)
+        truth = np.sum(d)
         np.testing.assert_array_almost_equal(a, truth,
                                              decimal=1,
                                              verbose=True)
@@ -73,8 +73,8 @@ class SumTest(unittest.TestCase):
         d = self.data
         s.forward(x=d)
         grads = s.backward(gradient=1)
-        self.assertEqual(len(grads), len(d))
-        truth = np.ones((len(d),))
+        self.assertEqual(grads.shape, d.shape)
+        truth = np.ones(self.data_shape)
         np.testing.assert_array_almost_equal(grads, truth,
                                              decimal=1,
                                              verbose=True)

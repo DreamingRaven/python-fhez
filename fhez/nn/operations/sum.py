@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T09:53:22+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-17T11:09:47+01:00
+# @Last modified time: 2021-08-24T13:21:41+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -22,14 +22,14 @@ class Sum(Node):
 
     def forward(self, x: np.ndarray):
         """Sum inputs together assuming first dim is inputs."""
-        self.inputs.append(len(x))
-        return np.sum(x, axis=0)
+        self.inputs.append(x.shape)
+        return np.sum(x)
 
     def backward(self, gradient: np.ndarray):
         """Distribute gradient to inputs."""
-        length = self.inputs.pop()
+        shp = self.inputs.pop()
         grad = np.array(gradient)
-        distributed = np.broadcast_to(grad, (length,) + grad.shape)
+        distributed = np.broadcast_to(grad, shp)
         return distributed
 
     def update(self):
