@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T14:19:41+01:00
+# @Last modified time: 2021-08-24T14:36:41+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -94,13 +94,3 @@ class RELU(Node):
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
         self.updater(parm_names=["q"])
-
-
-if __name__ == "__main__":
-    logger.basicConfig(  # filename="{}.log".format(__file__),
-        level=logger.INFO,
-        format="%(asctime)s %(levelname)s:%(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S")
-    # run all the unit-tests
-    print("now testing:", __file__, "...")
-    unittest.main()

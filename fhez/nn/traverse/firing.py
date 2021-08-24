@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T13:49:36+01:00
+# @Last modified time: 2021-08-24T14:36:23+01:00
 
 import types
 import itertools
@@ -153,6 +153,8 @@ class Firing(Traverser):
             # once we bottom out and get some non-list type abort and pull up
             except (AttributeError, IndexError):
                 return (len(lst),)
+        elif isinstance(lst, (int, float)):
+            return (1,)
         else:
             return lst.shape
 

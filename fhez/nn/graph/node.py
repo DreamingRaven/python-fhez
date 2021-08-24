@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-15T15:43:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T14:07:29+01:00
+# @Last modified time: 2021-08-24T14:36:17+01:00
 
 import abc
 from collections import deque
@@ -66,6 +66,8 @@ class Node(abc.ABC):
             # once we bottom out and get some non-list type abort and pull up
             except (AttributeError, IndexError):
                 return (len(lst),)
+        elif isinstance(lst, (int, float)):
+            return (1,)
         else:
             return lst.shape
 

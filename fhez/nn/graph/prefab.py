@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T13:50:57+01:00
+# @Last modified time: 2021-08-24T14:26:33+01:00
 
 import numpy as np
 
@@ -62,12 +62,16 @@ def cnn_classifier(k):
     # we want to get the network to regress some prediction one for each class
     # graph.add_node("Dense-enqueue", group=2, node=Enqueue())
     for i in classes:
-        graph.add_node("Dense-{}".format(i), group=2, node=ANN())
+        graph.add_node("Dense-{}".format(i), group=2,
+                       node=ANN(weights=(len(windows),)))
         graph.add_edge("CNN-acti", "Dense-{}".format(i), weight=ANN().cost)
         graph.add_node("Dense-activation-{}".format(i), group=2, node=RELU())
-        graph.add_edge("Dense-{}".format(i), "Dense-activation-{}".format(i), weight=RELU().cost)
-        graph.add_edge("Dense-activation-{}".format(i), "Softmax", weight=Enqueue().cost)
-        graph.add_edge("Dense-activation-{}".format(i), "Argmax", weight=Enqueue().cost)
+        graph.add_edge("Dense-{}".format(i), "Dense-activation-{}".format(i),
+                       weight=RELU().cost)
+        graph.add_edge("Dense-activation-{}".format(i), "Softmax",
+                       weight=Enqueue().cost)
+        graph.add_edge("Dense-activation-{}".format(i), "Argmax",
+                       weight=Enqueue().cost)
     #     graph.add_edge("Dense-activation-{}".format(i), "Dense-enqueue", weight=Enqueue().cost)
 
     # CONSTRUCT CLASSIFIER
@@ -76,7 +80,8 @@ def cnn_classifier(k):
     # graph.add_edge("Dense-enqueue", "Softmax", weight=Softmax().cost)
     graph.add_node("Loss-CCE", group=3, node=CCE())
     graph.add_edge("Softmax", "Loss-CCE", weight=3)
-    graph.add_node("One-hot-encoder", group=0, node=OneHotEncode(length=len(classes)))
+    graph.add_node("One-hot-encoder", group=0,
+                   node=OneHotEncode(length=len(classes)))
     graph.add_edge("One-hot-encoder", "Loss-CCE", weight=0)
     graph.add_node("y", group=0, node=IO())
     graph.add_edge("y", "One-hot-encoder", weight=OneHotEncode().cost)
