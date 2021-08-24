@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-23T17:32:01+01:00
+# @Last modified time: 2021-08-24T05:09:37+01:00
 
 import numpy as np
 
@@ -32,7 +32,7 @@ from fhez.nn.operations.one_hot_decode import OneHotDecode
 def cnn_classifier(k):
     """Get simple 1 Layer CNN, with K number of densenets -> softmax -> CCE."""
     graph = nx.MultiDiGraph()
-    classes = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    classes = np.arange(k)
 
     graph.add_node("x", group=0, node=IO())
 
@@ -79,3 +79,4 @@ def cnn_classifier(k):
     graph.add_edge("Argmax", "One-hot-decoder", weight=OneHotDecode().cost)
     graph.add_node("y_hat", group=4, node=IO())
     graph.add_edge("One-hot-decoder", "y_hat", weight=0)
+    return graph
