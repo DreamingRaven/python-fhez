@@ -8,7 +8,7 @@ See: `Comp-sci queues <https://computersciencewiki.org/index.php/Queue>`_
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:01:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T12:32:59+01:00
+# @Last modified time: 2021-08-24T12:40:01+01:00
 
 from collections import deque
 import numpy as np
@@ -60,6 +60,8 @@ class Dequeue(Node):
             logic by a network traverser, only getting one input but
             results in many outputs.
         """
+        # assert self.length is not None, "Missing length of dequeue"
+        # assert len(x) == self.length
         queue = deque(x)
         # I dont want to traverse queue as iterator so will use slightly faster
         # length of queue instead so we can rely on queues heavy internal
