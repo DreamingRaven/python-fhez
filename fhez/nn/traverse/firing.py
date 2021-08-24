@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T10:53:39+01:00
+# @Last modified time: 2021-08-24T12:28:52+01:00
 
 import types
 import itertools
@@ -56,6 +56,25 @@ class Firing(Traverser):
         signal_name = "fwd-signal" if is_forward_receptor is True else \
             "bwd-signal"
         graph = self.graph
+        # get signal from edges behind us
+        signal = self._get_signal(graph=graph, node_name=node_name,
+                                  signal_name=signal_name, bootstrap=bootstrap)
+        node = graph.nodes[node_name]
+        # get activation on application of signal to current node
+        activation = self._use_signal(node=node, signal=signal,
+                                      is_forward_receptor=is_forward_receptor)
+        # distibute activation to edges ahead of us
+        self._propogate_signal(graph=graph, node_name=node_name,
+                               signal_name=signal_name, activation=activation)
+        # recurse to all successors
+        for next_node_name in self.graph.successors(node_name):
+            self._carry_signal(
+                node_name=next_node_name,
+                is_forward_receptor=is_forward_receptor,
+                bootstrap=None)
+        return None
+
+    def _get_signal(self, graph, node_name, signal_name, bootstrap=None):
         # Get current nodes signal or bootstrap signal
         if bootstrap is None:
             signal = []
@@ -65,23 +84,27 @@ class Firing(Traverser):
                     # tuple(index, dict(attributes))
                     signal.append(edge[1][signal_name])
                     del edge[1][signal_name]  # clean up after ourselves
-            # for edge in self.graph.in_edges(node_name):
-            #     signal.append(edge[signal_name])
-            #     del edge[signal_name]
+            # if only one predecessor edge no need for meta list
+            if len(signal) == 1:
+                signal = signal[0]
         else:
             signal = bootstrap
+        return signal
 
-        node = self.graph.nodes[node_name]
-
+    def _use_signal(self, node, signal, is_forward_receptor=True):
         # apply signal to current node
+        print(node["node"], self.probe_shape(signal))
         if is_forward_receptor:
             activation = node["node"].forward(signal)
         else:
             activation = node["node"].backward(signal)
+        return activation
 
+    def _propogate_signal(self, graph, node_name, signal_name, activation):
         # distribute output-signal to outbound edges if any
         if activation is None:
             return None  # early exit no signal to propogate
+            # how we access successor edges
         for next_node, adjacency in graph[node_name].items():
             for edge in adjacency.items():
                 if isinstance(activation, types.GeneratorType):
@@ -90,13 +113,6 @@ class Firing(Traverser):
                 else:
                     # tuple(index, dict(attributes))
                     edge[1][signal_name] = activation
-
-        # recurse to all successors
-        for next_node in self.graph.successors(node_name):
-            print("NEXT", next_node)
-            # self._carry_signal(
-            #     node_name=next_node, is_forward_receptor=is_forward_receptor,
-            #     bootstrap=None)
 
     def harvest(self, probes):
         """Harvest forward response from neuronal firing, using probes."""
@@ -110,6 +126,22 @@ class Firing(Traverser):
 
     def adaptation(self):
         """Correct nodes based on learnt gradient."""
+
+    def probe_shape(self, lst: list):
+        """Get the shape of a list, assuming each sublist is the same length.
+
+        This function is recursive, sending the sublists down and terminating
+        once a type error is thrown by the final point being a non-list
+        """
+        if isinstance(lst, list):
+            # try appending current length with recurse of sublist
+            try:
+                return (len(lst),) + self.probe_shape(lst[0])
+            # once we bottom out and get some non-list type abort and pull up
+            except (AttributeError, IndexError):
+                return (len(lst),)
+        else:
+            return lst.shape
 
 
 NeuronalFiring = Firing
