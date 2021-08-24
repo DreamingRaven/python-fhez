@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T12:30:05+01:00
+# @Last modified time: 2021-08-24T13:50:57+01:00
 
 import numpy as np
 
@@ -55,7 +55,7 @@ def cnn_classifier(k):
         graph.add_node("CNN-sop-{}".format(i), group=1, node=Sum())
         graph.add_edge("CNN-dequeue", "CNN-sop-{}".format(i), weight=Sum().cost)
         graph.add_edge("CNN-sop-{}".format(i), "CNN-acti", weight=Enqueue().cost)
-    graph.add_node("CNN-acti", group=1, node=RELU)
+    graph.add_node("CNN-acti", group=1, node=RELU())
     # graph.add_edge("CNN-enqueue", "CNN-activation", weight=RELU().cost)
 
     # CONSTRUCT DENSE FOR EACH CLASS

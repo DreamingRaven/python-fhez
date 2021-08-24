@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T12:28:52+01:00
+# @Last modified time: 2021-08-24T13:49:36+01:00
 
 import types
 import itertools
@@ -56,10 +56,15 @@ class Firing(Traverser):
         signal_name = "fwd-signal" if is_forward_receptor is True else \
             "bwd-signal"
         graph = self.graph
+        node = graph.nodes[node_name]
+        print("Node: ", node_name, node["node"])
         # get signal from edges behind us
         signal = self._get_signal(graph=graph, node_name=node_name,
                                   signal_name=signal_name, bootstrap=bootstrap)
-        node = graph.nodes[node_name]
+        # if node is not ready I.E not all predecessors are processed skip
+        if signal is None:
+            return None
+
         # get activation on application of signal to current node
         activation = self._use_signal(node=node, signal=signal,
                                       is_forward_receptor=is_forward_receptor)
@@ -82,7 +87,15 @@ class Firing(Traverser):
             for prev_node, adjacency in graph.pred[node_name].items():
                 for edge in adjacency.items():
                     # tuple(index, dict(attributes))
-                    signal.append(edge[1][signal_name])
+                    try:
+                        signal.append(edge[1][signal_name])
+                    except KeyError:
+                        return None  # return None means not ready yet
+            # lookup again on purpose as we dont want to clean up during
+            # first search in case it fails
+            for prev_node, adjacency in graph.pred[node_name].items():
+                for edge in adjacency.items():
+                    # tuple(index, dict(attributes))
                     del edge[1][signal_name]  # clean up after ourselves
             # if only one predecessor edge no need for meta list
             if len(signal) == 1:
@@ -93,7 +106,7 @@ class Firing(Traverser):
 
     def _use_signal(self, node, signal, is_forward_receptor=True):
         # apply signal to current node
-        print(node["node"], self.probe_shape(signal))
+        print("signal-shape", self.probe_shape(signal))
         if is_forward_receptor:
             activation = node["node"].forward(signal)
         else:

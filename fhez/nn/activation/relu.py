@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T20:55:42+01:00
+# @Last modified time: 2021-08-24T14:19:41+01:00
 # @License: please see LICENSE file in project root
 
 import numpy as np
@@ -49,7 +49,9 @@ class RELU(Node):
         second = 4 / (3 * np.pi * self.q)
         # use coefficients with x in full equation but ordered carefully to
         # minimise computational depth
-        activation = (zeroth + (first * x)) + (second * (x * x))
+
+        activation = np.add(np.add(zeroth, np.multiply(first,  x)),
+                            np.multiply(second, np.multiply(x, x)))
         return activation
 
     def backward(self, gradient):
