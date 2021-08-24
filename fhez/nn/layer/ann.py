@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T14:29:28+01:00
+# @Last modified time: 2021-08-24T15:04:43+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -42,8 +42,8 @@ class ANN(Node):
     def bias(self):
         """Get ANN sum of products bias."""
         if self.__dict__.get("_bias") is None:
-            logger.warning("{}.bias called before initialisation".format(
-                self.__class__.__name__))
+            # logger.warning("{}.bias called before initialisation".format(
+            #     self.__class__.__name__))
             self._bias = 0
         return self._bias
 
