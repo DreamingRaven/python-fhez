@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-15T15:43:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T16:08:32+01:00
+# @Last modified time: 2021-08-24T14:36:17+01:00
 
 import abc
 from collections import deque
@@ -52,6 +52,24 @@ class Node(abc.ABC):
     # # # Utility Methods
     # these methods help implementers respect flags such as enabled cache,
     # while also alleviating some of the repeate code needing to be implemented
+
+    def probe_shape(self, lst: list):
+        """Get the shape of a list, assuming each sublist is the same length.
+
+        This function is recursive, sending the sublists down and terminating
+        once a type error is thrown by the final point being a non-list
+        """
+        if isinstance(lst, list):
+            # try appending current length with recurse of sublist
+            try:
+                return (len(lst),) + self.probe_shape(lst[0])
+            # once we bottom out and get some non-list type abort and pull up
+            except (AttributeError, IndexError):
+                return (len(lst),)
+        elif isinstance(lst, (int, float)):
+            return (1,)
+        else:
+            return lst.shape
 
     @property
     def inputs(self):

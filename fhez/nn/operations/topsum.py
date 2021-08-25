@@ -2,13 +2,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T09:53:22+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T13:21:41+01:00
+# @Last modified time: 2021-08-24T13:04:45+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
 
 
-class Sum(Node):
+class TopSum(Node):
     """Sum inputs and distribute backprop.
 
     First dim of inputs shape e.g (64,32,32,3) to sum are summed along axis=0
@@ -22,14 +22,14 @@ class Sum(Node):
 
     def forward(self, x: np.ndarray):
         """Sum inputs together assuming first dim is inputs."""
-        self.inputs.append(x.shape)
-        return np.sum(x)
+        self.inputs.append(len(x))
+        return np.sum(x, axis=0)
 
     def backward(self, gradient: np.ndarray):
         """Distribute gradient to inputs."""
-        shp = self.inputs.pop()
+        length = self.inputs.pop()
         grad = np.array(gradient)
-        distributed = np.broadcast_to(grad, shp)
+        distributed = np.broadcast_to(grad, (length,) + grad.shape)
         return distributed
 
     def update(self):

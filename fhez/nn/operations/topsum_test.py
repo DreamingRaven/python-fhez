@@ -2,15 +2,15 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T09:53:32+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T13:24:09+01:00
+# @Last modified time: 2021-08-24T13:05:52+01:00
 
 import time
 import unittest
 import numpy as np
-from fhez.nn.operations.sum import Sum
+from fhez.nn.operations.topsum import TopSum
 
 
-class SumTest(unittest.TestCase):
+class TopSumTest(unittest.TestCase):
     """Test Sum operation node."""
 
     @property
@@ -55,26 +55,26 @@ class SumTest(unittest.TestCase):
 
     def test_init(self):
         """Check object initialisation."""
-        Sum()
+        TopSum()
 
     def test_forward(self):
         """Check sum forward pass activation correct."""
-        s = Sum()
+        s = TopSum()
         d = self.data
         a = s.forward(x=d)
-        truth = np.sum(d)
+        truth = np.sum(d, axis=0)
         np.testing.assert_array_almost_equal(a, truth,
                                              decimal=1,
                                              verbose=True)
 
     def test_backward(self):
         """Check sum backward pass gradients correct."""
-        s = Sum()
+        s = TopSum()
         d = self.data
         s.forward(x=d)
         grads = s.backward(gradient=1)
-        self.assertEqual(grads.shape, d.shape)
-        truth = np.ones(self.data_shape)
+        self.assertEqual(len(grads), len(d))
+        truth = np.ones((len(d),))
         np.testing.assert_array_almost_equal(grads, truth,
                                              decimal=1,
                                              verbose=True)
