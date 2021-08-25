@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:04:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T15:35:09+01:00
+# @Last modified time: 2021-08-25T10:27:41+01:00
 from fhez.nn.loss.loss import Loss
 import numpy as np
 
@@ -21,8 +21,24 @@ class CCE(Loss):
     CCE Graph: https://www.desmos.com/calculator/q2dwniwjsp
     """
 
-    def forward(self, y: np.ndarray, y_hat: np.ndarray, check=True):
-        """Calculate cross entropy and save its state for backprop."""
+    def forward(self, signal=None,
+                y: np.ndarray = None,
+                y_hat: np.ndarray = None,
+                check=False):
+        """Calculate cross entropy and save its state for backprop.
+
+        Can either be given a network signal with both y_hat and y stacked, or
+        you can explicitly define y and y_hat.
+        """
+        if signal is None:
+            msg = "if no signal provided then you must provide y and y_hat"
+            assert y_hat is not None, msg
+            assert y is not None, msg
+        else:
+            # THE ORDER IS DEPENDENT ON THE ORDER OF EDGES!
+            y_hat = signal[0]
+            y = signal[1]
+
         if check:
             assert np.sum(y) == 1.0, "sum of y should equal exactly 1"
             assert np.sum(y_hat) == 1.0, "sum of y_hat should equal exactly 1"
