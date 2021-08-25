@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-28T21:37:24+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-03T11:15:14+01:00
+# @Last modified time: 2021-08-25T10:28:58+01:00
 
 import abc
 from collections import deque
@@ -66,7 +66,7 @@ class Loss(abc.ABC):
     # ABSTRACT METHODS
 
     @abc.abstractmethod
-    def forward(self, y: np.ndarray, y_hat: np.ndarray):
+    def forward(self, signal: np.ndarray, y: np.ndarray, y_hat: np.ndarray):
         """Calculate loss(es) given one or more truths."""
 
     @abc.abstractmethod

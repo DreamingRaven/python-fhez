@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-10T14:27:38+01:00
+# @Last modified time: 2021-08-24T15:04:43+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -42,8 +42,8 @@ class ANN(Node):
     def bias(self):
         """Get ANN sum of products bias."""
         if self.__dict__.get("_bias") is None:
-            logger.warning("{}.bias called before initialisation".format(
-                self.__class__.__name__))
+            # logger.warning("{}.bias called before initialisation".format(
+            #     self.__class__.__name__))
             self._bias = 0
         return self._bias
 
@@ -62,16 +62,16 @@ class ANN(Node):
         """
         # check that first dim matches so they can loop together
         if len(x) != len(self.weights):
-            raise ValueError("Mismatched shapes {}, {}".format(
+            raise ValueError("Mismatched shapes inp:{}, weights:{}".format(
                 len(x),
                 len(self.weights)))
         # map - product of weight
-        weighted = x * self.weights
+        weighted = np.multiply(x, self.weights)
         # reduce - sum of products using dispatcher
         sum = np.sum(weighted, axis=0)  # sum over only first axis
         # now save the input we originally got since it has been processed
         self.inputs.append(x)
-        return sum + self.bias
+        return np.add(sum, self.bias)
 
     def backward(self, gradient):
         r"""Compute backward pass of neural network.
@@ -86,11 +86,11 @@ class ANN(Node):
         """
         x = np.array(self.inputs.pop())
         # dfdx
-        dfdx = self.weights * gradient
+        dfdx = np.multiply(self.weights, gradient)
         # dfdw
-        dfdw = x * gradient
+        dfdw = np.multiply(x, gradient)
         # dfdb
-        dfdb = 1 * gradient
+        dfdb = np.multiply(1, gradient)
         self.gradients.append({"dfdw": dfdw, "dfdb": dfdb, "dfdx": dfdx})
         return dfdx
 

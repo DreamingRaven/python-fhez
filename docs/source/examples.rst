@@ -16,9 +16,6 @@
   :width: 700
   :alt: Kernel masquerading as a mask.
 
-.. |mnist-nn| raw:: html
-  :file: img/mnist-nn-graph.html
-
 .. _section_examples:
 
 Examples
@@ -71,7 +68,9 @@ Interactive Graph
 
 The following **interactive graph** represents the neural network used for MNIST prediction to exemplify this library in use:
 
-|mnist-nn|
+.. raw:: html
+  :file: img/mnist-nn-graph.html
+
 
 Usage
 -----
