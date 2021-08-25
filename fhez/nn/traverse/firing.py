@@ -57,7 +57,7 @@ class Firing(Traverser):
             "bwd-signal"
         graph = self.graph
         node = graph.nodes[node_name]
-        print("Node: ", node_name, node["node"])
+        # print("Node: ", node_name, node["node"])
         # get signal from edges behind us
         signal = self._get_signal(graph=graph, node_name=node_name,
                                   signal_name=signal_name, bootstrap=bootstrap)
@@ -106,7 +106,7 @@ class Firing(Traverser):
 
     def _use_signal(self, node, signal, is_forward_receptor=True):
         # apply signal to current node
-        print("signal-shape", self.probe_shape(signal))
+        # print("signal-shape", self.probe_shape(signal))
         if is_forward_receptor:
             activation = node["node"].forward(signal)
         else:
