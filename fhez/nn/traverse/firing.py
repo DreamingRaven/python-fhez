@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T14:28:24+01:00
+# @Last modified time: 2021-08-26T14:59:49+01:00
 
 import types
 import itertools
@@ -53,11 +53,9 @@ class Firing(Traverser):
     def _carry_signal(self, node_name, is_forward_receptor: bool = None,
                       bootstrap: np.ndarray = None):
         """Bootstrap and recursiveley carry signal through successor nodes."""
-        signal_name = "fwd-signal" if is_forward_receptor is True else \
-            "bwd-signal"
+        signal_name = "forward" if is_forward_receptor is True else \
+            "backward"
         graph = self.graph
-        node = graph.nodes[node_name]
-        # print("Node: ", node_name, node["node"])
         # get signal from edges behind us
         signal = self._get_signal(graph=graph, node_name=node_name,
                                   signal_name=signal_name, bootstrap=bootstrap)
@@ -68,10 +66,10 @@ class Firing(Traverser):
         # get activation on application of signal to current node
         activation = self._use_signal(graph=graph,
                                       node_name=node_name, signal=signal,
-                                      is_forward_receptor=is_forward_receptor)
+                                      receptor_name=signal_name)
         # distibute activation to edges ahead of us
         self._propogate_signal(graph=graph, node_name=node_name,
-                               signal_name=signal_name, activation=activation)
+                               signal_name=signal_name, signal=activation)
         # recurse to all successors
         for next_node_name in self.graph.successors(node_name):
             self._carry_signal(
