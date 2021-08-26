@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T14:36:23+01:00
+# @Last modified time: 2021-08-26T12:57:38+01:00
 
 import types
 import itertools
@@ -83,21 +83,12 @@ class Firing(Traverser):
         # Get current nodes signal or bootstrap signal
         if bootstrap is None:
             signal = []
-            # how we can access predecessor edges
-            for prev_node, adjacency in graph.pred[node_name].items():
-                for edge in adjacency.items():
-                    # tuple(index, dict(attributes))
-                    try:
-                        signal.append(edge[1][signal_name])
-                    except KeyError:
-                        return None  # return None means not ready yet
-            # lookup again on purpose as we dont want to clean up during
-            # first search in case it fails
-            for prev_node, adjacency in graph.pred[node_name].items():
-                for edge in adjacency.items():
-                    # tuple(index, dict(attributes))
-                    del edge[1][signal_name]  # clean up after ourselves
-            # if only one predecessor edge no need for meta list
+            for edge in graph.in_edges(node_name, data=True):
+                try:
+                    # edge = tuple("source_node", "dest_node", attributes)
+                    signal.append(edge[2][signal_name])
+                except KeyError:
+                    return None
             if len(signal) == 1:
                 signal = signal[0]
         else:
