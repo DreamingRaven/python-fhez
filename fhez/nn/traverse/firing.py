@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T14:59:49+01:00
+# @Last modified time: 2021-08-26T16:01:34+01:00
 
 import types
 import itertools
@@ -25,6 +25,14 @@ class Firing(Traverser):
     @graph.setter
     def graph(self, graph):
         self._graph = graph
+
+    @property
+    def forward_name(self):
+        return "forward"
+
+    @property
+    def backward_name(self):
+        return "backward"
 
     def stimulate(self, neurons: np.ndarray, signals: np.ndarray,
                   is_forward_receptor: bool = True):
@@ -63,10 +71,20 @@ class Firing(Traverser):
         if signal is None:
             return None
 
+        # if node is the last one dont run it as we have no output edges
+        # with which to store it in
+        if len(list(self.graph.successors(node_name))) == 0:
+            return None
+
         # get activation on application of signal to current node
         activation = self._use_signal(graph=graph,
                                       node_name=node_name, signal=signal,
                                       receptor_name=signal_name)
+
+        # if the node has not activated then there is no need to compute
+        if activation is None:
+            return None
+
         # distibute activation to edges ahead of us
         self._propogate_signal(graph=graph, node_name=node_name,
                                signal_name=signal_name, signal=activation)
@@ -114,8 +132,24 @@ class Firing(Traverser):
             else:
                 edge[signal_name] = signal
 
-    def harvest(self, probes):
-        """Harvest forward response from neuronal firing, using probes."""
+    def harvest(self, node_names: list):
+        """Harvest forward response from neuronal firing, using probes.
+
+        This will replay the last node to calculate its output.
+        """
+        accumulator = []
+        for node_name in node_names:
+            signal = self._get_signal(graph=self.graph, node_name=node_name,
+                                      signal_name=self.forward_name)
+            if signal is None:
+                accumulator.append((node_name, None))
+            else:
+                activation = self._use_signal(graph=self.graph,
+                                              node_name=node_name,
+                                              receptor_name=self.forward_name,
+                                              signal=signal)
+                accumulator.append((node_name, activation))
+        return accumulator
 
     def correction(self, signals, receptors):
         """Calculate/ learn correction necessary to become closer to our goal.

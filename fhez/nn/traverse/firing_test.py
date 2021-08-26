@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T14:29:13+01:00
+# @Last modified time: 2021-08-26T16:10:04+01:00
 
 import time
 import unittest
@@ -223,3 +223,22 @@ class FiringTest(unittest.TestCase):
         # check not applied to seperate node
         for edge in graph.edges("a", data=True):
             self.assertEqual(edge[2].get("fwd"), None)
+
+    def test_harvest(self):
+        """Check that probes are harvesting signals."""
+        some_signal = np.array([1, 2, 3])
+        graph = nx.MultiDiGraph()
+        graph.add_node("x", node=IO())
+        graph.add_node("a", node=IO())
+        graph.add_node("y", node=IO())  # from this node
+        graph.add_edge("x", "y", forward=some_signal)
+        graph.add_edge("x", "y", forward=some_signal)
+        graph.add_edge("x", "y", forward=some_signal)
+        graph.add_edge("a", "y", forward=some_signal)
+        f = Firing(graph=graph)
+        crop = f.harvest(["y", "y"])
+        truth = np.broadcast_to(some_signal, shape=(4, 3))
+        for (_, signal) in crop:
+            np.testing.assert_array_almost_equal(signal, truth,
+                                                 decimal=1,
+                                                 verbose=True)
