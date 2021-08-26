@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T12:57:38+01:00
+# @Last modified time: 2021-08-26T14:28:24+01:00
 
 import types
 import itertools
@@ -66,7 +66,8 @@ class Firing(Traverser):
             return None
 
         # get activation on application of signal to current node
-        activation = self._use_signal(node=node, signal=signal,
+        activation = self._use_signal(graph=graph,
+                                      node_name=node_name, signal=signal,
                                       is_forward_receptor=is_forward_receptor)
         # distibute activation to edges ahead of us
         self._propogate_signal(graph=graph, node_name=node_name,
@@ -95,28 +96,25 @@ class Firing(Traverser):
             signal = bootstrap
         return signal
 
-    def _use_signal(self, node, signal, is_forward_receptor=True):
+    def _use_signal(self, graph, node_name, receptor_name, signal):
+        """Apply signal to given node in graph, and receptor."""
         # apply signal to current node
-        # print("signal-shape", self.probe_shape(signal))
-        if is_forward_receptor:
-            activation = node["node"].forward(signal)
-        else:
-            activation = node["node"].backward(signal)
+        method = getattr(
+            graph.nodes(data=True)[node_name]["node"],
+            receptor_name)
+        activation = method(signal)
         return activation
 
-    def _propogate_signal(self, graph, node_name, signal_name, activation):
+    def _propogate_signal(self, graph, node_name, signal_name, signal):
         # distribute output-signal to outbound edges if any
-        if activation is None:
+        if signal is None:
             return None  # early exit no signal to propogate
-            # how we access successor edges
-        for next_node, adjacency in graph[node_name].items():
-            for edge in adjacency.items():
-                if isinstance(activation, types.GeneratorType):
-                    # tuple(index, dict(attributes))
-                    edge[1][signal_name] = next(activation)
-                else:
-                    # tuple(index, dict(attributes))
-                    edge[1][signal_name] = activation
+        for (_, _, edge) in graph.edges(node_name, data=True):
+            # if of type YIELD/ generator use next to iterate
+            if isinstance(signal, types.GeneratorType):
+                edge[signal_name] = next(signal)
+            else:
+                edge[signal_name] = signal
 
     def harvest(self, probes):
         """Harvest forward response from neuronal firing, using probes."""

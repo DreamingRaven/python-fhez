@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T13:28:54+01:00
+# @Last modified time: 2021-08-26T14:29:13+01:00
 
 import time
 import unittest
@@ -135,6 +135,8 @@ class FiringTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(activation, activation_truth,
                                              decimal=1,
                                              verbose=True)
+        # quick check to ensure RELU actually did see the input
+        self.assertEqual(len(graph.nodes(data=True)["y"]["node"].inputs), 1)
 
     def test_propogate_signal(self):
         """Check that signal propogation occurs properly for all edges.
@@ -159,6 +161,65 @@ class FiringTest(unittest.TestCase):
                                                  some_signal,
                                                  decimal=1,
                                                  verbose=True)
+        # check not applied to seperate node
+        for edge in graph.edges("a", data=True):
+            self.assertEqual(edge[2].get("fwd"), None)
+
+    def test_propogate_signal_yield(self):
+        """Check that propogate signal works properly with yield.
+
+        If the signal is of type generator/ yield it should map each output
+        in order with the graph edges. Thus the edges can be different to one
+        another.
+        """
+        def yielder():
+            i = 0  # np.array([0]) <- would return by reference
+            while True:
+                yield i
+                i += 1
+        some_signal = yielder()  # as generator
+        graph = nx.MultiDiGraph()
+        graph.add_node("x", node=IO())  # from this node
+        graph.add_node("a", node=IO())
+        graph.add_node("y", node=IO())
+        graph.add_edge("x", "y")  # no signals yet
+        graph.add_edge("x", "y")
+        graph.add_edge("x", "y")
+        graph.add_edge("x", "DrWho?")  # checking works with non yield too
+        graph.add_edge("a", "y")  # should never recieve a signal
+        f = Firing()
+        f._propogate_signal(graph=graph, node_name="x", signal_name="fwd",
+                            signal=some_signal)
+        # check signal has been applied to each individually
+        truth = yielder()
+        for (_, _, edge) in graph.edges("x", data=True):
+            np.testing.assert_array_almost_equal(edge["fwd"],
+                                                 next(truth),
+                                                 decimal=1,
+                                                 verbose=True)
+
+        # check not applied to seperate node
+        for edge in graph.edges("a", data=True):
+            self.assertEqual(edge[2].get("fwd"), None)
+
+    def test_propogate_none(self):
+        """Check that signal propogation does not occur when signal=None."""
+        some_signal = None
+        graph = nx.MultiDiGraph()
+        graph.add_node("x", node=IO())  # from this node
+        graph.add_node("a", node=IO())
+        graph.add_node("y", node=IO())
+        graph.add_edge("x", "y")  # no signals yet
+        graph.add_edge("x", "y")
+        graph.add_edge("x", "y")
+        graph.add_edge("a", "y")  # should never recieve a signal
+        f = Firing()
+        f._propogate_signal(graph=graph, node_name="x", signal_name="fwd",
+                            signal=some_signal)
+        # check signal has not been applied to each edge
+        for edge in graph.edges("x", data=True):
+            with self.assertRaises(KeyError):
+                edge[2]["fwd"]
         # check not applied to seperate node
         for edge in graph.edges("a", data=True):
             self.assertEqual(edge[2].get("fwd"), None)
