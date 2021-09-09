@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-22T16:32:08+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-09T15:42:30+01:00
+# @Last modified time: 2021-09-09T15:48:03+01:00
 
 import time
 import unittest
@@ -36,7 +36,7 @@ class NumpyFieldTest(unittest.TestCase):
         print('%s: %.3f' % (self.id(), t))
 
     def test_serialDeserialFloat(self):
-        """Check serialisation and deserialisation working properly."""
+        """Check serialisation and deserialisation to dict as float."""
         # set up necessary vars
         data = self.data
         sample = {"data": data}
@@ -63,7 +63,7 @@ class NumpyFieldTest(unittest.TestCase):
         self.assertEqual(sample["data"].dtype, sample["data"].dtype)
 
     def test_serialDeserialsFloat(self):
-        """Check serialisation and deserialisation working properly."""
+        """Check serialisation and deserialisation to json as float."""
         # set up necessary vars
         data = self.data
         sample = {"data": data}
@@ -90,7 +90,7 @@ class NumpyFieldTest(unittest.TestCase):
         self.assertEqual(sample["data"].dtype, sample["data"].dtype)
 
     def test_serialDeserialInt(self):
-        """Check serialisation and deserialisation working properly."""
+        """Check serialisation and deserialisation to dictionary as int."""
         # set up necessary vars
         data = self.data.astype(int)
         # all of the data in the sample will inevitably be 0 since trunication
