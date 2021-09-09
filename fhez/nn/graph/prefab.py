@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T14:26:33+01:00
+# @Last modified time: 2021-08-26T16:03:03+01:00
 
 import numpy as np
 
@@ -41,7 +41,6 @@ def cnn_classifier(k):
     cnn_weights_shape = (6, 6)
     stride = [4, 4]
     windows = CC().windex(data_shape, cnn_weights_shape, stride)
-    print(len(windows))
 
     # CONSTRUCT CNN
     # with intermediary decrypted sum to save on some complexity later
