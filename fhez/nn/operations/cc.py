@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:48:16+01:00
+# @Last modified time: 2021-09-09T14:25:49+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -10,6 +10,7 @@ import numpy as np
 import marshmallow as mar
 from fhez.nn.graph.node import Node
 from fhez.nn.graph.serialise import Serialise
+from fhez.fields.numpyfield import NumpyField
 
 
 class CC(Node, Serialise):
@@ -46,11 +47,8 @@ class CC(Node, Serialise):
             structure.
         """
         schema_dict = {
-            "_alpha": mar.fields.Float(),
-            "_beta_1": mar.fields.Float(),
-            "_beta_2": mar.fields.Float(),
-            "_epsilon": mar.fields.Float(),
-            # "_cache": mar.fields.Dict(),
+            "_b": mar.fields.Float(),
+            "_w": NumpyField(),
         }
         return mar.Schema.from_dict(schema_dict)
 
