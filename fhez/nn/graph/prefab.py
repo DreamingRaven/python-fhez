@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T16:03:03+01:00
+# @Last modified time: 2021-09-10T14:23:42+01:00
 
 import numpy as np
 
@@ -18,6 +18,7 @@ from fhez.nn.activation.softmax import Softmax
 from fhez.nn.activation.argmax import Argmax
 
 from fhez.nn.loss.cce import CCE  # categorical cross entropy
+from fhez.nn.loss.mse import MSE  # Mean of the Squared Error
 
 from fhez.nn.operations.encrypt import Encrypt
 from fhez.nn.operations.decrypt import Decrypt
@@ -27,6 +28,61 @@ from fhez.nn.operations.dequeue import Dequeue
 
 from fhez.nn.operations.one_hot_encode import OneHotEncode
 from fhez.nn.operations.one_hot_decode import OneHotDecode
+
+
+def cnn_regressor(data_shape, filter_length, stride=1):
+    """Get simple 1 Layer 1D-CNN for time-series regression.
+
+    :arg data_shape: The shape of the input data in the shape format of
+     (timesteps, features)
+    :type data_shape: tuple
+    :arg filter_length: The length of the 1D CNN filter which to CC over data
+    :type filter_length: int
+    :arg stride: The steps between filters (default = 1)
+    :type stride: int
+    :return: neural network graph
+    :rtype: networkx.MultiDigGraph
+    """
+    graph = nx.MultiDiGraph()
+    data_shape = data_shape
+    filter_shape = (filter_length, data_shape[1])
+    stride = [stride, data_shape[1]]
+    # creating window expression so we know how many nodes we need
+    windows = CC().windex(data_shape,
+                          filter_shape,
+                          stride)
+
+    # INPUTS
+    graph.add_node("x", group=0, node=IO())
+    graph.add_node("y", group=0, node=IO())
+
+    # 1D CNN/ CC
+    graph.add_node("1D-CC", group=1,
+                   node=CC(weights=filter_shape, stride=stride, bias=0))
+    graph.add_edge("x", "1D-CC", weight=CC().cost)
+    graph.add_node("CC-dequeue", group=1, node=Dequeue())
+    graph.add_edge("1D-CC", "CC-dequeue", weight=Dequeue().cost)
+    graph.add_node("CNN-acti", group=1, node=RELU())
+    for i in range(len(windows)):
+        graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())
+        graph.add_edge("CC-dequeue", "CC-sop-{}".format(i), weight=Sum().cost)
+        graph.add_edge("CC-sop-{}".format(i), "CNN-acti", weight=RELU().cost)
+
+    # DENSE
+    graph.add_node("Dense", group=2,
+                   node=ANN(weights=(len(windows),)))
+    graph.add_edge("CNN-acti", "Dense", weight=ANN().cost)
+
+    # LOSS
+    graph.add_node("MSE", group=3, node=MSE())
+    graph.add_edge("Dense", "MSE", weight=MSE().cost)
+    graph.add_edge("y", "MSE", weight=MSE().cost)
+
+    # OUTPUT
+    graph.add_node("y_hat", group=4, node=IO())
+    graph.add_edge("Dense", "y_hat", weight=IO().cost)
+
+    return graph
 
 
 def cnn_classifier(k):
