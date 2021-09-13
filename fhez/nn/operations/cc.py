@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-09T14:25:49+01:00
+# @Last modified time: 2021-09-10T16:48:18+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -49,6 +49,7 @@ class CC(Node, Serialise):
         schema_dict = {
             "_b": mar.fields.Float(),
             "_w": NumpyField(),
+            "_stride": NumpyField(),
         }
         return mar.Schema.from_dict(schema_dict)
 
