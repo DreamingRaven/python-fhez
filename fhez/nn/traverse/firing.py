@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T14:32:46+01:00
+# @Last modified time: 2021-09-14T15:55:11+01:00
 
 import types
 import itertools
@@ -35,7 +35,7 @@ class Firing(Traverser):
         return "backward"
 
     def stimulate(self, neurons: np.ndarray, signals: np.ndarray,
-                  is_forward_receptor: bool = True):
+                  receptor="forward"):
         """Stimulate a set of receptors with a set of signals for response.
 
         Breadth first stimulation of neurons/ nodes.
@@ -48,15 +48,18 @@ class Firing(Traverser):
         :arg signals: positional list of signals for the equally positioned
             receptor
         :type signals: np.ndarray or compatible
+        :arg receptor: Name of function/ sequence of functions to call of nodes
+        :type receptor: str
         """
         assert len(neurons) == len(signals), \
             "Signals and receptors length (axis=0) should match"
+
+        receptor = receptor if receptor is not None else "forward"
         # could use zip longest but zip will ensure atleast some can be
         # processed since it stops at the shortest of the two lists
         for (neuron, signal) in zip(neurons, signals):
             self._carry_signal(
-                node_name=neuron, receptor="forward" if is_forward_receptor
-                is True else "backward",
+                node_name=neuron, receptor=receptor,
                 bootstrap=signal)
 
     def _carry_signal(self, node_name, receptor: str,

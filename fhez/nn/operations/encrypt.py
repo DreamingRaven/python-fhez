@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:05:03+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T13:48:07+01:00
+# @Last modified time: 2021-09-14T15:56:40+01:00
 
 import logging
 from fhez.nn.graph.node import Node
@@ -58,9 +58,9 @@ class Encrypt(Node):
         if self.provider is None:
             # in the case where no encryption provider has been specified
             # assume we arent to encrypt, but warn!
-            logging.warning("{} was not given any encryption provider, \
-            assuming should be plaintext, skipping encryption.".format(
-                self.__class__.__name__))
+            logging.warning(
+                "{} no encryption provider, instead using plaintext.".format(
+                    self.__class__.__name__))
             return x
         cyphertext = self.provider(x, **self.parameters)
         return cyphertext
