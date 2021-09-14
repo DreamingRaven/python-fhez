@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T16:27:54+01:00
+# @Last modified time: 2021-09-14T16:29:34+01:00
 
 import types
 import itertools
@@ -110,14 +110,11 @@ class Firing(Traverser):
         if bootstrap is None:
             signal = []
             for edge in graph.in_edges(node_name, data=True):
-                try:
-                    # edge = tuple("source_node", "dest_node", {attributes})
-                    edge_signal = edge[2][signal_name]
-                    if edge_signal is None:
-                        return None  # early exit no.1 if signal is nothing
-                    signal.append(edge_signal)
-                except KeyError:
-                    return None  # early exit no.2 if signal does not exist
+                # edge = tuple("source_node", "dest_node", {attributes})
+                edge_signal = edge[2].get(signal_name)
+                if edge_signal is None:
+                    return None  # early exit no.1 if signal is nothing avoid
+                signal.append(edge_signal)
             if len(signal) == 1:
                 signal = signal[0]
         else:
