@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T16:01:34+01:00
+# @Last modified time: 2021-09-14T14:32:46+01:00
 
 import types
 import itertools
@@ -55,18 +55,17 @@ class Firing(Traverser):
         # processed since it stops at the shortest of the two lists
         for (neuron, signal) in zip(neurons, signals):
             self._carry_signal(
-                node_name=neuron, is_forward_receptor=is_forward_receptor,
+                node_name=neuron, receptor="forward" if is_forward_receptor
+                is True else "backward",
                 bootstrap=signal)
 
-    def _carry_signal(self, node_name, is_forward_receptor: bool = None,
+    def _carry_signal(self, node_name, receptor: str,
                       bootstrap: np.ndarray = None):
         """Bootstrap and recursiveley carry signal through successor nodes."""
-        signal_name = "forward" if is_forward_receptor is True else \
-            "backward"
         graph = self.graph
         # get signal from edges behind us
         signal = self._get_signal(graph=graph, node_name=node_name,
-                                  signal_name=signal_name, bootstrap=bootstrap)
+                                  signal_name=receptor, bootstrap=bootstrap)
         # if node is not ready I.E not all predecessors are processed skip
         if signal is None:
             return None
@@ -79,7 +78,7 @@ class Firing(Traverser):
         # get activation on application of signal to current node
         activation = self._use_signal(graph=graph,
                                       node_name=node_name, signal=signal,
-                                      receptor_name=signal_name)
+                                      receptor_name=receptor)
 
         # if the node has not activated then there is no need to compute
         if activation is None:
@@ -87,12 +86,12 @@ class Firing(Traverser):
 
         # distibute activation to edges ahead of us
         self._propogate_signal(graph=graph, node_name=node_name,
-                               signal_name=signal_name, signal=activation)
+                               signal_name=receptor, signal=activation)
         # recurse to all successors
         for next_node_name in self.graph.successors(node_name):
             self._carry_signal(
                 node_name=next_node_name,
-                is_forward_receptor=is_forward_receptor,
+                receptor=receptor,
                 bootstrap=None)
         return None
 
