@@ -1,12 +1,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T12:13:36+01:00
+# @Last modified time: 2021-09-14T14:24:58+01:00
 
 import time
 import unittest
 import numpy as np
 from fhez.nn.graph.prefab import cnn_classifier, basic
+from fhez.nn.traverse.firing import Firing
 
 
 class AutoHE(unittest.TestCase):
@@ -53,6 +54,7 @@ class AutoHE(unittest.TestCase):
     def test_parametrisation(self):
         """Check autohe can auto parametrise as expected."""
         graph = self.graph
+        nf = Firing(graph)
 
     def test_parametrisation_large(self):
         """Check autohe parameterisation works on much larger graphs."""
