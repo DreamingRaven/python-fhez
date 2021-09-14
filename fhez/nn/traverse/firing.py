@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T15:55:11+01:00
+# @Last modified time: 2021-09-14T16:27:54+01:00
 
 import types
 import itertools
@@ -55,6 +55,13 @@ class Firing(Traverser):
             "Signals and receptors length (axis=0) should match"
 
         receptor = receptor if receptor is not None else "forward"
+        # CLEAR GRAPH OF SPECIFIC RECEPTOR CACHE SO we dont use the existing
+        # partial calculations this also reduces the need for catching
+        # non existant key
+        edges = self.graph.edges(data=True)
+        for e in edges:
+            e[2][receptor] = None
+
         # could use zip longest but zip will ensure atleast some can be
         # processed since it stops at the shortest of the two lists
         for (neuron, signal) in zip(neurons, signals):
@@ -104,10 +111,13 @@ class Firing(Traverser):
             signal = []
             for edge in graph.in_edges(node_name, data=True):
                 try:
-                    # edge = tuple("source_node", "dest_node", attributes)
-                    signal.append(edge[2][signal_name])
+                    # edge = tuple("source_node", "dest_node", {attributes})
+                    edge_signal = edge[2][signal_name]
+                    if edge_signal is None:
+                        return None  # early exit no.1 if signal is nothing
+                    signal.append(edge_signal)
                 except KeyError:
-                    return None
+                    return None  # early exit no.2 if signal does not exist
             if len(signal) == 1:
                 signal = signal[0]
         else:

@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T14:24:58+01:00
+# @Last modified time: 2021-09-14T16:05:01+01:00
 
 import time
 import unittest
@@ -55,7 +55,12 @@ class AutoHE(unittest.TestCase):
         """Check autohe can auto parametrise as expected."""
         graph = self.graph
         nf = Firing(graph)
+        nf.stimulate(neurons=np.array([]), signals=np.array([]),
+                     receptor="forward")
 
     def test_parametrisation_large(self):
         """Check autohe parameterisation works on much larger graphs."""
         graph = self.graph
+        nf = Firing(graph)
+        nf.stimulate(neurons=np.array([]), signals=np.array([]),
+                     receptor="forward")
