@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T12:07:49+01:00
+# @Last modified time: 2021-09-14T12:31:06+01:00
 
 import numpy as np
 
@@ -153,6 +153,8 @@ def cnn_classifier(k):
 def basic():
     """Get a super basic graph for purposes of testing components."""
     graph = nx.MultiDiGraph()
+    graph.add_node("cyph_x_0", group=0, node=Encrypt())
+    graph.add_node("cyph_x_1", group=0, node=Encrypt())
     graph.add_node("x_0", group=0, node=IO())
     graph.add_node("x_1", group=0, node=IO())
     graph.add_node("Dense", group=2, node=ANN(weights=(2,)))
@@ -161,12 +163,14 @@ def basic():
 
     graph.add_node("ReLU", group=1, node=RELU())
     graph.add_edge("Dense", "ReLU")
+    graph.add_node("plain_y_hat", group=0, node=Decrypt())
+    graph.add_edge("ReLU", "plain_y_hat")
 
     graph.add_node("y_hat", group=4, node=IO())
-    graph.add_edge("ReLU", "y_hat")
+    graph.add_edge("plain_y_hat", "y_hat")
 
     graph.add_node("MSE", group=3, node=MSE())
-    graph.add_edge("ReLU", "MSE")
+    graph.add_edge("plain_y_hat", "MSE")
     graph.add_node("y", group=0, node=IO())
     graph.add_edge("y", "MSE")
     return graph
