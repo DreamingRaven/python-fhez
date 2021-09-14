@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-10T14:23:42+01:00
+# @Last modified time: 2021-09-14T12:07:49+01:00
 
 import numpy as np
 
@@ -147,4 +147,26 @@ def cnn_classifier(k):
     graph.add_edge("Argmax", "One-hot-decoder", weight=OneHotDecode().cost)
     graph.add_node("y_hat", group=4, node=IO())
     graph.add_edge("One-hot-decoder", "y_hat", weight=0)
+    return graph
+
+
+def basic():
+    """Get a super basic graph for purposes of testing components."""
+    graph = nx.MultiDiGraph()
+    graph.add_node("x_0", group=0, node=IO())
+    graph.add_node("x_1", group=0, node=IO())
+    graph.add_node("Dense", group=2, node=ANN(weights=(2,)))
+    graph.add_edge("x_0", "Dense")
+    graph.add_edge("x_1", "Dense")
+
+    graph.add_node("ReLU", group=1, node=RELU())
+    graph.add_edge("Dense", "ReLU")
+
+    graph.add_node("y_hat", group=4, node=IO())
+    graph.add_edge("ReLU", "y_hat")
+
+    graph.add_node("MSE", group=3, node=MSE())
+    graph.add_edge("ReLU", "MSE")
+    graph.add_node("y", group=0, node=IO())
+    graph.add_edge("y", "MSE")
     return graph
