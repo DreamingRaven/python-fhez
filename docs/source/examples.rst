@@ -57,7 +57,7 @@ Generic
 Fashion-MNIST
 +++++++++++++
 
-This doubles as an example and as reproducible code to get our results from one of our (soon to be) published papers. This example will download Fashion-MNIST (a drop in more complex replacement for standard MNIST) in CSV format, normalise it, and being the training process.
+This doubles as an example and as reproducible code to get our results from one of our (soon to be) published papers. This example will download Fashion-MNIST (a drop in more complex replacement for standard MNIST) in CSV format, normalise it, and begin the training process.
 
 .. warning:
 
