@@ -1,12 +1,13 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-16T12:31:29+01:00
+# @Last modified time: 2021-09-16T14:48:58+01:00
 
 import time
 import unittest
 import numpy as np
 from fhez.nn.graph.prefab import cnn_classifier, basic
+from fhez.nn.parametrisation.autofhe import autoHE
 from fhez.nn.traverse.firing import Firing
 
 
@@ -54,6 +55,9 @@ class AutoHE(unittest.TestCase):
     def test_parametrisation(self):
         """Check autohe can auto parametrise as expected."""
         graph = self.graph
+        # auto parametrise all encrypted input nodes and their paths
+        autoHE(graph=graph, node="x_0")
+        autoHE(graph=graph, node="x_1")
         nf = Firing(graph)
         nf.stimulate(neurons=np.array([]), signals=np.array([]),
                      receptor="forward")
@@ -61,6 +65,8 @@ class AutoHE(unittest.TestCase):
     def test_parametrisation_large(self):
         """Check autohe parameterisation works on much larger graphs."""
         graph = self.graph
+        autoHE(graph=graph, node="x_0")
+        autoHE(graph=graph, node="x_1")
         nf = Firing(graph)
         nf.stimulate(neurons=np.array([]), signals=np.array([]),
                      receptor="forward")
