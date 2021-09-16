@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T14:18:54+01:00
+# @Last modified time: 2021-09-16T12:19:36+01:00
 
 import numpy as np
 
@@ -72,10 +72,14 @@ def cnn_regressor(data_shape, filter_length, stride=1):
     graph.add_node("Dense", group=2,
                    node=ANN(weights=(len(windows),)))
     graph.add_edge("CNN-acti", "Dense", weight=ANN().cost)
+    graph.add_node("Dense-acti", group=2, node=RELU())
+    graph.add_edge("Dense", "Dense-acti")
+    graph.add_node("Decrypt", group=3, node=Decrypt())
+    graph.add_edge("Dense-acti", "Decrypt")
 
     # LOSS
     graph.add_node("MSE", group=3, node=MSE())
-    graph.add_edge("Dense", "MSE", weight=MSE().cost)
+    graph.add_edge("Decrypt", "MSE", weight=MSE().cost)
     graph.add_edge("y", "MSE", weight=MSE().cost)
 
     # OUTPUT
@@ -90,8 +94,9 @@ def cnn_classifier(k):
     graph = nx.MultiDiGraph()
     classes = np.arange(k)
 
-    # add nodes to graph with names (for easy human referencing), and objects for what those nodes are
-    graph.add_node("x", group=0, node=IO())
+    # add nodes to graph with names (for easy human referencing),
+    # and objects for what those nodes are
+    graph.add_node("x", group=0, node=Encrypt())
 
     data_shape = (28, 28)
     cnn_weights_shape = (6, 6)
@@ -119,18 +124,20 @@ def cnn_classifier(k):
     for i in classes:
         graph.add_node("Dense-{}".format(i), group=2,
                        node=ANN(weights=(len(windows),)))
-        graph.add_edge("CNN-acti", "Dense-{}".format(i), weight=ANN().cost)
+        graph.add_edge("CNN-acti", "Dense-{}".format(i))
         graph.add_node("Dense-activation-{}".format(i), group=2, node=RELU())
-        graph.add_edge("Dense-{}".format(i), "Dense-activation-{}".format(i),
-                       weight=RELU().cost)
-        graph.add_edge("Dense-activation-{}".format(i), "Softmax",
-                       weight=Enqueue().cost)
-        graph.add_edge("Dense-activation-{}".format(i), "Argmax",
-                       weight=Enqueue().cost)
-    #     graph.add_edge("Dense-activation-{}".format(i), "Dense-enqueue", weight=Enqueue().cost)
+        graph.add_edge("Dense-{}".format(i), "Dense-activation-{}".format(i))
+        graph.add_node("Decrypt-{}".format(i), node=Decrypt())
+        graph.add_edge("Dense-activation-{}".format(i), "Decrypt-{}")
+        graph.add_edge("Decrypt-{}".format(i), "Softmax")
+        graph.add_edge("Decrypt-{}".format(i), "Argmax")
+    #     graph.add_edge("Dense-activation-{}".format(i), "Dense-enqueue",
+    # weight=Enqueue().cost)
 
     # CONSTRUCT CLASSIFIER
-    # we want to turn the dense outputs into classification probabilities using softmax and how wrong/ right we are using Categorical Cross-Entropy (CCE) as our loss function
+    # we want to turn the dense outputs into classification probabilities
+    # using softmax and how wrong / right we are using Categorical
+    # Cross-Entropy(CCE) as our loss function
     graph.add_node("Softmax", group=3, node=Softmax())
     # graph.add_edge("Dense-enqueue", "Softmax", weight=Softmax().cost)
     graph.add_node("Loss-CCE", group=3, node=CCE())
