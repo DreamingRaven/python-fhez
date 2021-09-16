@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T16:05:01+01:00
+# @Last modified time: 2021-09-16T12:31:29+01:00
 
 import time
 import unittest
@@ -64,3 +64,7 @@ class AutoHE(unittest.TestCase):
         nf = Firing(graph)
         nf.stimulate(neurons=np.array([]), signals=np.array([]),
                      receptor="forward")
+
+    def test_todo(self):
+        """Todo note to fail tests so it cant be forgotten."""
+        raise NotImplementedError("Autofhe incomplete.")

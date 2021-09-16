@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-26T16:10:04+01:00
+# @Last modified time: 2021-09-16T12:32:03+01:00
 
 import time
 import unittest
@@ -242,3 +242,7 @@ class FiringTest(unittest.TestCase):
             np.testing.assert_array_almost_equal(signal, truth,
                                                  decimal=1,
                                                  verbose=True)
+
+    def test_todo(self):
+        """Todo note to fail tests so it cant be forgotten."""
+        raise NotImplementedError("traversal+harvest loop not tested!")
