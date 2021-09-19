@@ -67,6 +67,8 @@
 .. |section_linear| replace:: :ref:`section_linear`
 .. |section_softmax| replace:: :ref:`section_softmax`
 
+.. |section_fashion_mnist| replace:: :ref:`section_fashion_mnist`
+
 .. |section_adam| replace:: :ref:`section_adam`
 .. |section_gd| replace:: :ref:`section_gd`
 
