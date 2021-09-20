@@ -20,14 +20,13 @@ All of our examples should be played with using this Dockerfile for now as we im
 
   /examples/*
 
+Generic Instructions for Example Usage
++++++++++++++++++++++++++++++++++++++++
 
-Step-by-Step Instructions for Example Usage
-+++++++++++++++++++++++++++++++++++++++++++
+For any following example they are all accessed from the same container unless specified otherwise, which in theory since it is a Docker container can run on any 64-bit based system.
 
-For any following example they are all accessed from the same container, which in theorey since it is a Docker container can run on any 64-bit based system.
-
-Generic
--------
+Step-by-Step
+------------
 
 - Install Git
   - https://git-scm.com/book/en/v2/Getting-Started-Installing-Git

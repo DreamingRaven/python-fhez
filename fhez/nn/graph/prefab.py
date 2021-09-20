@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-16T12:19:36+01:00
+# @Last modified time: 2021-09-20T13:57:23+01:00
 
 import numpy as np
 
@@ -87,6 +87,11 @@ def cnn_regressor(data_shape, filter_length, stride=1):
     graph.add_edge("Dense", "y_hat", weight=IO().cost)
 
     return graph
+
+
+def orbweaver():
+    """Get prefabricated orbweaver graph."""
+    return cnn_classifier(10)
 
 
 def cnn_classifier(k):
