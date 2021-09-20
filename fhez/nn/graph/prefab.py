@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-20T13:57:23+01:00
+# @Last modified time: 2021-09-20T16:24:48+01:00
 
 import numpy as np
 
@@ -133,7 +133,7 @@ def cnn_classifier(k):
         graph.add_node("Dense-activation-{}".format(i), group=2, node=RELU())
         graph.add_edge("Dense-{}".format(i), "Dense-activation-{}".format(i))
         graph.add_node("Decrypt-{}".format(i), node=Decrypt())
-        graph.add_edge("Dense-activation-{}".format(i), "Decrypt-{}")
+        graph.add_edge("Dense-activation-{}".format(i), "Decrypt-{}".format(i))
         graph.add_edge("Decrypt-{}".format(i), "Softmax")
         graph.add_edge("Decrypt-{}".format(i), "Argmax")
     #     graph.add_edge("Dense-activation-{}".format(i), "Dense-enqueue",
