@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-16T12:32:03+01:00
+# @Last modified time: 2021-09-21T10:49:09+01:00
 
 import time
 import unittest
@@ -60,7 +60,9 @@ class FiringTest(unittest.TestCase):
         graph = self.graph
         data = self.data
         f = Firing(graph=graph)
-        f.stimulate(neurons=["x", "y"], signals=[data, 1])
+        output = f.stimulate(neurons=["x", "y"], signals=[data, 1])
+        self.assertNotEqual(output, {})
+        print("STIMULATED OUTPUT: {}".format(output))
 
     def test_get_signal_many(self):
         """Check get multi signal is working as expected.

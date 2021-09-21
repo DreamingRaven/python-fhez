@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-14T16:29:34+01:00
+# @Last modified time: 2021-09-21T10:47:21+01:00
 
 import types
 import itertools
@@ -64,25 +64,24 @@ class Firing(Traverser):
 
         # could use zip longest but zip will ensure atleast some can be
         # processed since it stops at the shortest of the two lists
+        outputs = {}
         for (neuron, signal) in zip(neurons, signals):
-            self._carry_signal(
+            out = self._carry_signal(
                 node_name=neuron, receptor=receptor,
                 bootstrap=signal)
+            outputs.update(out)
+        return outputs
 
     def _carry_signal(self, node_name, receptor: str,
-                      bootstrap: np.ndarray = None):
+                      bootstrap: np.ndarray = None, outputs=None):
         """Bootstrap and recursiveley carry signal through successor nodes."""
         graph = self.graph
+        outputs = outputs if outputs is not None else {}
         # get signal from edges behind us
         signal = self._get_signal(graph=graph, node_name=node_name,
                                   signal_name=receptor, bootstrap=bootstrap)
         # if node is not ready I.E not all predecessors are processed skip
         if signal is None:
-            return None
-
-        # if node is the last one dont run it as we have no output edges
-        # with which to store it in
-        if len(list(self.graph.successors(node_name))) == 0:
             return None
 
         # get activation on application of signal to current node
@@ -97,13 +96,25 @@ class Firing(Traverser):
         # distibute activation to edges ahead of us
         self._propogate_signal(graph=graph, node_name=node_name,
                                signal_name=receptor, signal=activation)
-        # recurse to all successors
-        for next_node_name in self.graph.successors(node_name):
-            self._carry_signal(
-                node_name=next_node_name,
-                receptor=receptor,
-                bootstrap=None)
-        return None
+
+        if len(graph.edges(node_name, data=False)) == 0:
+            # this is a terminating node so record output
+            msg = "output from this node: {} already exists somehow".format(
+                node_name
+            )
+            assert outputs.get(node_name) is None, msg
+            assert activation is not None, "activation of node cannot be none"
+            outputs[node_name] = activation  # modify reference dictionary
+        else:
+            # recurse to all successors
+            for next_node_name in self.graph.successors(node_name):
+                out = self._carry_signal(
+                    node_name=next_node_name,
+                    receptor=receptor,
+                    bootstrap=None,
+                    outputs=None)
+                outputs.update(out if out is not None else {})
+        return outputs
 
     def _get_signal(self, graph, node_name, signal_name, bootstrap=None):
         # Get current nodes signal or bootstrap signal
