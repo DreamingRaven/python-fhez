@@ -3,7 +3,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-28T21:37:24+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-25T10:28:58+01:00
+# @Last modified time: 2021-09-21T20:15:36+01:00
 
 import abc
 from collections import deque
@@ -62,6 +62,14 @@ class Loss(abc.ABC):
             return self.cache["_inputs"]
         # if cache disabled return dud que
         return deque()
+
+    def update(self):
+        """Loss funcs have no params so do nothing."""
+        return NotImplemented
+
+    def updates(self):
+        """Loss funcs have no params so do nothing."""
+        return NotImplemented
 
     # ABSTRACT METHODS
 
