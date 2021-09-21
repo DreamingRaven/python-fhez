@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T15:04:43+01:00
+# @Last modified time: 2021-09-21T20:08:33+01:00
 # @License: please see LICENSE file in project root
 
 import logging as logger
@@ -21,6 +21,15 @@ class ANN(Node):
             self.bias = bias
 
     @property
+    def w(self):
+        """Shorthand for weights."""
+        return self.weights
+
+    @w.setter
+    def w(self, w):
+        self.weights = w
+
+    @property
     def weights(self):
         """Get the current weights."""
         if self.__dict__.get("_weights") is None:
@@ -37,6 +46,15 @@ class ANN(Node):
             # for now this is done at random
             weights = np.random.rand(*weights)
         self._weights = weights
+
+    @property
+    def b(self):
+        """Shorthand for bias."""
+        return self.bias
+
+    @b.setter
+    def b(self, b):
+        self.bias = b
 
     @property
     def bias(self):
