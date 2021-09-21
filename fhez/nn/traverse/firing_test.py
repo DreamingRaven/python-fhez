@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T19:32:22+01:00
+# @Last modified time: 2021-09-21T19:40:00+01:00
 
 import time
 import unittest
@@ -91,7 +91,7 @@ class FiringTest(unittest.TestCase):
             node_name = node_meta[0]
             node = node_meta[1]["node"]
             print("Updating {}".format(node_name))
-            node.update()
+            node.updates()
 
     def test_get_signal_many(self):
         """Check get multi signal is working as expected.
