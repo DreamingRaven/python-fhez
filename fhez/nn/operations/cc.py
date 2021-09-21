@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T19:47:15+01:00
+# @Last modified time: 2021-09-21T20:05:18+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -110,11 +110,20 @@ class CC(Node, Serialise):
 
     def update(self):
         """Update node state/ weights for a single example."""
-        self.updater(parm_names=["weights", "bias"], it=1)
+        self.updater(parm_names=["w", "b"], it=1)
 
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
-        self.updater(parm_names=["weights", "bias"])
+        self.updater(parm_names=["w", "b"])
+
+    @property
+    def w(self):
+        """Shorthand for weights."""
+        return self.weights
+
+    @w.setter
+    def w(self, w):
+        self.weights = w
 
     @ property
     def weights(self):
@@ -139,6 +148,15 @@ class CC(Node, Serialise):
             self._w = self.weights / self.weights.size
         else:
             self._w = weights
+
+    @property
+    def b(self):
+        """Shorthand for bias."""
+        return self.bias
+
+    @b.setter
+    def b(self, b):
+        self.bias = b
 
     @ property
     def bias(self):
