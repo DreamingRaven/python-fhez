@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T10:49:09+01:00
+# @Last modified time: 2021-09-21T12:28:23+01:00
 
 import time
 import unittest
@@ -61,8 +61,22 @@ class FiringTest(unittest.TestCase):
         data = self.data
         f = Firing(graph=graph)
         output = f.stimulate(neurons=["x", "y"], signals=[data, 1])
-        self.assertNotEqual(output, {})
         print("STIMULATED OUTPUT: {}".format(output))
+        self.assertNotEqual(output, {})
+
+    def test_stimulate_backward(self):
+        """Check neuronal firing algorithm forward stimulation of graph."""
+        graph = self.graph
+        data = self.data
+        forward = Firing(graph=graph)
+        output = forward.stimulate(neurons=["x", "y"], signals=[data, 1])
+        self.assertNotEqual(output, {})
+        backward = Firing(graph=graph.reverse(copy=False))
+        grads = backward.stimulate(neurons=["Loss-CCE"],
+                                   signals=[output["Loss-CCE"]],
+                                   receptor="backward")
+        print("GRADIENT OUTPUT: {}".format(grads))
+        self.assertNotEqual(grads.get("x"), None, "There is no input grad x!")
 
     def test_get_signal_many(self):
         """Check get multi signal is working as expected.
