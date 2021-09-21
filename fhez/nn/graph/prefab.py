@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T15:57:07+01:00
+# @Last modified time: 2021-09-21T16:33:11+01:00
 
 import numpy as np
 
@@ -115,9 +115,9 @@ def cnn_classifier(k):
     # with intermediary decrypted sum to save on some complexity later
     graph.add_node("CC-products", group=1,
                    node=CC(weights=cnn_weights_shape, stride=stride, bias=0))
-    graph.add_edge("x", "CC-products", weight=CC().cost)
-    graph.add_node("CC-dequeue", group=6, node=Dequeue())
-    graph.add_edge("CC-products", "CC-dequeue", weight=Dequeue().cost)
+    graph.add_edge("x", "CC-products")
+    graph.add_node("CC-dequeue", group=6, node=Dequeue(length=len(windows)))
+    graph.add_edge("CC-products", "CC-dequeue")
     graph.add_node("CC-enqueue", group=6, node=Enqueue(length=len(windows)))
     for i in range(len(windows)):
         graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())

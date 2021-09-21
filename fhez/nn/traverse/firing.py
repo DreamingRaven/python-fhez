@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T16:20:20+01:00
+# @Last modified time: 2021-09-21T16:48:39+01:00
 
 import logging as logger
 import types
@@ -86,15 +86,28 @@ class Firing(Traverser):
         if signal is None:
             return None
 
+        # some contextual logging
+        msg = "{}:".format(node_name)
         if debug is True:
-            print("node executing: {}".format(node_name))
+            print(msg)
         else:
-            logger.debug("node executing: {}".format(node_name))
+            logger.debug(msg)
 
         # get activation on application of signal to current node
         activation = self._use_signal(graph=graph,
                                       node_name=node_name, signal=signal,
                                       receptor_name=receptor)
+
+        # some incredibly important logging
+        msg = "\trtype: {}, rshape: {}".format(
+            type(activation),
+            self.probe_shape(activation) if isinstance(
+                activation, (types.GeneratorType, type(None))
+            ) is not True else "?")
+        if debug is True:
+            print(msg)
+        else:
+            logger.debug(msg)
 
         # if the node has not activated then there is no need to compute
         if activation is None:
