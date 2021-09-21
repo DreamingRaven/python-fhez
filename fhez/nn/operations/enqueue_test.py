@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:38:16+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-18T12:59:46+01:00
+# @Last modified time: 2021-09-21T13:55:57+01:00
 
 import time
 import unittest
@@ -56,10 +56,12 @@ class EnqueueTest(unittest.TestCase):
         """Check enqueue, queueing properly."""
         l = 10
         q = Enqueue(length=l)
-        for i in range(l):
-            out = q.forward(np.array([i]))
-        self.assertNotEqual(out, None)
-        truth = np.reshape(np.arange(l), (l, 1))
+        out = q.forward(np.arange(l))
+        # for i in range(l):
+        #     out = q.forward(np.array([i]))
+        # self.assertNotEqual(out, None)
+        # truth = np.reshape(np.arange(l), (l, 1))
+        truth = np.reshape(np.arange(l), (l,))
         np.testing.assert_array_almost_equal(out, truth,
                                              decimal=1,
                                              verbose=True)

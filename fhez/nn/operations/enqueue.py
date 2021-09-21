@@ -16,7 +16,7 @@ See: `Comp-sci queues <https://computersciencewiki.org/index.php/Queue>`_
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:01:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-18T13:15:23+01:00
+# @Last modified time: 2021-09-21T14:19:37+01:00
 
 from collections import deque
 import numpy as np
@@ -59,12 +59,13 @@ class Enqueue(Node):
 
     def forward(self, x):
         """Accumulate inputs into a single queue, then return when full."""
-        self.queue.append(x)
-        if len(self.queue) == self.length:
-            out = list(self.queue)
-            self.queue = None
-            return out
-        return None
+        # self.queue.append(x)
+        # if len(self.queue) == self.length:
+        #     out = list(self.queue)
+        #     self.queue = None
+        #     return out
+        # return None
+        return x  # graph traversal algorithm automagically enqueues for us
 
     def backward(self, gradient):
         """Distribute gradient to respective inputs in order via yield.
@@ -77,7 +78,9 @@ class Enqueue(Node):
             logic by a network traverser, only getting one input but
             results in many outputs.
         """
-        assert len(gradient) == self.length
+        msg = "length gradient ({}) != self.length ({})".format(
+            len(gradient), self.length)
+        assert len(gradient) == self.length, msg
         queue = deque(gradient)
         # I dont want to traverse queue as iterator so will use slightly faster
         # length of queue instead so we can rely on queues heavy internal
