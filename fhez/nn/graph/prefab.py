@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T13:39:04+01:00
+# @Last modified time: 2021-09-21T15:57:07+01:00
 
 import numpy as np
 
@@ -24,6 +24,7 @@ from fhez.nn.operations.encrypt import Encrypt
 from fhez.nn.operations.decrypt import Decrypt
 
 from fhez.nn.operations.selector import Selector
+from fhez.nn.operations.distributor import Distributor
 
 from fhez.nn.operations.enqueue import Enqueue
 from fhez.nn.operations.dequeue import Dequeue
@@ -115,29 +116,32 @@ def cnn_classifier(k):
     graph.add_node("CC-products", group=1,
                    node=CC(weights=cnn_weights_shape, stride=stride, bias=0))
     graph.add_edge("x", "CC-products", weight=CC().cost)
-    graph.add_node("CC-dequeue", group=1, node=Dequeue())
+    graph.add_node("CC-dequeue", group=6, node=Dequeue())
     graph.add_edge("CC-products", "CC-dequeue", weight=Dequeue().cost)
-    graph.add_node("CNN-RELU", group=1, node=RELU())
-    # graph.add_node("CNN-enqueue", group=1, node=Enqueue())
+    graph.add_node("CC-enqueue", group=6, node=Enqueue(length=len(windows)))
     for i in range(len(windows)):
         graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())
         graph.add_edge("CC-dequeue", "CC-sop-{}".format(i),
                        weight=Sum().cost)
-        graph.add_edge("CC-sop-{}".format(i), "CNN-RELU",
-                       weight=Enqueue().cost)
+        graph.add_edge("CC-sop-{}".format(i), "CC-enqueue")
+    graph.add_node("CNN-RELU", group=1, node=RELU())
+    graph.add_edge("CC-enqueue", "CNN-RELU")
+    graph.add_node("CNN-distribute", group=6, node=Distributor())
+    graph.add_edge("CNN-RELU", "CNN-distribute")
     # graph.add_edge("CNN-enqueue", "CNN-activation", weight=RELU().cost)
 
     # CONSTRUCT DENSE FOR EACH CLASS
     # we want to get the network to regress some prediction one for each class
-    # graph.add_node("Dense-enqueue", group=2, node=Enqueue())
-    graph.add_node("Decrypt", group=5, node=Decrypt())
+    graph.add_node("Dense-enqueue", group=6, node=Enqueue(length=k))
     for i in classes:
         graph.add_node("Dense-{}".format(i), group=2,
                        node=ANN(weights=(len(windows),)))
-        graph.add_edge("CNN-RELU", "Dense-{}".format(i))
+        graph.add_edge("CNN-distribute", "Dense-{}".format(i))
         graph.add_node("Dense-RELU-{}".format(i), group=2, node=RELU())
         graph.add_edge("Dense-{}".format(i), "Dense-RELU-{}".format(i))
-        graph.add_edge("Dense-RELU-{}".format(i), "Decrypt".format(i))
+        graph.add_edge("Dense-RELU-{}".format(i), "Dense-enqueue")
+    graph.add_node("Decrypt", group=5, node=Decrypt())
+    graph.add_edge("Dense-enqueue", "Decrypt")
 
     # CONSTRUCT SELECTOR TO SELECT COMPUTATIONAL CIRCUITS
     # we need to be able to select different computational circuits depending

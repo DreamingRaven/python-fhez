@@ -2,8 +2,9 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T10:47:21+01:00
+# @Last modified time: 2021-09-21T16:20:20+01:00
 
+import logging as logger
 import types
 import itertools
 import numpy as np
@@ -35,7 +36,7 @@ class Firing(Traverser):
         return "backward"
 
     def stimulate(self, neurons: np.ndarray, signals: np.ndarray,
-                  receptor="forward"):
+                  receptor="forward", debug=False):
         """Stimulate a set of receptors with a set of signals for response.
 
         Breadth first stimulation of neurons/ nodes.
@@ -68,21 +69,27 @@ class Firing(Traverser):
         for (neuron, signal) in zip(neurons, signals):
             out = self._carry_signal(
                 node_name=neuron, receptor=receptor,
-                bootstrap=signal)
+                bootstrap=signal, debug=debug)
             outputs.update(out)
         return outputs
 
     def _carry_signal(self, node_name, receptor: str,
-                      bootstrap: np.ndarray = None, outputs=None):
+                      bootstrap: np.ndarray = None, outputs=None, debug=None):
         """Bootstrap and recursiveley carry signal through successor nodes."""
         graph = self.graph
         outputs = outputs if outputs is not None else {}
+        debug = debug if debug is not None else False
         # get signal from edges behind us
         signal = self._get_signal(graph=graph, node_name=node_name,
                                   signal_name=receptor, bootstrap=bootstrap)
         # if node is not ready I.E not all predecessors are processed skip
         if signal is None:
             return None
+
+        if debug is True:
+            print("node executing: {}".format(node_name))
+        else:
+            logger.debug("node executing: {}".format(node_name))
 
         # get activation on application of signal to current node
         activation = self._use_signal(graph=graph,
@@ -112,7 +119,8 @@ class Firing(Traverser):
                     node_name=next_node_name,
                     receptor=receptor,
                     bootstrap=None,
-                    outputs=None)
+                    outputs=None,
+                    debug=debug)
                 outputs.update(out if out is not None else {})
         return outputs
 
