@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-20T17:02:22+01:00
+# @Last modified time: 2021-09-21T13:39:04+01:00
 
 import numpy as np
 
@@ -22,6 +22,8 @@ from fhez.nn.loss.mse import MSE  # Mean of the Squared Error
 
 from fhez.nn.operations.encrypt import Encrypt
 from fhez.nn.operations.decrypt import Decrypt
+
+from fhez.nn.operations.selector import Selector
 
 from fhez.nn.operations.enqueue import Enqueue
 from fhez.nn.operations.dequeue import Dequeue
@@ -128,7 +130,7 @@ def cnn_classifier(k):
     # CONSTRUCT DENSE FOR EACH CLASS
     # we want to get the network to regress some prediction one for each class
     # graph.add_node("Dense-enqueue", group=2, node=Enqueue())
-    graph.add_node("Decrypt".format(i), group=5, node=Decrypt())
+    graph.add_node("Decrypt", group=5, node=Decrypt())
     for i in classes:
         graph.add_node("Dense-{}".format(i), group=2,
                        node=ANN(weights=(len(windows),)))
@@ -137,12 +139,19 @@ def cnn_classifier(k):
         graph.add_edge("Dense-{}".format(i), "Dense-RELU-{}".format(i))
         graph.add_edge("Dense-RELU-{}".format(i), "Decrypt".format(i))
 
+    # CONSTRUCT SELECTOR TO SELECT COMPUTATIONAL CIRCUITS
+    # we need to be able to select different computational circuits depending
+    # on the receptor so we can say infer, or train, and so we can also
+    # selectiveley backpropagate through only one circuit and ignore the other
+    graph.add_node("Selector", group=6, node=Selector(backward=[1, 0]))
+    graph.add_edge("Decrypt", "Selector")
+
     # CONSTRUCT CLASSIFIER
     # we want to turn the dense outputs into classification probabilities
     # using softmax and how wrong / right we are using Categorical
     # Cross-Entropy(CCE) as our loss function
     graph.add_node("Softmax", group=3, node=Softmax())
-    graph.add_edge("Decrypt".format(i), "Softmax")
+    graph.add_edge("Selector", "Softmax")
     # graph.add_edge("Dense-enqueue", "Softmax", weight=Softmax().cost)
     graph.add_node("Loss-CCE", group=3, node=CCE())
     graph.add_edge("Softmax", "Loss-CCE", weight=3)
@@ -153,7 +162,7 @@ def cnn_classifier(k):
     graph.add_edge("y", "One-hot-encoder", weight=OneHotEncode().cost)
 
     graph.add_node("Argmax", group=4, node=Argmax())
-    graph.add_edge("Decrypt".format(i), "Argmax")
+    graph.add_edge("Selector", "Argmax")
     # graph.add_edge("Dense-enqueue", "Argmax", weight=Argmax().cost)
     graph.add_node("One-hot-decoder", group=4, node=OneHotDecode())
     graph.add_edge("Argmax", "One-hot-decoder", weight=OneHotDecode().cost)

@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T12:28:23+01:00
+# @Last modified time: 2021-09-21T13:40:37+01:00
 
 import time
 import unittest
@@ -72,8 +72,8 @@ class FiringTest(unittest.TestCase):
         output = forward.stimulate(neurons=["x", "y"], signals=[data, 1])
         self.assertNotEqual(output, {})
         backward = Firing(graph=graph.reverse(copy=False))
-        grads = backward.stimulate(neurons=["Loss-CCE"],
-                                   signals=[output["Loss-CCE"]],
+        grads = backward.stimulate(neurons=["Loss-CCE", "y_hat"],
+                                   signals=[output["Loss-CCE"], 0],
                                    receptor="backward")
         print("GRADIENT OUTPUT: {}".format(grads))
         self.assertNotEqual(grads.get("x"), None, "There is no input grad x!")
