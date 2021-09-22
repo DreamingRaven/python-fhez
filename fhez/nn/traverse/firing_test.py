@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:19:31+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T19:40:00+01:00
+# @Last modified time: 2021-09-22T09:42:16+01:00
 
 import time
 import unittest
@@ -61,7 +61,6 @@ class FiringTest(unittest.TestCase):
         data = self.data
         f = Firing(graph=graph)
         output = f.stimulate(neurons=["x", "y"], signals=[data, 1])
-        print("STIMULATED OUTPUT: {}".format(output))
         self.assertNotEqual(output, {})
 
     def test_stimulate_backward(self):
@@ -90,7 +89,6 @@ class FiringTest(unittest.TestCase):
         for node_meta in graph.nodes(data=True):
             node_name = node_meta[0]
             node = node_meta[1]["node"]
-            print("Updating {}".format(node_name))
             node.updates()
 
     def test_get_signal_many(self):

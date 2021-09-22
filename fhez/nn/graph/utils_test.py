@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-20T13:48:12+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-20T14:00:17+01:00
+# @Last modified time: 2021-09-22T09:35:16+01:00
 
 import time
 import unittest
@@ -53,8 +53,13 @@ class UtilsTester(unittest.TestCase):
 
     def test_train(self):
         """Check training loop using a known example Fashion-MNIST."""
-        orbweaver()
-        raise NotImplementedError("Training util not implemented.")
+        graph = orbweaver()
+        data = self.data
+        inputs = {
+            "x": np.array([data, data, data, data, data, data]),
+            "y": np.array([1, 1, 1, 1, 1, 1])
+        }
+        train(graph=graph, inputs=inputs, batch_size=3)
 
     def test_infer(self):
         """Check inference working as expected."""
