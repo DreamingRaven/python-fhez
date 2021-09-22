@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-22T16:29:37+01:00
+# @Last modified time: 2021-09-22T20:45:03+01:00
 
 import numpy as np
 
@@ -65,7 +65,8 @@ def cnn_regressor(data_shape, filter_length, stride=1):
     graph.add_edge("x", "1D-CC")
     graph.add_node("CC-dequeue", group=6, node=Dequeue())
     graph.add_edge("1D-CC", "CC-dequeue")
-    graph.add_node("CC-enqueue", group=6, node=Enqueue())
+    graph.add_node("CC-enqueue", group=6,
+                   node=Enqueue(length=len(windows)))
     for i in range(len(windows)):
         graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())
         graph.add_edge("CC-dequeue", "CC-sop-{}".format(i))
