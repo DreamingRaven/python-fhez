@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-16T14:10:58+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-22T13:33:38+01:00
+# @Last modified time: 2021-09-22T13:36:46+01:00
 
 import itertools
 import numpy as np
@@ -35,31 +35,32 @@ def train(graph, inputs, batch_size, debug=False):
     # on each iteration which would start from head of list
     i = 0
     with tqdm(total=len(inputs[neurons[0]]), desc="Learn") as pbar:
-        for signals in itertools.zip_longest(*train):
-            # forward pass over all avaliable nodes on graph
-            out = forward.stimulate(
-                neurons=neurons,
-                signals=list(signals),
-                receptor="forward")
-            # backward pass using output from forward pass to select
-            # the nodes they came from to pass them back in but as
-            # losses (or ignored if not a loss)
-            backward.stimulate(
-                neurons=list(out.keys()),
-                signals=list(out.values()),
-                receptor="backward")
-            # if we happen to be at the end of a batch update using avg of
-            # our calculated gradients in all backward passes
-            # (internal state of the graph nodes so no need to do it ourselves)
-            if i % batch_size == 0:
-                with tqdm(total=len(graph.nodes), desc="update") as subar:
+        with tqdm(total=len(graph.nodes), desc="update") as subar:
+            for signals in itertools.zip_longest(*train):
+                # forward pass over all avaliable nodes on graph
+                out = forward.stimulate(
+                    neurons=neurons,
+                    signals=list(signals),
+                    receptor="forward")
+                # backward pass using output from forward pass to select
+                # the nodes they came from to pass them back in but as
+                # losses (or ignored if not a loss)
+                backward.stimulate(
+                    neurons=list(out.keys()),
+                    signals=list(out.values()),
+                    receptor="backward")
+                # if we happen to be at the end of a batch update using avg of
+                # our calculated gradients in all backward passes
+                # (internal state of the graph nodes so no need to do it
+                # ourselves)
+                if i % batch_size == 0:
                     for node_meta in graph.nodes(data=True):
                         node = node_meta[1]["node"]
                         node.updates()
                         subar.update(1)
-            # iterate counter to keep track of batch sizes
-            pbar.update(1)
-            i += 1
+                # iterate counter to keep track of batch sizes
+                pbar.update(1)
+                i += 1
 
 
 def infer(graph, inputs):
