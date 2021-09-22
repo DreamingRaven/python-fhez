@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T16:33:11+01:00
+# @Last modified time: 2021-09-22T16:29:37+01:00
 
 import numpy as np
 
@@ -56,20 +56,22 @@ def cnn_regressor(data_shape, filter_length, stride=1):
                           stride)
 
     # INPUTS
-    graph.add_node("x", group=0, node=IO())
-    graph.add_node("y", group=0, node=IO())
+    graph.add_node("x", group=0, node=Encrypt())
+    graph.add_node("y", group=0, node=Encrypt())
 
     # 1D CNN/ CC
     graph.add_node("1D-CC", group=1,
                    node=CC(weights=filter_shape, stride=stride, bias=0))
-    graph.add_edge("x", "1D-CC", weight=CC().cost)
-    graph.add_node("CC-dequeue", group=1, node=Dequeue())
-    graph.add_edge("1D-CC", "CC-dequeue", weight=Dequeue().cost)
-    graph.add_node("CNN-acti", group=1, node=RELU())
+    graph.add_edge("x", "1D-CC")
+    graph.add_node("CC-dequeue", group=6, node=Dequeue())
+    graph.add_edge("1D-CC", "CC-dequeue")
+    graph.add_node("CC-enqueue", group=6, node=Enqueue())
     for i in range(len(windows)):
         graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())
-        graph.add_edge("CC-dequeue", "CC-sop-{}".format(i), weight=Sum().cost)
-        graph.add_edge("CC-sop-{}".format(i), "CNN-acti", weight=RELU().cost)
+        graph.add_edge("CC-dequeue", "CC-sop-{}".format(i))
+        graph.add_edge("CC-sop-{}".format(i), "CC-enqueue")
+    graph.add_node("CNN-acti", group=1, node=RELU())
+    graph.add_edge("CC-enqueue", "CNN-acti")
 
     # DENSE
     graph.add_node("Dense", group=2,
@@ -77,24 +79,21 @@ def cnn_regressor(data_shape, filter_length, stride=1):
     graph.add_edge("CNN-acti", "Dense", weight=ANN().cost)
     graph.add_node("Dense-acti", group=2, node=RELU())
     graph.add_edge("Dense", "Dense-acti")
-    graph.add_node("Decrypt", group=3, node=Decrypt())
+    graph.add_node("Decrypt", group=5, node=Decrypt())
     graph.add_edge("Dense-acti", "Decrypt")
+    graph.add_node("Selector", group=6, node=Selector(backward=[1, 0]))
+    graph.add_edge("Decrypt", "Selector")
 
     # LOSS
     graph.add_node("MSE", group=3, node=MSE())
-    graph.add_edge("Decrypt", "MSE", weight=MSE().cost)
+    graph.add_edge("Selector", "MSE", weight=MSE().cost)
     graph.add_edge("y", "MSE", weight=MSE().cost)
 
     # OUTPUT
     graph.add_node("y_hat", group=4, node=IO())
-    graph.add_edge("Dense", "y_hat", weight=IO().cost)
+    graph.add_edge("Selector", "y_hat", weight=IO().cost)
 
     return graph
-
-
-def orbweaver():
-    """Get prefabricated orbweaver graph."""
-    return cnn_classifier(10)
 
 
 def cnn_classifier(k):
@@ -195,3 +194,23 @@ def basic():
     graph.add_node("y", group=0, node=Encrypt())
     graph.add_edge("y", "MSE")
     return graph
+
+
+def orbweaver():
+    """Get prefabricated orbweaver graph."""
+    return cnn_classifier(10)
+
+
+def milky(**kwargs):
+    """Get prefabricated milk graph."""
+    g = cnn_regressor(**kwargs)
+    # sideloading our additional contextual nodes
+    g.add_node("Context", node=Encrypt())
+    g.add_node("Context-enqueue", group=6, node=Enqueue())
+    g.add_edge("Context", "Context-enqueue")
+    # removing existing edge which we want to interject
+    g.remove_edge("CNN-acti", "Dense")
+    # sewing back together the graph
+    g.add_edge("Context-enqueue", "Dense")
+    g.add_edge("CNN-acti", "Context-enqueue")
+    return g
