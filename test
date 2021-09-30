@@ -9,7 +9,7 @@
 sudo docker build -t archer/fhez -f Dockerfile_archlinux .  || exit 1 # this uses our docker
 # sudo docker build -t archer/fhe -f Dockerfile_archlinux --no-cache . || exit 1
 
-sudo docker run --cpus=2 --memory 24G -it archer/fhez python -m unittest discover -p "*_test.py" # -s fhez/
+sudo docker run --cpus=2 --memory 24G -it archer/fhez python -m unittest discover -p "*_test.py" -s fhez/
 
 # # test each component library
 # sudo docker run --cpus=2 --memory 8G -it archer/fhez ./fhez/reseal.py

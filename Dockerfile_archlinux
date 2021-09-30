@@ -61,13 +61,14 @@ RUN cd /seal-python && \
 
 # Clean-up
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    mkdir -p ${PKGDIR}
+    mkdir -p ${PKGDIR}/docs
 
 # early copy of requirements file
 COPY ${SRCDIR}/requirements.txt ${PKGDIR}/requirements.txt
+COPY ${SRCDIR}/docs/requirements.txt ${PKGDIR}/docs/requirements.txt
 
 # install package specific dependencies
-RUN pip3 install -r ${PKGDIR}/requirements.txt
+RUN pip3 install -r ${PKGDIR}/requirements.txt -r ${PKGDIR}/docs/requirements.txt
 
 # copy our files in
 COPY ${SRCDIR} ${PKGDIR}

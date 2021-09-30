@@ -8,7 +8,7 @@ See: `Comp-sci queues <https://computersciencewiki.org/index.php/Queue>`_
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-17T13:01:54+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-24T12:40:01+01:00
+# @Last modified time: 2021-09-21T16:57:48+01:00
 
 from collections import deque
 import numpy as np
@@ -26,7 +26,12 @@ class Dequeue(Node):
     @property
     def length(self):
         """Get the desired length of the final dequeue."""
-        return self.__dict__.get("_desired_length")
+        if self.__dict__.get("_desired_length") is not None:
+            return self.__dict__.get("_desired_length")
+        else:
+            raise ValueError(
+                "You FOOL you have not provided me `{}`, with a length".format(
+                    self.__class__.__name__))
 
     @length.setter
     def length(self, length: int):
@@ -71,12 +76,11 @@ class Dequeue(Node):
 
     def backward(self, gradient: np.ndarray):
         """Accumulate inputs into a single queue, then return when full."""
-        self.queue.append(gradient)
-        if len(self.queue) == self.length:
-            out = list(self.queue)
-            self.queue = None
-            return out
-        return None
+        return np.sum(gradient, axis=0)  # we know gradients must add
+        # this could theoretically cause problems if there is only one output
+        # but if forward only had one output then why the hell would you
+        # dequeue. As such I am assuming there is always multiple gradients +
+        # multiple forward outputs
 
     def update(self):
         """Update nothing as dequeueing is not parameterisable."""

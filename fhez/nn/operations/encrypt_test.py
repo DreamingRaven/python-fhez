@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:35:00+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-18T16:02:10+01:00
+# @Last modified time: 2021-09-14T13:51:53+01:00
 
 import time
 import unittest
@@ -58,6 +58,16 @@ class EncryptTest(unittest.TestCase):
         self.assertIsInstance(cyphertext, ReArray)
         # decyrpt again manually
         plaintext = np.array(cyphertext)
+        np.testing.assert_array_almost_equal(plaintext, x,
+                                             decimal=4,
+                                             verbose=True)
+
+    def test_forward_plain(self):
+        """Check lack of encryption without params."""
+        x = self.data
+        node = Encrypt()
+        plaintext = node.forward(x)
+        self.assertIsInstance(plaintext, np.ndarray)
         np.testing.assert_array_almost_equal(plaintext, x,
                                              decimal=4,
                                              verbose=True)

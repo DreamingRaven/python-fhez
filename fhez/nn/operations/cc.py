@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2020-09-16T11:33:51+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:48:16+01:00
+# @Last modified time: 2021-09-21T20:05:18+01:00
 # @License: please see LICENSE file in project root
 
 import copy
@@ -10,6 +10,7 @@ import numpy as np
 import marshmallow as mar
 from fhez.nn.graph.node import Node
 from fhez.nn.graph.serialise import Serialise
+from fhez.fields.numpyfield import NumpyField
 
 
 class CC(Node, Serialise):
@@ -46,11 +47,9 @@ class CC(Node, Serialise):
             structure.
         """
         schema_dict = {
-            "_alpha": mar.fields.Float(),
-            "_beta_1": mar.fields.Float(),
-            "_beta_2": mar.fields.Float(),
-            "_epsilon": mar.fields.Float(),
-            # "_cache": mar.fields.Dict(),
+            "_b": mar.fields.Float(),
+            "_w": NumpyField(),
+            "_stride": NumpyField(),
         }
         return mar.Schema.from_dict(schema_dict)
 
@@ -92,19 +91,20 @@ class CC(Node, Serialise):
     def backward(self, gradient: np.ndarray):
         """Compute computational filter gradient and input gradient."""
         x = np.array(self.inputs.pop())
-        gradient_kernel = gradient * self.weights
+        # gradient_kernel = gradient * self.weights
+        x_grad_product = x * gradient
         # calculate the gradient of inputs by adding the kernel grads together
         # in the positions those gradients were used.
         dfdx = np.zeros(x.shape)
         dfdw = np.zeros(self.weights.shape)
         for i in range(len(self.windows)):
             primer = np.zeros(x.shape)
-            primer[self.windows[i]] = gradient_kernel  # use precomputed kernel
-            dfdw += x[self.windows[i]] * gradient  # could commute mult later
-            dfdx += primer
+            primer[self.windows[i]] = self.weights
+            dfdw += x_grad_product[self.windows[i]]
+            dfdx += (primer * gradient)
         # b is broadcast to the size of the kernel in forward and is also
         # broadcast multiple times once for each window.
-        dfdb = self.weights.size * len(self.windows) * gradient
+        dfdb = np.sum(len(self.windows) * gradient)
         self.gradients.append({"dfdw": dfdw, "dfdx": dfdx, "dfdb": dfdb})
         return dfdx
 
@@ -115,6 +115,15 @@ class CC(Node, Serialise):
     def updates(self):
         """Update node state/ weights for multiple examples simultaneously."""
         self.updater(parm_names=["w", "b"])
+
+    @property
+    def w(self):
+        """Shorthand for weights."""
+        return self.weights
+
+    @w.setter
+    def w(self, w):
+        self.weights = w
 
     @ property
     def weights(self):
@@ -139,6 +148,15 @@ class CC(Node, Serialise):
             self._w = self.weights / self.weights.size
         else:
             self._w = weights
+
+    @property
+    def b(self):
+        """Shorthand for bias."""
+        return self.bias
+
+    @b.setter
+    def b(self, b):
+        self.bias = b
 
     @ property
     def bias(self):
