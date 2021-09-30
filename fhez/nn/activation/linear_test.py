@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-26T17:00:08+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-07-26T19:54:22+01:00
+# @Last modified time: 2021-09-10T16:50:27+01:00
 
 import time
 import unittest
@@ -92,3 +92,27 @@ class LinearTest(unittest.TestCase):
         loss = 0.5 - np.array(enc_out)  # pretend target is 0.5
         node.backward(loss)
         node.updates()
+
+    def test_getstate_setstate(self):
+        """Check setstate getstate functionality."""
+        obj_dump = Linear(m=np.array([5]), c=np.array([3]))
+        obj_load = Linear()
+        # getting simple dictionary representation of class
+        d = obj_dump.__getstate__()
+        # check is dict properly
+        self.assertIsInstance(d, dict)
+        # check repr works properly returning a string
+        self.assertIsInstance(repr(obj_dump), str)
+        # recreate original object in new object
+        obj_load.__setstate__(d)
+        # manually comparing each part of our dictionaries as we cant rely on
+        # assertEqual to do the whole dictionary when it comes to multidim
+        # numpy arrays
+        for key, value in obj_dump.__dict__.items():
+            if isinstance(value, np.ndarray):
+                np.testing.assert_array_almost_equal(obj_dump.__dict__[key],
+                                                     value,
+                                                     decimal=1,
+                                                     verbose=True)
+            else:
+                self.assertEqual(obj_dump.__dict__[key], value)

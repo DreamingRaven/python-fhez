@@ -63,8 +63,12 @@
 .. |section_sigmoid_deriv| replace:: :ref:`section_sigmoid_derivative`
 .. |section_sigmoid_approx_deriv| replace:: :ref:`section_sigmoid_approximation_derivative`
 
+.. |section_argmax| replace:: :ref:`section_argmax`
 .. |section_linear| replace:: :ref:`section_linear`
 .. |section_softmax| replace:: :ref:`section_softmax`
+
+.. |section_fashion_mnist| replace:: :ref:`section_fashion_mnist`
+.. |section_constelation| replace:: :ref:`section_constelation`
 
 .. |section_adam| replace:: :ref:`section_adam`
 .. |section_gd| replace:: :ref:`section_gd`

@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-27T14:02:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:40:37+01:00
+# @Last modified time: 2021-09-10T14:51:43+01:00
 
 import time
 import unittest
@@ -162,16 +162,6 @@ class AdamTest(unittest.TestCase):
         m_hat_true = m_true / (1 - beta_2**1)
         self.assertEqual(v_hat, m_hat_true)
 
-    # def test_serialisation(self):
-    #     """Check marshmallow serialisation and set/getstate."""
-    #     thing = Adam(alpha=0.001,
-    #                  beta_1=0.9,
-    #                  beta_2=0.999,
-    #                  epsilon=1e-8)
-    #     schema = thing.schema
-    #     serial = schema().dump(thing)
-    #     print(serial)
-
     def test_getstate_setstate(self):
         """Check setstate getstate functionality."""
         obj_dump = Adam(alpha=0.002,
@@ -179,7 +169,24 @@ class AdamTest(unittest.TestCase):
                         beta_2=0.998,
                         epsilon=1e-9)
         obj_load = Adam()
+        # getting simple dictionary representation of class
         d = obj_dump.__getstate__()
+        # check is dict properly
+        self.assertIsInstance(d, dict)
+        # check repr works properly returning a string
+        self.assertIsInstance(repr(obj_dump), str)
+        # recreate original object in new object
         obj_load.__setstate__(d)
-        repr(obj_dump)
+        # check objects are equal
         self.assertTrue(obj_load.__dict__ == obj_dump.__dict__)
+        # manually comparing each part of our dictionaries as we cant rely on
+        # assertEqual to do the whole dictionary when it comes to multidim
+        # numpy arrays
+        for key, value in obj_dump.__dict__.items():
+            if isinstance(value, np.ndarray):
+                np.testing.assert_array_almost_equal(obj_dump.__dict__[key],
+                                                     value,
+                                                     decimal=1,
+                                                     verbose=True)
+            else:
+                self.assertEqual(obj_dump.__dict__[key], value)

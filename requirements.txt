@@ -5,4 +5,5 @@ tqdm>=4.57.0
 networkx>=2.6.2
 python-igraph>=0.9.1
 matplotlib>=3.4.1
+pyvis>=0.1.9
 git+https://gitlab.com/deepcypher/python-fhez-erabelli.git#branch=master

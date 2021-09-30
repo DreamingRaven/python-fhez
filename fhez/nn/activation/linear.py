@@ -1,14 +1,17 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-26T16:53:04+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T16:12:26+01:00
+# @Last modified time: 2021-09-10T16:26:44+01:00
 
 import numpy as np
+import marshmallow as mar
+from fhez.fields.numpyfield import NumpyField
 from fhez.nn.graph.node import Node
 from fhez.nn.optimiser.adam import Adam
+from fhez.nn.graph.serialise import Serialise
 
 
-class Linear(Node):
+class Linear(Node, Serialise):
     """Linear activation function computational graph abstraction."""
 
     def __init__(self, m=np.array([1]), c=np.array([0]), optimiser=Adam()):
@@ -16,6 +19,27 @@ class Linear(Node):
         self.m = m
         self.c = c
         self.optimiser = optimiser
+
+    @property
+    def schema(self):
+        """Get Marshmallow schema representation of this class.
+
+        Marshmallow schemas allow for easy and trustworthy serialisation
+        and deserialisation of arbitrary objects either to inbulit types or
+        json formats. This is an inherited member of the abstract class
+        Serialise.
+
+        .. note::
+
+            Anything not listed here will inevitably be lost, ensure anything
+            important is identified and expressley stated its type and
+            structure.
+        """
+        schema_dict = {
+            "_m": mar.fields.Float(),
+            "_c": NumpyField(),
+        }
+        return mar.Schema.from_dict(schema_dict)
 
     @property
     def optimiser(self):

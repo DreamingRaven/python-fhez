@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-30T14:52:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-02T12:27:32+01:00
+# @Last modified time: 2021-09-10T14:32:50+01:00
 
 import numpy as np
 from fhez.nn.loss.loss import Loss
@@ -10,7 +10,9 @@ from fhez.nn.loss.loss import Loss
 class MSE(Loss):
     """Loss function to node wrapper."""
 
-    def forward(self, y: np.ndarray, y_hat: np.ndarray):
+    def forward(self, signal=None,
+                y: np.ndarray = None,
+                y_hat: np.ndarray = None):
         r"""Calculate the loss of the output given the ground truth.
 
         This will take multiple values for both :math:`y` and :math:`\hat{y}`,
@@ -19,6 +21,14 @@ class MSE(Loss):
 
         :math:`\text{MSE}=\frac{\sum_{i=0}^{N-1} (y-\hat{y})^2 }{N}`
         """
+        if signal is None:
+            msg = "if no signal provided then you must provide y and y_hat"
+            assert y_hat is not None, msg
+            assert y is not None, msg
+        else:
+            # THE ORDER IS DEPENDENT ON THE ORDER OF EDGES!
+            y_hat = signal[0]
+            y = signal[1]
         self.inputs.append({"y": y, "y_hat": y_hat})
         return np.mean((y - y_hat)**2)
 
@@ -50,6 +60,7 @@ class MSE(Loss):
         """Do nothing as there are no parameters to update."""
         return NotImplemented
 
+    @property
     def cost(self):
         """Get computational cost of the forward function."""
         return 2

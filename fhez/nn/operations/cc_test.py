@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-10T14:36:02+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-20T14:47:43+01:00
+# @Last modified time: 2021-09-10T16:47:17+01:00
 
 import time
 import unittest
@@ -150,9 +150,20 @@ class CCTest(unittest.TestCase):
         weights = self.filt
         bias = self.bias
 
-        obj_dump = CC(weights=weights, bias=bias)
+        obj_dump = CC(weights=weights, bias=bias, stride=[1, 1, 1])
         obj_load = CC()
         d = obj_dump.__getstate__()
         obj_load.__setstate__(d)
         repr(obj_dump)
-        self.assertTrue(obj_load.__dict__ == obj_dump.__dict__)
+        # manually comparing each part of our dictionaries as we cant rely on
+        # assertEqual to do the whole dictionary when it comes to multidim
+        # numpy arrays
+        for key, value in obj_dump.__dict__.items():
+            if isinstance(value, np.ndarray):
+                np.testing.assert_array_almost_equal(obj_dump.__dict__[key],
+                                                     value,
+                                                     decimal=1,
+                                                     verbose=True)
+            else:
+                self.assertEqual(obj_dump.__dict__[key], value)
+        # self.assertEqual(obj_load.__dict__, obj_dump.__dict__)

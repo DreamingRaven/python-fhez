@@ -1,16 +1,15 @@
-"""Test equeue functionality."""
 # @Author: George Onoufriou <archer>
-# @Date:   2021-08-17T13:38:16+01:00
+# @Date:   2021-09-21T14:42:26+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T13:55:57+01:00
+# @Last modified time: 2021-09-21T14:54:53+01:00
 
 import time
 import unittest
 import numpy as np
-from fhez.nn.operations.enqueue import Enqueue
+from fhez.nn.operations.distributor import Distributor
 
 
-class EnqueueTest(unittest.TestCase):
+class DistributorTest(unittest.TestCase):
     """Test enqueue operation node."""
 
     @property
@@ -50,31 +49,22 @@ class EnqueueTest(unittest.TestCase):
 
     def test_init(self):
         """Test enque initialisation."""
-        Enqueue(length=10)
+        Distributor()
 
     def test_forward(self):
-        """Check enqueue, queueing properly."""
-        l = 10
-        q = Enqueue(length=l)
-        out = q.forward(np.arange(l))
-        # for i in range(l):
-        #     out = q.forward(np.array([i]))
-        # self.assertNotEqual(out, None)
-        # truth = np.reshape(np.arange(l), (l, 1))
-        truth = np.reshape(np.arange(l), (l,))
-        np.testing.assert_array_almost_equal(out, truth,
+        """Check distributor distributes as expected."""
+        node = Distributor()
+        out = node.forward([1, 2, 3, 4, 5])
+        np.testing.assert_array_almost_equal(out, [1, 2, 3, 4, 5],
                                              decimal=1,
                                              verbose=True)
 
     def test_backward(self):
-        """Check gradients are mapped properly."""
-        l = 10
-        q = Enqueue(length=l)
-        for i in range(l):
-            out = q.forward(np.array([i]))
-        self.assertNotEqual(out, None)
-        gradients = np.reshape(np.arange(l), (l, 1))
-        local_grad = np.array(list(q.backward(gradient=gradients)))
-        np.testing.assert_array_almost_equal(local_grad, gradients,
+        """Check distributor distributes as expected."""
+        node = Distributor()
+        out = node.backward([1, 2, 3, 4, 5])
+        self.assertEqual(out, 15)
+        np.testing.assert_array_almost_equal(out, np.sum([1, 2, 3, 4, 5],
+                                                         axis=0),
                                              decimal=1,
                                              verbose=True)
