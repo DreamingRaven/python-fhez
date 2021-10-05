@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-02T22:00:06+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-23T14:19:41+01:00
+# @Last modified time: 2021-10-05T10:44:18+01:00
 
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -19,8 +19,9 @@ class Softmax(Node):
         where: :math:`C` is the number of classes, and :math:`i` is the current
         class being processed.
         """
-        # self.inputs.append(x)
-        out = np.exp(x)/np.sum(np.exp(x))
+        # adding a small coefficient to avoid division by zero errors
+        expo = np.exp(np.add(x, 1e-8))
+        out = expo/np.sum(expo)
         self.inputs.append(out)  # NOTE appending x_softmaxed not x
         return out
 
