@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-22T20:45:03+01:00
+# @Last modified time: 2021-10-11T17:17:35+01:00
 
 import numpy as np
 
@@ -124,7 +124,7 @@ def cnn_classifier(k):
         graph.add_edge("CC-dequeue", "CC-sop-{}".format(i),
                        weight=Sum().cost)
         graph.add_edge("CC-sop-{}".format(i), "CC-enqueue")
-    graph.add_node("CNN-RELU", group=1, node=RELU())
+    graph.add_node("CNN-RELU", group=1, node=RELU(q=10))
     graph.add_edge("CC-enqueue", "CNN-RELU")
     graph.add_node("CNN-distribute", group=6, node=Distributor())
     graph.add_edge("CNN-RELU", "CNN-distribute")
@@ -137,7 +137,7 @@ def cnn_classifier(k):
         graph.add_node("Dense-{}".format(i), group=2,
                        node=ANN(weights=(len(windows),)))
         graph.add_edge("CNN-distribute", "Dense-{}".format(i))
-        graph.add_node("Dense-RELU-{}".format(i), group=2, node=RELU())
+        graph.add_node("Dense-RELU-{}".format(i), group=2, node=RELU(q=10))
         graph.add_edge("Dense-{}".format(i), "Dense-RELU-{}".format(i))
         graph.add_edge("Dense-RELU-{}".format(i), "Dense-enqueue")
     graph.add_node("Decrypt", group=5, node=Decrypt())
