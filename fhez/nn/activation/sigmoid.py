@@ -2,7 +2,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-22T11:46:18+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-09T17:04:09+01:00
+# @Last modified time: 2021-10-12T16:16:29+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
 from fhez.nn.graph.node import Node
@@ -14,7 +14,10 @@ class Sigmoid(Node):
     def forward(self, x):
         """Calculate sigmoid approximation while minimising depth."""
         self.inputs.append(x)
-        return (0.5) + (0.197 * x) + ((-0.004 * x) * (x * x))
+        # return (0.5) + (0.197 * x) + ((-0.004 * x) * (x * x))
+        return np.add(np.add(0.5, np.multiply(0.197, x)), np.multiply(
+            np.multiply(-0.004, x),
+            np.multiply(x, x)))
 
     def backward(self, gradient: np.array):
         """Calculate gradient of sigmoid with respect to input x."""
