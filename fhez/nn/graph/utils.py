@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-16T14:10:58+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-13T10:25:54+01:00
+# @Last modified time: 2021-10-13T10:36:00+01:00
 
 import itertools
 import numpy as np
@@ -10,18 +10,19 @@ from tqdm import tqdm
 from fhez.nn.traverse.firing import Firing
 
 
-def assign_edge_costing(graph):
+def assign_edge_costing(graph, objk=None):
     """Modify a graph so edges represent costs of the forward node."""
+    objk = objk if objk is not None else "node"
     # for every node
     for node in graph.nodes(data=True):
         # assign node.cost() to every inbound edge
         for edge in graph.in_edges(node[0], data=True):
             try:
-                edge[2]["weight"] = node[1]["node"].cost
+                edge[2]["weight"] = node[1][objk].cost
             except KeyError:
                 raise KeyError(
-                    "node `{}``, does not have the `node` key {}".format(
-                        node, "cannot calculate cost."))
+                    "node `{}``, does not have the `{}` key {}".format(
+                        node, objk, "cannot calculate cost."))
 
 
 def train(graph, inputs, batch_size, debug=False):
