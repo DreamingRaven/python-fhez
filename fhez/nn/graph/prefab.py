@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-11T17:17:35+01:00
+# @Last modified time: 2021-10-13T10:00:28+01:00
 
 import numpy as np
 
@@ -176,24 +176,41 @@ def cnn_classifier(k):
 
 
 def basic():
-    """Get a super basic graph for purposes of testing components."""
+    """Get a super basic graph for purposes of testing components.
+
+    .. note::
+
+        This is not a useful graph outside of unit-tests and validation,
+        as it does not represent any form of useful network for solving any
+        particular problem.
+    """
     graph = nx.MultiDiGraph()
     graph.add_node("x_0", group=0, node=Encrypt())
     graph.add_node("x_1", group=0, node=Encrypt())
 
-    graph.add_node("Dense", group=2, node=ANN(weights=(2,)))
-    graph.add_edge("x_0", "Dense")
-    graph.add_edge("x_1", "Dense")
-    graph.add_node("ReLU", group=1, node=RELU())
-    graph.add_edge("Dense", "ReLU")
+    graph.add_node("c_0", group=1, node=ANN(weights=(1,)))
+    graph.add_edge("x_0", "c_0")
 
-    graph.add_node("y_hat", group=4, node=Decrypt())
-    graph.add_edge("ReLU", "y_hat")
+    graph.add_node("c_1", group=1, node=ANN(weights=(2,)))
+    graph.add_edge("c_0", "c_1")
+    graph.add_edge("x_1", "c_1")
 
-    graph.add_node("MSE", group=3, node=MSE())
-    graph.add_edge("y_hat", "MSE")
-    graph.add_node("y", group=0, node=Encrypt())
-    graph.add_edge("y", "MSE")
+    graph.add_node("r_0", group=2)
+    graph.add_edge("c_1", "r_0")
+
+    graph.add_node("y_0", group=0, node=Encrypt())
+    graph.add_node("c_2", group=1, node=ANN(weights=(2,)))
+    graph.add_edge("r_0", "c_2")
+    graph.add_edge("y_0", "c_2")
+
+    graph.add_node("d_0", group=3, node=Decrypt())
+    graph.add_edge("c_2", "d_0")
+
+    graph.add_node("c_3", group=1, node=ANN(weights=(2,)))
+    graph.add_edge("c_2", "c_3")
+
+    graph.add_node("d_1", group=3, node=Decrypt())
+    graph.add_edge("c_3", "d_1")
     return graph
 
 

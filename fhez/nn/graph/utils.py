@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-16T14:10:58+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-23T11:42:26+01:00
+# @Last modified time: 2021-10-13T10:25:54+01:00
 
 import itertools
 import numpy as np
@@ -16,7 +16,12 @@ def assign_edge_costing(graph):
     for node in graph.nodes(data=True):
         # assign node.cost() to every inbound edge
         for edge in graph.in_edges(node[0], data=True):
-            edge[2]["weight"] = node[1]["node"].cost
+            try:
+                edge[2]["weight"] = node[1]["node"].cost
+            except KeyError:
+                raise KeyError(
+                    "node `{}``, does not have the `node` key {}".format(
+                        node, "cannot calculate cost."))
 
 
 def train(graph, inputs, batch_size, debug=False):
