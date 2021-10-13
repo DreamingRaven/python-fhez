@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-05T10:39:36+01:00
+# @Last modified time: 2021-10-05T10:59:48+01:00
 
 import logging as logger
 import types
@@ -118,9 +118,10 @@ class Firing(Traverser):
             pass
         # if even one value is not finite throw and log!
         else:
-            msg = "\t{} -> {} in node {} is not finite".format(signal,
-                                                               activation,
-                                                               node_name)
+            msg = "\t inputs {} -> became {} in node {} is not finite".format(
+                signal,
+                activation,
+                node_name)
             logger.error(msg)
             raise ValueError("{} produced a non finite result".format(
                 node_name))
