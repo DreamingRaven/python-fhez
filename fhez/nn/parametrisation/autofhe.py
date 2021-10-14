@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T10:34:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-14T13:21:20+01:00
+# @Last modified time: 2021-10-14T14:47:49+01:00
 
 from fhez.nn.graph.utils import assign_edge_costing
 from fhez.nn.operations.encrypt import Encrypt
@@ -81,3 +81,29 @@ def autoHE(graph, nodes, concern=None, cost_edges=None):
         assign_edge_costing(graph)
     for i in nodes:
         source_prop(graph=graph, source=i, node=i, concern=concern)
+
+    # use the now calculated paths to calculate groupings, and who takes
+    # from whom
+    # groups as a tuple:
+    # - dict of (key) node names to group number (value)
+    # - list of (key) group numbers, maximum group cost (value)
+    groups = ({}, [])
+    # for each input node
+    for i in nodes:
+        if groups[0].get(i) is None:
+            groups[0][i] = len(groups[1])
+            groups[1].append(0)
+        t = graph.nodes(data=True)
+        # for each node in the graph
+        for j in t:
+            src = j[1]["sources"]
+            if i in src:
+                # for each key in this nodes sources
+                for key in src:
+                    # drag every keys group to our group number
+                    groups[0][key] = groups[0][i]
+                    # increase group cost if greater than ours
+                    if src[key] > groups[1][groups[0][i]]:
+                        groups[1][groups[0][i]] = src[key]
+    print("GROUPS", groups)
+    return groups

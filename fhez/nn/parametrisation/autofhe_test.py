@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-14T13:23:29+01:00
+# @Last modified time: 2021-10-14T13:51:02+01:00
 
 import time
 import unittest
@@ -57,7 +57,6 @@ class AutoHE(unittest.TestCase):
         graph = self.graph
         # auto parametrise all encrypted input nodes and their paths
         autoHE(graph=graph, nodes=["x_0", "x_1", "y_0"])
-        print(graph.nodes(data=True))
         nf = Firing(graph)
         nf.stimulate(neurons=np.array([]), signals=np.array([]),
                      receptor="forward")
