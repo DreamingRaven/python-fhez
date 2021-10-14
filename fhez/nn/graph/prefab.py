@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-13T10:00:28+01:00
+# @Last modified time: 2021-10-14T10:09:21+01:00
 
 import numpy as np
 
@@ -216,6 +216,11 @@ def basic():
 
 def orbweaver():
     """Get prefabricated orbweaver graph."""
+    return cnn_classifier(10)
+
+
+def sphira():
+    """Get prefabricated sphira graph."""
     return cnn_classifier(10)
 
 
