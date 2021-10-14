@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-13T15:26:23+01:00
+# @Last modified time: 2021-10-14T09:55:59+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
 import logging as logger
@@ -64,9 +64,7 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
 
     def __call__(self, plaintext):
         """Generate clone of ReArray object but with different data."""
-        t = ReArray(clone=self, plaintext=plaintext)
-        print("COPY:", t)
-        return t
+        return ReArray(clone=self, plaintext=plaintext)
 
     @property
     def seedling(self):

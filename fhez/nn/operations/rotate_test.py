@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:35:00+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-13T16:25:17+01:00
+# @Last modified time: 2021-10-14T09:52:54+01:00
 
 import time
 import unittest
@@ -114,6 +114,27 @@ class RotateTest(unittest.TestCase):
         out_cm = cyphertext_out.cyphertext[0].coefficient_modulus
         in_cm = cyphertext_in.cyphertext[0].coefficient_modulus
         self.assertNotEqual(in_cm, out_cm)
+
+    def test_forward_encrypt_axis(self):
+        x = self.data
+        axis = 1
+        encryptor = ReArray(np.array([1]), {
+            "scheme": 2,  # seal.scheme_type.CKK,
+            "poly_modulus_degree": 8192*2,  # 438
+            # "coefficient_modulus": [60, 40, 40, 60],
+            "coefficient_modulus":
+                [45, 30, 30, 30, 30, 45],  # coefficient mod length of 6
+            "scale": pow(2.0, 30),
+            "cache": True,
+        })
+        node = Rotate(encryptor=encryptor, axis=1)
+        cyphertext_in = ReArray(x, **self.reseal_args)
+        cyphertext_lst_out = node.forward(cyphertext_in)
+        self.assertIsInstance(cyphertext_lst_out, list)
+        self.assertIsInstance(cyphertext_lst_out[0], ReArray)
+        np.testing.assert_array_almost_equal(cyphertext_lst_out, cyphertext_in,
+                                             decimal=4,
+                                             verbose=True)
 
     def test_backward(self):
         """Check gradients are mapped."""

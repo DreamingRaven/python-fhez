@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:05:03+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-13T15:41:47+01:00
+# @Last modified time: 2021-10-14T09:54:40+01:00
 
 import logging
 import numpy as np
@@ -120,7 +120,7 @@ class Rotate(Node):
         elif self.axis == 1:
             accumulator = []
             for i in range(len(t)):
-                accumulator.append(self.encryptor(t))
+                accumulator.append(self.encryptor(t[i]))
             return accumulator
         else:
             raise ValueError("{}.forward() got unsupported axis {}, {}".format(
