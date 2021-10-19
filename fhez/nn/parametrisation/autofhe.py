@@ -2,9 +2,10 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T10:34:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-19T12:22:42+01:00
+# @Last modified time: 2021-10-19T13:32:22+01:00
 
 import numpy as np
+from fhez.rearray import ReArray
 from fhez.nn.graph.utils import assign_edge_costing
 from fhez.nn.operations.encrypt import Encrypt
 from fhez.nn.operations.decrypt import Decrypt
@@ -54,29 +55,7 @@ def autoDiscover(graph,
 
 
 def autoGroup(graph, nodes, concern=None, cost_edges=None):
-    """Adjust and generate parameters along full forward path of input nodes.
-
-    A graph may have multiple input nodes, and each one will have slightly
-    different paths which may need different parameters. We dont worry about
-    output nodes since the full forward graph needs activating which means we
-    can automatically find the end nodes.
-
-    This will modify the input graph, but only needs to be done once to set
-    the optimal parms!
-
-    :arg graph: A neural network graph to automatically parameterise.
-    :type graph: networkx.MultiDiGraph
-    :arg node: Input node name to parameterise from
-    :type input_nodes: str
-    :arg cost: current cost up till this node from previous key-rotation
-    :arg concern: types list which is used to consume cost
-    :rtype: networkx.MultiDiGraph
-    :return: modified networks graph
-
-    .. warning::
-
-        This function is still a work in progress, and is subject to change!
-    """
+    """Calculate all encryption groups in neural network, and their costs."""
     cost_edges = cost_edges if cost_edges is not None else True
     concern = tuple(concern if concern is not None else [Encrypt,
                                                          Decrypt,
@@ -172,5 +151,51 @@ def ckks_param_heuristic(cost, scale_pow=40, special_mult=1.5):
     return parms
 
 
-def autoHE(graph, nodes, concern=None, cost_edges=None):
-    autoGroup(graph, nodes, concern, cost_edges)
+def autoHE(graph, nodes, parm_func=None, provider=None,
+           concern=None, cost_edges=None,
+           **kwargs):
+    """Adjust and generate parameters along full forward path of input nodes.
+
+    A graph may have multiple input nodes, and each one will have slightly
+    different paths which may need different parameters. We dont worry about
+    output nodes since the full forward graph needs activating which means we
+    can automatically find the end nodes.
+
+    This will modify the input graph, but only needs to be done once to set
+    the optimal parms!
+
+    :arg graph: A neural network graph to automatically parameterise.
+    :type graph: networkx.MultiDiGraph
+    :arg node: Input node name to parameterise from
+    :type input_nodes: str
+    :arg cost: current cost up till this node from previous key-rotation
+    :arg concern: types list which is used to consume cost
+    :rtype: networkx.MultiDiGraph
+    :return: modified networks graph
+
+    .. warning::
+
+        This function is still a work in progress, and is subject to change!
+    """
+    # setting sane defaults to RNS-CKKS scheme
+    parm_func = parm_func if parm_func is not None else ckks_param_heuristic
+    provider = provider if provider is not None else ReArray
+    concern = tuple(concern if concern is not None else [Encrypt,
+                                                         Decrypt,
+                                                         Rotate])
+    # label the graph and get all the groups, costs, etc
+    groups_nodes, groups_costs = autoGroup(graph, nodes, concern, cost_edges)
+    # for each group (no names just intiger keys) in list of costs
+    for group in range(len(groups_costs)):
+        # generate the respective parameters with optional kwargs
+        parms = parm_func(cost=groups_costs[group], **kwargs)
+        # this is now the cyphertext generator shared between grouped nodes
+        # adding np array in case provider expects default input
+        encryptor = provider(np.array([1]), **parms)
+
+        # limit the nodes searched to just the ones related to this group
+        group_nodes = {
+            key: value for key, value in groups_nodes.items() if value == group
+        }
+        for key in group_nodes:
+            graph.nodes(data=True)[key]["node"].encryptor = encryptor

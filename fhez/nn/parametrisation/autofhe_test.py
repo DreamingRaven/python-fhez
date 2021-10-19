@@ -1,11 +1,12 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-19T12:20:29+01:00
+# @Last modified time: 2021-10-19T13:44:03+01:00
 
 import time
 import unittest
 import numpy as np
+from tqdm import tqdm
 from fhez.nn.graph.prefab import cnn_classifier, basic
 from fhez.nn.parametrisation.autofhe import autoHE, ckks_param_heuristic
 from fhez.nn.traverse.firing import Firing
@@ -79,18 +80,18 @@ class AutoHE(unittest.TestCase):
         cost = 10
         factor = 1
         parms = ckks_param_heuristic(cost=cost)
-        print(parms)
+        # print(parms)
         x = np.array([0.5, 0.3, 0.7, 0.9, 0.1])
         cyphertxt = ReArray(x, **parms)
-        for _ in range(cost):
+        for _ in tqdm(range(cost)):
             cyphertxt = np.multiply(cyphertxt, factor)
-            print("RUN")
+            # print("RUN")
         # cyphertext should be at edge of computational chain
         # check by trying to tip it over the edge with one more mult
         with self.assertRaises(ValueError) as context:
             np.multiply(cyphertxt, factor)
         self.assertTrue("scale out of bounds" in str(context.exception))
-        print(x)
+        # print(x)
         # TODO: generalise next test for all factors
         np.testing.assert_array_almost_equal(cyphertxt, x,
                                              decimal=4,
