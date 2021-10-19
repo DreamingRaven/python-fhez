@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T10:34:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-19T10:39:57+01:00
+# @Last modified time: 2021-10-19T12:22:42+01:00
 
 import numpy as np
 from fhez.nn.graph.utils import assign_edge_costing
@@ -11,11 +11,11 @@ from fhez.nn.operations.decrypt import Decrypt
 from fhez.nn.operations.rotate import Rotate
 
 
-def source_prop(graph,
-                source: str,
-                node: str,
-                concern: list = None,
-                cost: int = None):
+def autoDiscover(graph,
+                 source: str,
+                 node: str,
+                 concern: list = None,
+                 cost: int = None):
     """Propagate some source through the network.
 
     .. note::
@@ -44,16 +44,16 @@ def source_prop(graph,
 
     # on concerned nodes which is not our initial one
     if isinstance(node_object, concern) and source != node:
-        source_prop(graph, source=node, node=node, concern=concern, cost=0)
+        autoDiscover(graph, source=node, node=node, concern=concern, cost=0)
     else:
         # on every other node
         for i in graph.successors(node):
             next_cost = graph.nodes(data=True)[i]["node"].cost
-            source_prop(graph, source=source, node=i, concern=concern,
-                        cost=cost+next_cost)
+            autoDiscover(graph, source=source, node=i, concern=concern,
+                         cost=cost+next_cost)
 
 
-def autoHE(graph, nodes, concern=None, cost_edges=None):
+def autoGroup(graph, nodes, concern=None, cost_edges=None):
     """Adjust and generate parameters along full forward path of input nodes.
 
     A graph may have multiple input nodes, and each one will have slightly
@@ -88,7 +88,7 @@ def autoHE(graph, nodes, concern=None, cost_edges=None):
     if cost_edges is True:  # should only be run once as unecessary twice
         assign_edge_costing(graph)
     for i in nodes:
-        source_prop(graph=graph, source=i, node=i, concern=concern)
+        autoDiscover(graph=graph, source=i, node=i, concern=concern)
 
     # use the now calculated paths to calculate groupings, and who takes
     # from whom
@@ -109,7 +109,9 @@ def autoHE(graph, nodes, concern=None, cost_edges=None):
                 # for each key in this nodes sources
                 for key in src:
                     # drag every keys group to our group number
-                    # TODO: This should drag ALL members who are in the group existing group. Currentley it will only drag this one member if there are many.
+                    # TODO: This should drag ALL members who are in the group
+                    # existing group. Currentley it will only drag this one
+                    # member if there are many.
                     groups[0][key] = groups[0][i]
                     # increase group cost if greater than ours
                     if src[key] > groups[1][groups[0][i]]:
@@ -118,7 +120,7 @@ def autoHE(graph, nodes, concern=None, cost_edges=None):
     return groups
 
 
-def temp_encryptor_generator(cost, scale_pow=40, special_mult=1.5):
+def ckks_param_heuristic(cost, scale_pow=40, special_mult=1.5):
     """Given some cost generate encryption parameters.
 
     .. note::
@@ -168,3 +170,7 @@ def temp_encryptor_generator(cost, scale_pow=40, special_mult=1.5):
         "cache": True,
     }
     return parms
+
+
+def autoHE(graph, nodes, concern=None, cost_edges=None):
+    autoGroup(graph, nodes, concern, cost_edges)
