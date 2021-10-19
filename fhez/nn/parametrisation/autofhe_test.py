@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-14T16:26:57+01:00
+# @Last modified time: 2021-10-19T10:40:02+01:00
 
 import time
 import unittest
@@ -75,20 +75,23 @@ class AutoHE(unittest.TestCase):
     #                  receptor="forward")
 
     def test_temp_encryptor_generator(self):
-        cost = 6
+        """Check that FHE parameters are suitable for associated cost."""
+        cost = 10
+        factor = 1
         parms = temp_encryptor_generator(cost=cost)
         print(parms)
-        # x = self.data.flatten()[:10]
         x = np.array([0.5, 0.3, 0.7, 0.9, 0.1])
         cyphertxt = ReArray(x, **parms)
         for _ in range(cost):
-            cyphertxt = np.multiply(cyphertxt, 0.5)
+            cyphertxt = np.multiply(cyphertxt, factor)
             print("RUN")
+        # cyphertext should be at edge of computational chain
+        # check by trying to tip it over the edge with one more mult
+        with self.assertRaises(ValueError) as context:
+            np.multiply(cyphertxt, factor)
+        self.assertTrue("scale out of bounds" in str(context.exception))
         print(x)
-        np.testing.assert_array_almost_equal(cyphertxt, x/(cost*2),
-                                             decimal=6,
+        # TODO: generalise next test for all factors
+        np.testing.assert_array_almost_equal(cyphertxt, x,
+                                             decimal=4,
                                              verbose=True)
-
-    def test_todo(self):
-        """Todo note to fail tests so it cant be forgotten."""
-        raise NotImplementedError("Autofhe incomplete.")
