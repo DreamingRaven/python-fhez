@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T10:34:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-19T13:32:22+01:00
+# @Last modified time: 2021-10-19T13:48:06+01:00
 
 import numpy as np
 from fhez.rearray import ReArray
@@ -185,6 +185,7 @@ def autoHE(graph, nodes, parm_func=None, provider=None,
                                                          Rotate])
     # label the graph and get all the groups, costs, etc
     groups_nodes, groups_costs = autoGroup(graph, nodes, concern, cost_edges)
+    groups_encryptors = []
     # for each group (no names just intiger keys) in list of costs
     for group in range(len(groups_costs)):
         # generate the respective parameters with optional kwargs
@@ -192,10 +193,12 @@ def autoHE(graph, nodes, parm_func=None, provider=None,
         # this is now the cyphertext generator shared between grouped nodes
         # adding np array in case provider expects default input
         encryptor = provider(np.array([1]), **parms)
-
+        groups_encryptors.append(encryptor)
         # limit the nodes searched to just the ones related to this group
         group_nodes = {
             key: value for key, value in groups_nodes.items() if value == group
         }
         for key in group_nodes:
             graph.nodes(data=True)[key]["node"].encryptor = encryptor
+
+    return groups_nodes, groups_costs, groups_encryptors

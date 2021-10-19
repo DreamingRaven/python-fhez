@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T11:51:45+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-19T13:44:03+01:00
+# @Last modified time: 2021-10-19T13:55:25+01:00
 
 import time
 import unittest
@@ -62,9 +62,14 @@ class AutoHE(unittest.TestCase):
         np.testing.assert_array_almost_equal(groups[1], [4, 4],
                                              decimal=4,
                                              verbose=True)
-        nf = Firing(graph)
-        nf.stimulate(neurons=np.array([]), signals=np.array([]),
-                     receptor="forward")
+        # TODO: implement array ufunc equal for this sort of comparison
+        self.assertEqual(graph.nodes(data=True)["x_0"]["node"].encryptor,
+                         groups[2][0])
+        # print(graph.nodes(data=True)["x_0"]["node"].encryptor)
+        # print(groups[2][0])
+        # nf = Firing(graph)
+        # nf.stimulate(neurons=np.array([]), signals=np.array([]),
+        #              receptor="forward")
 
     # def test_parametrisation_large(self):
     #     """Check autohe parameterisation works on much larger graphs."""
