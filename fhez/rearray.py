@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-14T09:55:59+01:00
+# @Last modified time: 2021-10-20T10:31:53+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
 import logging as logger
@@ -279,3 +279,23 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             # cyphertests which for us is axis 0 since we store cyphertexts
             # as a list anything else is impossible
             return NotImplemented
+
+    @implements(remap, np.equal, "__call__")
+    def equal(self, other):
+        """Check if two ReArray objects are equal.
+
+        Quality to us means that they are the same parms, private-key, etc.
+        It does not necessarily check the contents of the cyphertext.
+        We cannot always guarantee we have the private-keys to evaluate
+        the contents.
+        """
+        if repr(self) == repr(other):
+            return True
+        else:
+            return False
+        return NotImplemented
+
+    @implements(remap, np.not_equal, "__call__")
+    def not_equal(self, other):
+        """Check two ReArray objects are totally equal in params."""
+        return not self.equal(other=other)
