@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:05:03+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-14T09:54:40+01:00
+# @Last modified time: 2021-10-20T09:29:11+01:00
 
 import logging
 import numpy as np
@@ -12,7 +12,8 @@ from fhez.nn.graph.node import Node
 class Rotate(Node):
     """Generic cyphertext key rotation abstraction."""
 
-    def __init__(self, axis=None, encryptor=None, provider=None, **kwargs):
+    def __init__(self, axis=None, encryptor=None, provider=None, sum_axis=None,
+                 **kwargs):
         """Configure provider and encryption parameters.
 
         Given a provider like FHEz-ReSeal, and an arbitrary number of keyword
@@ -22,12 +23,29 @@ class Rotate(Node):
         E.G it will decrypt, then re-encrypt the given axis, and return a
         structured list of the prior axies.
         """
+        # provider is a source of a callable encryptor object
         if provider is not None:
             self.provider = provider
+        # encryptor is a callable object to encrypt input data
         if encryptor is not None:
             self.encryptor = encryptor
+        # sum axis will summarise data while decrypting or re-encrypting
+        if sum_axis is not None:
+            self.sum_axis = sum_axis
+        # parameters are for the privider if any to override defaults
         self.parameters = kwargs
+        # axis is which axis will be re-encrypted if any
         self.axis = axis if axis is not None else 0
+
+    @property
+    def sum_axis(self):
+        """Get the desired axis to be summed between rotation."""
+        return self.__dict__.get("_sum_axis")
+
+    @sum_axis.setter
+    def sum_axis(self, axis):
+        """Set the axis to be summed between key rotation/ re-encryption."""
+        self._sum_axis = axis
 
     @property
     def provider(self):
@@ -101,6 +119,8 @@ class Rotate(Node):
           decrypt x and re-encrypt using the new provider on the desired axis.
         """
         t = np.array(x)  # ensure is numpy array, cyphertexts will decrypt here
+        if self.sum_axis is not None:
+            t = np.sum(t, axis=self.sum_axis)
         if self.provider is None and self.encryptor is None:
             # in the case where no encryption provider has been specified
             # assume we are to just leave it as a plaintext

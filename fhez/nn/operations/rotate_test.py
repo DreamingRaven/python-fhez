@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:35:00+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-14T09:52:54+01:00
+# @Last modified time: 2021-10-20T10:03:07+01:00
 
 import time
 import unittest
@@ -66,6 +66,16 @@ class RotateTest(unittest.TestCase):
         """Check lack of encryption without params."""
         x = self.data
         node = Rotate()
+        plaintext = node.forward(x)
+        self.assertIsInstance(plaintext, np.ndarray)
+        np.testing.assert_array_almost_equal(plaintext, x,
+                                             decimal=4,
+                                             verbose=True)
+
+    def test_forward_plain_sum(self):
+        """Check rotation sums desired axis."""
+        x = self.data
+        node = Rotate(sum_axis=1)
         plaintext = node.forward(x)
         self.assertIsInstance(plaintext, np.ndarray)
         np.testing.assert_array_almost_equal(plaintext, x,
