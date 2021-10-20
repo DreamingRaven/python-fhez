@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:39:47+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-20T10:27:30+01:00
+# @Last modified time: 2021-10-20T12:37:55+01:00
 import time
 import unittest
 import numpy as np
@@ -332,6 +332,18 @@ class ReArray_tests(unittest.TestCase):
 
         self.assertEqual(a, a)
         self.assertNotEqual(a, b)
+
+    def test_isfinite(self):
+        """Check that is finite gives us back results we are expecting."""
+        x = self.data
+        args = self.reseal_args
+        a = ReArray(x, **args)
+        f_0 = np.isfinite(a)
+        f_1 = np.isfinite(x)
+        self.assertIsInstance(f_0, np.ndarray)
+        np.testing.assert_array_almost_equal(f_0, f_1,
+                                             decimal=1,
+                                             verbose=True)
 
 
 if __name__ == "__main__":

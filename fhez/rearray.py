@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-20T10:31:53+01:00
+# @Last modified time: 2021-10-20T12:58:09+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
 import logging as logger
@@ -193,7 +193,8 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
         # using ReArray objects remap class attribute to dispatch properly
         try:
             # assuming inputs[0] == self then look up function remap
-            return inputs[0].remap[method][ufunc](inputs[0], inputs[1])
+            # return inputs[0].remap[method][ufunc](inputs[0], inputs[1])
+            return inputs[0].remap[method][ufunc](*inputs)
         except KeyError:
             pass
         # everything else should bottom out as we do not implement
@@ -299,3 +300,14 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
     def not_equal(self, other):
         """Check two ReArray objects are totally equal in params."""
         return not self.equal(other=other)
+
+    @implements(remap, np.isfinite, "__call__")
+    def isfinite(self):
+        """Get finite status of each value in data.
+
+        Clearly there is no way for us to actually know, but it is assumed
+        to always be finite. This function is up-for-debate as to whether it is
+        worth scrapping and instead removing any requirement on finite in
+        networks.
+        """
+        return np.ones(self.shape, dtype=bool)
