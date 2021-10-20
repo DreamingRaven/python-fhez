@@ -2,9 +2,10 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-09-14T10:34:17+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-19T13:48:06+01:00
+# @Last modified time: 2021-10-20T11:24:02+01:00
 
 import numpy as np
+import logging as logger
 from fhez.rearray import ReArray
 from fhez.nn.graph.utils import assign_edge_costing
 from fhez.nn.operations.encrypt import Encrypt
@@ -83,8 +84,11 @@ def autoGroup(graph, nodes, concern=None, cost_edges=None):
         t = graph.nodes(data=True)
         # for each node in the graph
         for j in t:
-            src = j[1]["sources"]
-            if i in src:
+            src = j[1].get("sources")
+
+            if src is None:
+                logger.warning("{} does not have {}".format(j, "sources"))
+            elif i in src:
                 # for each key in this nodes sources
                 for key in src:
                     # drag every keys group to our group number
