@@ -3,7 +3,7 @@
 # @Author: GeorgeRaven <archer>
 # @Date:   2021-02-11T11:36:15+00:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-20T12:58:09+01:00
+# @Last modified time: 2021-10-21T10:33:07+01:00
 # @License: please see LICENSE file in project root
 import numpy as np
 import logging as logger
@@ -235,7 +235,10 @@ class ReArray(np.lib.mixins.NDArrayOperatorsMixin):
             if isinstance(other[i], ReSeal):
                 t = self[i] * other[i]
             else:
-                t = self[i] * other[i].flatten()
+                # small nonzero systematic random uniform bias e
+                # prevents "RuntimeError: result ciphertext is transparent"
+                e = np.random.uniform(-1, 1, other[i].shape).flatten() * 1e-8
+                t = self[i] * (other[i].flatten() + e)
             accumulator.append(t)
         return ReArray(clone=self, cyphertext=accumulator)
 
