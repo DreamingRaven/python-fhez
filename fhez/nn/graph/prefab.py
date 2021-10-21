@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-21T12:16:30+01:00
+# @Last modified time: 2021-10-21T12:52:45+01:00
 
 import numpy as np
 
@@ -121,7 +121,8 @@ def cnn_classifier(k):
     graph.add_edge("CC-products", "CC-dequeue")
     graph.add_node("CC-enqueue", group=6, node=Enqueue(length=len(windows)))
     for i in range(len(windows)):
-        graph.add_node("Rotate-{}".format(i), group=5, node=Rotate())
+        graph.add_node("Rotate-{}".format(i), group=5,
+                       node=Rotate(axis=1, flatten=True))
         graph.add_edge("CC-dequeue", "Rotate-{}".format(i))
         graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())
         graph.add_edge("Rotate-{}".format(i), "CC-sop-{}".format(i),

@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:35:00+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-20T10:03:07+01:00
+# @Last modified time: 2021-10-21T12:57:25+01:00
 
 import time
 import unittest
@@ -154,4 +154,13 @@ class RotateTest(unittest.TestCase):
         # gradient input should be the same as gradient output as mapped
         np.testing.assert_array_almost_equal(local_grad, grad,
                                              decimal=1,
+                                             verbose=True)
+
+    def test_flatten(self):
+        """Check that flattening occurs as expected."""
+        node = Rotate(flatten=True)
+        x = np.ones((28, 28))
+        flattened = node.forward(x)
+        np.testing.assert_array_almost_equal(flattened, x.flatten(),
+                                             decimal=4,
                                              verbose=True)

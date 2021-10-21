@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-18T15:05:03+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-10-20T09:29:11+01:00
+# @Last modified time: 2021-10-21T13:26:23+01:00
 
 import logging
 import numpy as np
@@ -13,7 +13,7 @@ class Rotate(Node):
     """Generic cyphertext key rotation abstraction."""
 
     def __init__(self, axis=None, encryptor=None, provider=None, sum_axis=None,
-                 **kwargs):
+                 flatten=None, **kwargs):
         """Configure provider and encryption parameters.
 
         Given a provider like FHEz-ReSeal, and an arbitrary number of keyword
@@ -32,10 +32,23 @@ class Rotate(Node):
         # sum axis will summarise data while decrypting or re-encrypting
         if sum_axis is not None:
             self.sum_axis = sum_axis
+        # flatten intermediary to one dimension for individual encryption
+        if flatten is not None:
+            self.flatten = flatten
         # parameters are for the privider if any to override defaults
         self.parameters = kwargs
         # axis is which axis will be re-encrypted if any
         self.axis = axis if axis is not None else 0
+
+    @property
+    def flatten(self):
+        """Get if intermediary should be flattened to 1D flag."""
+        return self.__dict__.get("_flatten")
+
+    @flatten.setter
+    def flatten(self, flatten):
+        """Set if intermediary should be flattened to 1D."""
+        self._flatten = flatten
 
     @property
     def sum_axis(self):
@@ -121,6 +134,10 @@ class Rotate(Node):
         t = np.array(x)  # ensure is numpy array, cyphertexts will decrypt here
         if self.sum_axis is not None:
             t = np.sum(t, axis=self.sum_axis)
+        if self.flatten is not None:
+            # TODO: record original shape in a queue so it can mutate
+            self.original_shape = t.shape
+            t = t.flatten()
         if self.provider is None and self.encryptor is None:
             # in the case where no encryption provider has been specified
             # assume we are to just leave it as a plaintext
@@ -150,6 +167,8 @@ class Rotate(Node):
 
     def backward(self, gradient):
         """Pass gradients back unmodified."""
+        if self.flatten is not None:
+            return np.reshape(gradient, self.original_shape)
         return gradient
 
     def update(self):
