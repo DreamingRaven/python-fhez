@@ -80,6 +80,10 @@ RUN cd ${PKGDIR} && \
 # install examples specific/ additional requirements
 RUN pip3 install -r ${PKGDIR}/examples/requirements.txt
 
+# set default jupyter theme to dark
+RUN mkdir -p ~/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/ && \
+    echo '{ "theme":"JupyterLab Dark" }' > ~/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings
+
 WORKDIR ${PKGDIR}
 
 ENTRYPOINT /usr/bin/jupyter lab --allow-root --no-browser --ip "*" ./examples

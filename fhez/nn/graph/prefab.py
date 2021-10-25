@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:22:55+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-22T20:45:03+01:00
+# @Last modified time: 2021-10-21T12:52:45+01:00
 
 import numpy as np
 
@@ -22,6 +22,7 @@ from fhez.nn.loss.mse import MSE  # Mean of the Squared Error
 
 from fhez.nn.operations.encrypt import Encrypt
 from fhez.nn.operations.decrypt import Decrypt
+from fhez.nn.operations.rotate import Rotate
 
 from fhez.nn.operations.selector import Selector
 from fhez.nn.operations.distributor import Distributor
@@ -56,8 +57,8 @@ def cnn_regressor(data_shape, filter_length, stride=1):
                           stride)
 
     # INPUTS
-    graph.add_node("x", group=0, node=Encrypt())
-    graph.add_node("y", group=0, node=Encrypt())
+    graph.add_node("x", group=0, node=Rotate())
+    graph.add_node("y", group=0, node=Rotate())
 
     # 1D CNN/ CC
     graph.add_node("1D-CC", group=1,
@@ -104,7 +105,7 @@ def cnn_classifier(k):
 
     # add nodes to graph with names (for easy human referencing),
     # and objects for what those nodes are
-    graph.add_node("x", group=0, node=Encrypt())
+    graph.add_node("x", group=0, node=Rotate())
 
     data_shape = (28, 28)
     cnn_weights_shape = (6, 6)
@@ -120,11 +121,14 @@ def cnn_classifier(k):
     graph.add_edge("CC-products", "CC-dequeue")
     graph.add_node("CC-enqueue", group=6, node=Enqueue(length=len(windows)))
     for i in range(len(windows)):
+        graph.add_node("Rotate-{}".format(i), group=5,
+                       node=Rotate(axis=1, flatten=True))
+        graph.add_edge("CC-dequeue", "Rotate-{}".format(i))
         graph.add_node("CC-sop-{}".format(i), group=1, node=Sum())
-        graph.add_edge("CC-dequeue", "CC-sop-{}".format(i),
+        graph.add_edge("Rotate-{}".format(i), "CC-sop-{}".format(i),
                        weight=Sum().cost)
         graph.add_edge("CC-sop-{}".format(i), "CC-enqueue")
-    graph.add_node("CNN-RELU", group=1, node=RELU())
+    graph.add_node("CNN-RELU", group=1, node=RELU(q=10))
     graph.add_edge("CC-enqueue", "CNN-RELU")
     graph.add_node("CNN-distribute", group=6, node=Distributor())
     graph.add_edge("CNN-RELU", "CNN-distribute")
@@ -137,7 +141,7 @@ def cnn_classifier(k):
         graph.add_node("Dense-{}".format(i), group=2,
                        node=ANN(weights=(len(windows),)))
         graph.add_edge("CNN-distribute", "Dense-{}".format(i))
-        graph.add_node("Dense-RELU-{}".format(i), group=2, node=RELU())
+        graph.add_node("Dense-RELU-{}".format(i), group=2, node=RELU(q=10))
         graph.add_edge("Dense-{}".format(i), "Dense-RELU-{}".format(i))
         graph.add_edge("Dense-RELU-{}".format(i), "Dense-enqueue")
     graph.add_node("Decrypt", group=5, node=Decrypt())
@@ -176,24 +180,41 @@ def cnn_classifier(k):
 
 
 def basic():
-    """Get a super basic graph for purposes of testing components."""
+    """Get a super basic graph for purposes of testing components.
+
+    .. note::
+
+        This is not a useful graph outside of unit-tests and validation,
+        as it does not represent any form of useful network for solving any
+        particular problem.
+    """
     graph = nx.MultiDiGraph()
-    graph.add_node("x_0", group=0, node=Encrypt())
-    graph.add_node("x_1", group=0, node=Encrypt())
+    graph.add_node("x_0", group=0, node=Rotate())
+    graph.add_node("x_1", group=0, node=Rotate())
 
-    graph.add_node("Dense", group=2, node=ANN(weights=(2,)))
-    graph.add_edge("x_0", "Dense")
-    graph.add_edge("x_1", "Dense")
-    graph.add_node("ReLU", group=1, node=RELU())
-    graph.add_edge("Dense", "ReLU")
+    graph.add_node("c_0", group=1, node=ANN(weights=(1,)))
+    graph.add_edge("x_0", "c_0")
 
-    graph.add_node("y_hat", group=4, node=Decrypt())
-    graph.add_edge("ReLU", "y_hat")
+    graph.add_node("c_1", group=1, node=ANN(weights=(2,)))
+    graph.add_edge("c_0", "c_1")
+    graph.add_edge("x_1", "c_1")
 
-    graph.add_node("MSE", group=3, node=MSE())
-    graph.add_edge("y_hat", "MSE")
-    graph.add_node("y", group=0, node=Encrypt())
-    graph.add_edge("y", "MSE")
+    graph.add_node("r_0", group=2, node=Rotate())
+    graph.add_edge("c_1", "r_0")
+
+    graph.add_node("y_0", group=0, node=Rotate())
+    graph.add_node("c_2", group=1, node=ANN(weights=(2,)))
+    graph.add_edge("r_0", "c_2")
+    graph.add_edge("y_0", "c_2")
+
+    graph.add_node("d_0", group=3, node=Decrypt())
+    graph.add_edge("c_2", "d_0")
+
+    graph.add_node("c_3", group=1, node=ANN(weights=(2,)))
+    graph.add_edge("c_2", "c_3")
+
+    graph.add_node("d_1", group=3, node=Decrypt())
+    graph.add_edge("c_3", "d_1")
     return graph
 
 
@@ -202,11 +223,16 @@ def orbweaver():
     return cnn_classifier(10)
 
 
+def sphira():
+    """Get prefabricated sphira graph."""
+    return cnn_classifier(10)
+
+
 def milky(**kwargs):
     """Get prefabricated milk graph."""
     g = cnn_regressor(**kwargs)
     # sideloading our additional contextual nodes
-    g.add_node("Context", node=Encrypt())
+    g.add_node("Context", node=Rotate())
     g.add_node("Context-enqueue", group=6, node=Enqueue())
     g.add_edge("Context", "Context-enqueue")
     # removing existing edge which we want to interject
