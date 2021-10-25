@@ -1,7 +1,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-07-24T15:39:47+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-08-10T13:32:49+01:00
+# @Last modified time: 2021-10-20T12:37:55+01:00
 import time
 import unittest
 import numpy as np
@@ -307,6 +307,41 @@ class ReArray_tests(unittest.TestCase):
         plain_sum = np.array(sum)
         truth = np.sum(data, axis=0)
         np.testing.assert_array_almost_equal(plain_sum, truth,
+                                             decimal=1,
+                                             verbose=True)
+
+    def test_equality(self):
+        """Check that ReArray param equality is being calculated properly."""
+        a_arg = self.reseal_args = {
+            "scheme": seal.scheme_type.CKKS,
+            "poly_modulus_degree": 8192,
+            "coefficient_modulus": [60, 40, 40, 60],
+            "scale": pow(2.0, 40),
+            "cache": True,
+        }
+        b_arg = self.reseal_args = {
+            "scheme": seal.scheme_type.CKKS,
+            "poly_modulus_degree": 8192,
+            "coefficient_modulus": [60, 40, 60],  # <-- changed this
+            "scale": pow(2.0, 40),
+            "cache": True,
+        }
+        # TODO check changing every attribute of rearray not just coef_mod
+        a = ReArray(np.array([1]), **a_arg)
+        b = ReArray(np.array([1]), **b_arg)
+
+        self.assertEqual(a, a)
+        self.assertNotEqual(a, b)
+
+    def test_isfinite(self):
+        """Check that is finite gives us back results we are expecting."""
+        x = self.data
+        args = self.reseal_args
+        a = ReArray(x, **args)
+        f_0 = np.isfinite(a)
+        f_1 = np.isfinite(x)
+        self.assertIsInstance(f_0, np.ndarray)
+        np.testing.assert_array_almost_equal(f_0, f_1,
                                              decimal=1,
                                              verbose=True)
 

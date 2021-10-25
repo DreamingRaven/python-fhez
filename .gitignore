@@ -6,3 +6,6 @@ build
 plots
 datasets
 *__pycache__
+examples/*.png
+examples/*.html
+examples/*.svg

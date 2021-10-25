@@ -2,7 +2,7 @@
 # @Author: George Onoufriou <archer>
 # @Date:   2021-08-23T17:10:35+01:00
 # @Last modified by:   archer
-# @Last modified time: 2021-09-21T16:48:39+01:00
+# @Last modified time: 2021-10-05T10:59:48+01:00
 
 import logging as logger
 import types
@@ -104,10 +104,27 @@ class Firing(Traverser):
             self.probe_shape(activation) if isinstance(
                 activation, (types.GeneratorType, type(None))
             ) is not True else "?")
+
         if debug is True:
             print(msg)
         else:
             logger.debug(msg)
+
+        # TODO: check generators are finite when propagating to next edges
+        if isinstance(activation, types.GeneratorType):
+            pass
+        # if all of the values in activation are finite values I.E not NaN/ inf
+        elif np.isfinite(activation).all():  # TODO: add supporting ufunc spec!
+            pass
+        # if even one value is not finite throw and log!
+        else:
+            msg = "\t inputs {} -> became {} in node {} is not finite".format(
+                signal,
+                activation,
+                node_name)
+            logger.error(msg)
+            raise ValueError("{} produced a non finite result".format(
+                node_name))
 
         # if the node has not activated then there is no need to compute
         if activation is None:

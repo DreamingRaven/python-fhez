@@ -78,6 +78,7 @@ Or if you do not have @online support:
   examples
   graph
   traversers
+  fhe_parm
   layers
   activations
   optimisers
