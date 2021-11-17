@@ -72,6 +72,7 @@ Or if you do not have @online support:
   :numbered:
 
   documentation
+  source
   license
   fhe
   install
