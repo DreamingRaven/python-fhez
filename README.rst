@@ -59,7 +59,7 @@ Cypherpunks, read the docs:
       - |rtd-stable|
     * - Staging
       - |rtd|_
-      - |rtd-stable|
+      - |rtd-staging|
     * - Dev
       - |rtd|_
       - |rtd-dev|
