@@ -60,7 +60,7 @@ The current variations of the documentation are as follows:
       - |rtd-stable|
     * - |staging|_
       - |rtd|_
-      - |rtd-stable|
+      - |rtd-staging|
     * - |dev|_
       - |rtd|_
       - |rtd-dev|
