@@ -85,3 +85,8 @@ Or if you do not have @online support:
   optimisers
   loss
   operations
+
+Also See
+++++++++
+
+This is part of a larger body of related together work. We are building similar tools for go (`DarkLantern <https://gitlab.com/deepcypher/darklantern>`_). We are also building fully open-source infastructure to run FHE using the server-client model, as well as offering this as a service to others (`DeepCypher GitLab <https://gitlab.com/deepcypher>`_, `DeepCypher.me <https://deepcypher.me>`_)
