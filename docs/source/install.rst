@@ -15,7 +15,7 @@ E.G, download and run interactively:
 
 .. code-block:: bash
 
-  docker run -it registry.gitlab.com/deepcypher/python-reseal:master
+  docker run -it registry.gitlab.com/deepcypher/python-fhez:master
 
 .. _section_docker_build:
 
