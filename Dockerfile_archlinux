@@ -30,6 +30,8 @@ RUN pacman -S \
     python-sphinx_rtd_theme \
     python-configargparse \
     python-tqdm \
+    python-numpy \
+    python-pandas \
     --noconfirm
 
 RUN git clone -b 3.4.5-rlatest https://github.com/DreamingRaven/seal-python seal-python
